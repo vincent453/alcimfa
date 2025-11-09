@@ -1,6 +1,5 @@
 import express from "express";
 import { 
-  registerAdmin, 
   loginAdmin, 
   logoutAdmin, 
   getAdminProfile,
