@@ -19,7 +19,7 @@ const router = express.Router();
 // ==========================================
 // PUBLIC ROUTES (No authentication required)
 // ==========================================
-router.post("/register", registerUser);
+router.post("/register", protect, adminOnly, registerUser);
 router.post("/login", loginUser);
 
 // ==========================================
