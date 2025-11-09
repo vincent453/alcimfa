@@ -193,3 +193,27 @@ export const publicOrProtect = async (req, res, next) => {
   // If token is provided, verify it
   return protectAdminOrUser(req, res, next);
 };
+
+
+
+// Student only middleware
+export const studentOnly = (req, res, next) => {
+  if (req.user && req.user.role === "student") {
+    next();
+  } else {
+    res.status(403).json({ 
+      message: "Access denied. Students only." 
+    });
+  }
+};
+
+// Parent only middleware
+export const parentOnly = (req, res, next) => {
+  if (req.user && req.user.role === "parent") {
+    next();
+  } else {
+    res.status(403).json({ 
+      message: "Access denied. Parents only." 
+    });
+  }
+};
