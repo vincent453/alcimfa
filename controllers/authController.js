@@ -6,36 +6,7 @@ import jwt from "jsonwebtoken";
 // API ENDPOINTS ONLY (JSON responses)
 // ==========================================
 
-// Register Admin (API)
-export const registerAdmin = async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
 
-    if (!name || !email || !password)
-      return res.status(400).json({ message: "All fields required" });
-
-    if (password.length < 6) {
-      return res.status(400).json({ message: "Password must be at least 6 characters" });
-    }
-
-    const existing = await Admin.findOne({ email });
-    if (existing)
-      return res.status(400).json({ message: "Admin already exists" });
-
-    const admin = await Admin.create({ name, email, password });
-
-    res.status(201).json({
-      message: "Admin registered successfully",
-      admin: {
-        _id: admin._id,
-        name: admin.name,
-        email: admin.email,
-      }
-    });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
 
 // Login Admin (API) - Returns JSON with token
 export const loginAdmin = async (req, res) => {
