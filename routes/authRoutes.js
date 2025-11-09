@@ -12,7 +12,7 @@ import { protect } from "../middleware/authMiddleware.js";
 const router = express.Router();
 
 // Public routes (no authentication required)
-router.post("/register", registerAdmin);
+
 router.post("/login", loginAdmin);
 
 
