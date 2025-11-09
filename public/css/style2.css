@@ -1,4 +1,4 @@
-     /* ==========================================
+/* ==========================================
    GLOBAL STYLES
    ========================================== */
 * {
@@ -25,6 +25,7 @@ body {
   background: #f5f7fa;
   color: var(--dark-text);
   line-height: 1.6;
+  overflow-x: hidden;
 }
 
 /* ==========================================
@@ -59,6 +60,7 @@ body {
 .form-container form h1 {
   font-size: 28px;
   margin-bottom: 30px;
+  text-align: center;
 }
 
 .input-container {
@@ -119,33 +121,31 @@ body {
   min-height: 100vh;
 }
 
-
 .admin-layout {
-    display: flex;
-    min-height: 100vh;
+  display: flex;
+  min-height: 100vh;
 }
 
-
 .admin-main {
-    margin-left: 290px; /* same as sidebar width */
-    width: calc(100% - 240px);
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+  margin-left: 250px;
+  width: calc(100% - 250px);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  transition: margin-left 0.3s ease, width 0.3s ease;
 }
 
 .header {
-    background: #fff;
-    padding: 15px 20px;
-    border-bottom: 1px solid #ddd;
+  background: #fff;
+  padding: 15px 20px;
+  border-bottom: 1px solid #ddd;
 }
 
 .admin-content {
-    flex: 1;
-    padding: 20px;
-    background: #f8f9fa;
+  flex: 1;
+  padding: 20px;
+  background: #f8f9fa;
 }
-
 
 /* Sidebar */
 .sidebar {
@@ -158,11 +158,15 @@ body {
   overflow-y: auto;
   transition: transform 0.3s ease;
   z-index: 1000;
+  top: 0;
+  left: 0;
 }
 
 .sidebar .logo {
   display: block;
   margin: 0 auto 30px;
+  max-width: 100%;
+  height: auto;
 }
 
 .sidebar nav ul {
@@ -180,6 +184,7 @@ body {
   text-decoration: none;
   border-radius: 8px;
   transition: background 0.3s;
+  font-size: 14px;
 }
 
 .sidebar nav ul li a:hover,
@@ -209,6 +214,8 @@ header {
   padding: 20px 0;
   margin-bottom: 30px;
   border-bottom: 2px solid var(--border-color);
+  flex-wrap: wrap;
+  gap: 15px;
 }
 
 header h1 {
@@ -223,6 +230,7 @@ header h1 {
   display: flex;
   align-items: center;
   gap: 15px;
+  flex-wrap: wrap;
 }
 
 .admin-name {
@@ -332,6 +340,8 @@ header h1 {
   cursor: pointer;
   text-decoration: none;
   transition: all 0.3s;
+  text-align: center;
+  white-space: nowrap;
 }
 
 .btn-primary {
@@ -420,6 +430,7 @@ table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
+  min-width: 600px;
 }
 
 table thead {
@@ -431,6 +442,7 @@ table th {
   padding: 15px;
   text-align: left;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 table td {
@@ -454,6 +466,7 @@ table tbody tr:last-child td {
   display: flex;
   gap: 5px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 /* ==========================================
@@ -507,6 +520,7 @@ table tbody tr:last-child td {
   display: flex;
   gap: 10px;
   margin-top: 30px;
+  flex-wrap: wrap;
 }
 
 /* Subject Entry Styling */
@@ -581,6 +595,7 @@ table tbody tr:last-child td {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 /* ==========================================
@@ -622,9 +637,23 @@ table tbody tr:last-child td {
 }
 
 /* ==========================================
-   RESPONSIVE DESIGN
+   RESPONSIVE DESIGN - TABLETS
+   ========================================== */
+@media (max-width: 992px) {
+  .cards {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+
+  .form-row {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN - MOBILE
    ========================================== */
 @media (max-width: 768px) {
+  /* Sidebar mobile behavior */
   .sidebar {
     transform: translateX(-100%);
     width: 250px;
@@ -634,65 +663,280 @@ table tbody tr:last-child td {
     transform: translateX(0);
   }
 
-  .main-content {
+  /* Main content adjustments */
+  .main-content,
+  .admin-main {
     margin-left: 0;
+    width: 100%;
   }
 
   .menu-btn {
     display: block;
   }
 
+  /* Header mobile layout */
+  header {
+    padding: 15px 0;
+    margin-bottom: 20px;
+  }
+
+  header h1 {
+    font-size: 22px;
+    width: 100%;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  /* Cards mobile layout */
   .cards {
     grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  /* Forms mobile layout */
+  .form-container {
+    padding: 20px 15px;
   }
 
   .form-row {
     grid-template-columns: 1fr;
   }
 
-  header {
-    flex-wrap: wrap;
+  .form-actions {
+    flex-direction: column;
   }
 
+  .form-actions .btn {
+    width: 100%;
+  }
+
+  /* Filters mobile layout */
   .filters {
     flex-direction: column;
+    padding: 15px;
   }
 
   .filter-box {
     width: 100%;
+    min-width: 100%;
   }
 
-  .actions {
-    flex-direction: column;
+  /* Table mobile adjustments */
+  .table-container {
+    padding: 15px;
+    overflow-x: scroll;
+    -webkit-overflow-scrolling: touch;
   }
 
   table {
-    font-size: 12px;
+    font-size: 13px;
+    min-width: 500px;
   }
 
   table th,
   table td {
-    padding: 8px;
+    padding: 10px 8px;
+  }
+
+  /* Actions mobile layout */
+  .actions {
+    justify-content: center;
+  }
+
+  .actions .btn {
+    font-size: 11px;
+    padding: 5px 10px;
+  }
+
+  /* Settings mobile layout */
+  .settings-box {
+    padding: 20px 15px;
+  }
+
+  /* Page actions mobile */
+  .page-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .page-actions .btn {
+    width: 100%;
+  }
+
+  /* Content padding adjustments */
+  .admin-content {
+    padding: 15px;
   }
 }
 
+/* ==========================================
+   RESPONSIVE DESIGN - SMALL MOBILE
+   ========================================== */
 @media (max-width: 480px) {
+  /* Login form mobile */
   .form-container {
-    padding: 20px;
+    margin: 20px;
+    padding: 25px 20px;
   }
 
+  .form-container form h1 {
+    font-size: 22px;
+  }
+
+  /* Header extra small */
   header h1 {
-    font-size: 20px;
+    font-size: 18px;
   }
 
+  /* Cards extra small */
   .card {
+    padding: 20px 15px;
+  }
+
+  .card i {
+    font-size: 28px;
+  }
+
+  .stat-number {
+    font-size: 28px;
+  }
+
+  /* Buttons extra small */
+  .btn {
+    padding: 10px 15px;
+    font-size: 13px;
+  }
+
+  .btn-sm {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+
+  /* Table extra small */
+  table {
+    font-size: 11px;
+  }
+
+  table th,
+  table td {
+    padding: 8px 5px;
+  }
+
+  /* Alerts mobile */
+  .alert {
+    padding: 12px 15px;
+    font-size: 14px;
+  }
+
+  /* Settings extra small */
+  .settings-box h2 {
+    font-size: 18px;
+  }
+
+  /* Input fields mobile */
+  .input-container input,
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  /* Badge adjustments */
+  .badge {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+}
+
+/* ==========================================
+   LOGOUT PAGE
+   ========================================== */
+.logout-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.logout-box {
+  background: white;
+  padding: 50px;
+  border-radius: 15px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+}
+
+.logout-box i {
+  color: var(--primary-color);
+  margin-bottom: 20px;
+}
+
+.logout-box h2 {
+  color: var(--primary-color);
+  margin-bottom: 10px;
+}
+
+.logout-box p {
+  color: #666;
+}
+
+@media (max-width: 480px) {
+  .logout-box {
+    padding: 30px 20px;
+  }
+}
+
+/* ==========================================
+   RECENT ACTIVITY
+   ========================================== */
+.recent-activity {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+.recent-activity h2 {
+  color: var(--primary-color);
+  margin-bottom: 20px;
+}
+
+@media (max-width: 480px) {
+  .recent-activity {
     padding: 15px;
   }
 
-  .btn {
-    padding: 8px 15px;
-    font-size: 12px;
+  .recent-activity h2 {
+    font-size: 18px;
   }
+}
+
+/* ==========================================
+   LOADING STATE
+   ========================================== */
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: var(--primary-color);
+}
+
+.loading::after {
+  content: "Loading...";
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
 /* ==========================================
@@ -715,69 +959,22 @@ table tbody tr:last-child td {
 .d-flex { display: flex; }
 
 /* ==========================================
-   LOGOUT PAGE
+   MOBILE OVERLAY FOR SIDEBAR
    ========================================== */
-.logout-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
+@media (max-width: 768px) {
+  /* Overlay when sidebar is open */
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
 
-.logout-box {
-  background: white;
-  padding: 50px;
-  border-radius: 15px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-  text-align: center;
-}
-
-.logout-box i {
-  color: var(--primary-color);
-  margin-bottom: 20px;
-}
-
-.logout-box h2 {
-  color: var(--primary-color);
-  margin-bottom: 10px;
-}
-
-.logout-box p {
-  color: #666;
-}
-
-/* ==========================================
-   RECENT ACTIVITY
-   ========================================== */
-.recent-activity {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  margin-top: 20px;
-}
-
-.recent-activity h2 {
-  color: var(--primary-color);
-  margin-bottom: 20px;
-}
-
-/* ==========================================
-   LOADING STATE
-   ========================================== */
-.loading {
-  text-align: center;
-  padding: 40px;
-  color: var(--primary-color);
-}
-
-.loading::after {
-  content: "Loading...";
-  animation: loading 1.5s infinite;
-}
-
-@keyframes loading {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  .sidebar-overlay.active {
+    display: block;
+  }
 }
