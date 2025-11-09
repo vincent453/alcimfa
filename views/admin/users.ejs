@@ -125,6 +125,14 @@ function filterUsers() {
         row.style.display = (roleMatch && statusMatch) ? '' : 'none';
     });
 }
+
+    // Sidebar toggle for mobile
+    const menuBtn = document.getElementById('menuBtn');
+    const sidebar = document.getElementById('sidebar');
+    menuBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('active');
+    });
+
 </script>
 </body>
 </html>
