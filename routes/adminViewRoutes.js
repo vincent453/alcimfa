@@ -1,19 +1,11 @@
 import express from "express";
 import { requireAdminAuth, redirectIfLoggedIn } from "../middleware/renderMiddleware.js";
-import Admin from "../models/adminModel.js";
-import Student from "../models/studentModel.js";
-import Result from "../models/resultModel.js";
-import User from "../models/userModel.js";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 
 const router = express.Router();
 
 // ==========================================
-// ADMIN LOGIN & LOGOUT (No Auth Required)
+// PUBLIC ADMIN ROUTES (Login)
 // ==========================================
-
-// Show login page
 router.get("/login", redirectIfLoggedIn, (req, res) => {
   res.render("admin/login", { 
     error: null,
@@ -21,51 +13,34 @@ router.get("/login", redirectIfLoggedIn, (req, res) => {
   });
 });
 
-// Process login
+// Handle admin login form submission
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
     
-    if (!email || !password) {
-      return res.render("admin/login", { 
-        error: "Email and password are required",
-        title: "Admin Login"
-      });
-    }
-    
-    const admin = await Admin.findOne({ email });
-    if (!admin) {
-      return res.render("admin/login", { 
-        error: "Invalid email or password",
-        title: "Admin Login"
-      });
-    }
-    
-    const isMatch = await bcrypt.compare(password, admin.password);
-    if (!isMatch) {
-      return res.render("admin/login", { 
-        error: "Invalid email or password",
-        title: "Admin Login"
-      });
-    }
-    
-    // Generate token
-    const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d"
+    // Call API endpoint
+    const response = await fetch(`http://localhost:${process.env.PORT || 5000}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
     });
     
-    // Save to session
-    req.session.admin = {
-      _id: admin._id,
-      name: admin.name,
-      email: admin.email
-    };
-    req.session.adminToken = token;
+    const data = await response.json();
     
-    res.redirect("/admin/dashboard");
+    if (response.ok) {
+      // Store token and admin info in session
+      req.session.adminToken = data.token;
+      req.session.admin = data.admin;
+      res.redirect('/admin/dashboard');
+    } else {
+      res.render('admin/login', { 
+        error: data.message,
+        title: "Admin Login"
+      });
+    }
   } catch (error) {
-    res.render("admin/login", { 
-      error: "Login failed: " + error.message,
+    res.render('admin/login', { 
+      error: "Login failed. Please try again.",
       title: "Admin Login"
     });
   }
@@ -74,309 +49,79 @@ router.post("/login", async (req, res) => {
 // Logout
 router.get("/logout", (req, res) => {
   req.session.destroy((err) => {
-    if (err) {
-      console.error('Session destroy error:', err);
-    }
-    res.redirect("/admin/login");
+    if (err) console.error(err);
+    res.redirect('/admin/login');
   });
 });
 
 // ==========================================
-// ADMIN DASHBOARD (Auth Required)
+// PROTECTED ADMIN ROUTES
 // ==========================================
 
-router.get("/dashboard", requireAdminAuth, async (req, res) => {
-  try {
-    const totalStudents = await Student.countDocuments();
-    const totalUsers = await User.countDocuments();
-    const totalResults = await Result.countDocuments();
-    
-    const recentStudents = await Student.find().sort({ createdAt: -1 }).limit(5);
-    
-    res.render("admin/dashboard", {
-      title: "Admin Dashboard",
-      admin: req.admin,
-      adminToken: req.session.adminToken, // ✅ Added
-      stats: {
-        totalStudents,
-        totalUsers,
-        totalResults
-      },
-      recentStudents
-    });
-  } catch (error) {
-    res.render("error", { message: error.message });
-  }
+// Dashboard
+router.get("/dashboard", requireAdminAuth, (req, res) => {
+  res.render("admin/dashboard", { 
+    title: "Admin Dashboard",
+    admin: req.admin
+  });
 });
 
-// ==========================================
-// STUDENT MANAGEMENT
-// ==========================================
-
-// List all students
-router.get("/students", requireAdminAuth, async (req, res) => {
-  try {
-    const students = await Student.find().sort({ createdAt: -1 });
-    
-    res.render("admin/students", {
-      title: "Students Management",
-      admin: req.admin,
-      adminToken: req.session.adminToken, // ✅ Added
-      students,
-      success: req.query.success,
-      error: req.query.error
-    });
-  } catch (error) {
-    res.render("error", { message: error.message });
-  }
+// PIN Management Page
+router.get("/pin-management", requireAdminAuth, (req, res) => {
+  res.render("admin/pin-management", { 
+    title: "PIN Management",
+    admin: req.admin
+  });
 });
 
-// Show add student form
+// Students Management
+router.get("/students", requireAdminAuth, (req, res) => {
+  res.render("admin/students", { 
+    title: "Manage Students",
+    admin: req.admin
+  });
+});
+
+// Add Student Page
 router.get("/students/add", requireAdminAuth, (req, res) => {
-  res.render("admin/add-student", {
-    title: "Add New Student",
+  res.render("admin/add-student", { 
+    title: "Add Student",
     admin: req.admin,
-    adminToken: req.session.adminToken, // ✅ Added
     error: null
   });
 });
 
-// Process add student
-router.post("/students/add", requireAdminAuth, async (req, res) => {
-  try {
-    const { name, classLevel, session, regNumber, gender, dateOfBirth, address, parentName, parentPhone, parentEmail } = req.body;
-    
-    // Check if reg number exists
-    const existing = await Student.findOne({ regNumber });
-    if (existing) {
-      return res.render("admin/add-student", {
-        title: "Add New Student",
-        admin: req.admin,
-        adminToken: req.session.adminToken, // ✅ Added
-        error: "Registration number already exists"
-      });
-    }
-    
-    await Student.create({
-      name,
-      classLevel,
-      session,
-      regNumber,
-      gender,
-      dateOfBirth,
-      address,
-      parentName,
-      parentPhone,
-      parentEmail
-    });
-    
-    res.redirect("/admin/students?success=Student added successfully");
-  } catch (error) {
-    res.render("admin/add-student", {
-      title: "Add New Student",
-      admin: req.admin,
-      adminToken: req.session.adminToken, // ✅ Added
-      error: error.message
-    });
-  }
+// Results Management
+router.get("/results", requireAdminAuth, (req, res) => {
+  res.render("admin/results", { 
+    title: "Manage Results",
+    admin: req.admin
+  });
 });
 
-// Show edit student form
-router.get("/students/edit/:id", requireAdminAuth, async (req, res) => {
-  try {
-    const student = await Student.findById(req.params.id);
-    
-    if (!student) {
-      return res.redirect("/admin/students?error=Student not found");
-    }
-    
-    res.render("admin/edit-student", {
-      title: "Edit Student",
-      admin: req.admin,
-      adminToken: req.session.adminToken, // ✅ Added
-      student,
-      error: null
-    });
-  } catch (error) {
-    res.redirect("/admin/students?error=" + error.message);
-  }
+// Upload Results
+router.get("/results/upload", requireAdminAuth, (req, res) => {
+  res.render("admin/upload-results", { 
+    title: "Upload Results",
+    admin: req.admin,
+    error: null
+  });
 });
 
-// Process edit student
-router.post("/students/edit/:id", requireAdminAuth, async (req, res) => {
-  try {
-    const updated = await Student.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    
-    if (!updated) {
-      return res.redirect("/admin/students?error=Student not found");
-    }
-    
-    res.redirect("/admin/students?success=Student updated successfully");
-  } catch (error) {
-    res.redirect("/admin/students?error=" + error.message);
-  }
+// Users Management
+router.get("/users", requireAdminAuth, (req, res) => {
+  res.render("admin/users", { 
+    title: "Manage Users",
+    admin: req.admin
+  });
 });
 
-// Delete student
-router.post("/students/delete/:id", requireAdminAuth, async (req, res) => {
-  try {
-    await Student.findByIdAndDelete(req.params.id);
-    res.redirect("/admin/students?success=Student deleted successfully");
-  } catch (error) {
-    res.redirect("/admin/students?error=" + error.message);
-  }
-});
-
-// ==========================================
-// RESULT MANAGEMENT
-// ==========================================
-
-// Show upload result form
-router.get("/results/upload", requireAdminAuth, async (req, res) => {
-  try {
-    const students = await Student.find().sort({ name: 1 });
-    
-    res.render("admin/upload-result", {
-      title: "Upload Result",
-      admin: req.admin,
-      adminToken: req.session.adminToken, // ✅ CRITICAL: Added for API calls
-      students,
-      error: null,
-      success: req.query.success
-    });
-  } catch (error) {
-    res.render("error", { message: error.message });
-  }
-});
-
-// View all results
-router.get("/results", requireAdminAuth, async (req, res) => {
-  try {
-    const students = await Student.find().sort({ name: 1 });
-    const results = [];
-    
-    // Get results for each student
-    for (const student of students) {
-      const result = await Result.findOne({ student: student._id });
-      if (result) {
-        results.push({
-          student,
-          result
-        });
-      }
-    }
-    
-    res.render("admin/view-results", {
-      title: "View Results",
-      admin: req.admin,
-      adminToken: req.session.adminToken, // ✅ Added
-      results
-    });
-  } catch (error) {
-    res.render("error", { message: error.message });
-  }
-});
-
-// ==========================================
-// USER MANAGEMENT
-// ==========================================
-
-router.get("/users", requireAdminAuth, async (req, res) => {
-  try {
-    const users = await User.find()
-      .populate("student", "name regNumber classLevel")
-      .sort({ createdAt: -1 });
-    
-    res.render("admin/users", {
-      title: "User Management",
-      admin: req.admin,
-      adminToken: req.session.adminToken, // ✅ Added
-      users,
-      success: req.query.success,
-      error: req.query.error
-    });
-  } catch (error) {
-    res.render("error", { message: error.message });
-  }
-});
-
-// ==========================================
-// SETTINGS
-// ==========================================
-
+// Settings
 router.get("/settings", requireAdminAuth, (req, res) => {
-  res.render("admin/settings", {
+  res.render("admin/settings", { 
     title: "Settings",
-    admin: req.admin,
-    adminToken: req.session.adminToken, // ✅ Added
-    success: req.query.success,
-    error: req.query.error
+    admin: req.admin
   });
-});
-
-// Change password
-router.post("/settings/change-password", requireAdminAuth, async (req, res) => {
-  try {
-    const { currentPassword, newPassword, confirmPassword } = req.body;
-    
-    if (newPassword !== confirmPassword) {
-      return res.redirect("/admin/settings?error=Passwords do not match");
-    }
-    
-    if (newPassword.length < 6) {
-      return res.redirect("/admin/settings?error=Password must be at least 6 characters");
-    }
-    
-    const admin = await Admin.findById(req.admin._id);
-    const isMatch = await bcrypt.compare(currentPassword, admin.password);
-    
-    if (!isMatch) {
-      return res.redirect("/admin/settings?error=Current password is incorrect");
-    }
-    
-    admin.password = newPassword;
-    await admin.save();
-    
-    res.redirect("/admin/settings?success=Password changed successfully");
-  } catch (error) {
-    res.redirect("/admin/settings?error=" + error.message);
-  }
-});
-
-// ==========================================
-// PROFILE
-// ==========================================
-
-router.get("/profile", requireAdminAuth, (req, res) => {
-  res.render("admin/profile", {
-    title: "My Profile",
-    admin: req.admin,
-    adminToken: req.session.adminToken, // ✅ Added
-    success: req.query.success,
-    error: req.query.error
-  });
-});
-
-router.post("/profile", requireAdminAuth, async (req, res) => {
-  try {
-    const { name, email } = req.body;
-    
-    const admin = await Admin.findByIdAndUpdate(
-      req.admin._id,
-      { name, email },
-      { new: true }
-    );
-    
-    req.session.admin = {
-      _id: admin._id,
-      name: admin.name,
-      email: admin.email
-    };
-    
-    res.redirect("/admin/profile?success=Profile updated successfully");
-  } catch (error) {
-    res.redirect("/admin/profile?error=" + error.message);
-  }
 });
 
 export default router;
