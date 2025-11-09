@@ -7,9 +7,15 @@ import jwt from "jsonwebtoken";
 // @access  Public
 export const registerUser = async (req, res) => {
   try {
+    // Ensure only admins can register users
+    if (!req.user || req.user.role !== "admin") {
+      return res.status(403).json({
+        message: "Access denied. Only admin can register new users."
+      });
+    }
+
     const { name, email, password, role, studentId, phoneNumber } = req.body;
 
-    // Validate required fields
     if (!name || !email || !password || !role) {
       return res.status(400).json({ 
         message: "Name, email, password, and role are required" 
