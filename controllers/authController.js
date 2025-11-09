@@ -162,3 +162,54 @@ export const changePassword = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+export const changeOwnPin = async (req, res) => {
+  try {
+    const { currentPin, newPin } = req.body;
+
+    if (!currentPin || !newPin) {
+      return res.status(400).json({ 
+        message: "Current PIN and new PIN are required" 
+      });
+    }
+
+    // Validate new PIN format
+    if (!/^\d+$/.test(newPin)) {
+      return res.status(400).json({ 
+        message: "PIN must contain only numbers" 
+      });
+    }
+
+    if (newPin.length < 4 || newPin.length > 8) {
+      return res.status(400).json({ 
+        message: "PIN must be between 4 and 8 digits" 
+      });
+    }
+
+    // Get student from authenticated user
+    const student = await Student.findById(req.user.student).select("+pin");
+
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    // Verify current PIN
+    const isPinValid = await student.comparePin(currentPin);
+    if (!isPinValid) {
+      return res.status(400).json({ 
+        message: "Current PIN is incorrect" 
+      });
+    }
+
+    // Set new PIN
+    student.pin = newPin;
+    await student.save();
+
+    res.json({ 
+      message: "PIN changed successfully",
+      pinLastChanged: student.pinLastChanged,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
