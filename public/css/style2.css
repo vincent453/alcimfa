@@ -224,18 +224,29 @@ header h1 {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex: 1;
+  min-width: 0;
 }
 
 .header-actions {
   display: flex;
   align-items: center;
   gap: 15px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .admin-name {
   font-weight: 500;
   color: var(--dark-text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.admin-name i {
+  font-size: 20px;
+  color: var(--primary-color);
 }
 
 .menu-btn {
@@ -247,6 +258,7 @@ header h1 {
   border-radius: 5px;
   cursor: pointer;
   font-size: 18px;
+  flex-shrink: 0;
 }
 
 /* ==========================================
@@ -678,16 +690,28 @@ table tbody tr:last-child td {
   header {
     padding: 15px 0;
     margin-bottom: 20px;
+    gap: 10px;
   }
 
   header h1 {
-    font-size: 22px;
+    font-size: 20px;
+    flex: 1;
+    order: 2;
     width: 100%;
   }
 
   .header-actions {
+    order: 1;
     width: 100%;
     justify-content: space-between;
+  }
+
+  .admin-name {
+    font-size: 14px;
+  }
+
+  .admin-name i {
+    font-size: 18px;
   }
 
   /* Cards mobile layout */
@@ -788,8 +812,25 @@ table tbody tr:last-child td {
   }
 
   /* Header extra small */
+  header {
+    padding: 12px 0;
+  }
+
   header h1 {
     font-size: 18px;
+  }
+
+  .admin-name {
+    font-size: 13px;
+  }
+
+  .admin-name i {
+    font-size: 16px;
+  }
+
+  .menu-btn {
+    padding: 8px 12px;
+    font-size: 16px;
   }
 
   /* Cards extra small */
