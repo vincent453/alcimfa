@@ -2,7 +2,7 @@ import User from "../models/userModel.js";
 import Student from "../models/studentModel.js";
 import jwt from "jsonwebtoken";
 
-// @desc    Register a new user (student/parent/teacher)
+// @desc    Register a new user (student/parent)
 // @route   POST /api/users/register
 // @access  Public
 export const registerUser = async (req, res) => {
@@ -13,6 +13,13 @@ export const registerUser = async (req, res) => {
     if (!name || !email || !password || !role) {
       return res.status(400).json({ 
         message: "Name, email, password, and role are required" 
+      });
+    }
+
+    // Only allow student and parent roles
+    if (!["student", "parent"].includes(role)) {
+      return res.status(400).json({ 
+        message: "Invalid role. Only student and parent roles are allowed" 
       });
     }
 
@@ -41,6 +48,19 @@ export const registerUser = async (req, res) => {
       const student = await Student.findById(studentId);
       if (!student) {
         return res.status(404).json({ message: "Student not found" });
+      }
+
+      // For student role, check if student already has a user account
+      if (role === "student") {
+        const existingStudentUser = await User.findOne({ 
+          student: studentId, 
+          role: "student" 
+        });
+        if (existingStudentUser) {
+          return res.status(400).json({ 
+            message: "This student already has a registered account" 
+          });
+        }
       }
     }
 
@@ -77,10 +97,106 @@ export const registerUser = async (req, res) => {
   }
 };
 
-// @desc    Login user
-// @route   POST /api/users/login
+// @desc    Login student with admission number and PIN
+// @route   POST /api/users/login/student
 // @access  Public
-export const loginUser = async (req, res) => {
+export const loginStudent = async (req, res) => {
+  try {
+    const { admissionNumber, pin } = req.body;
+
+    // Validate input
+    if (!admissionNumber || !pin) {
+      return res.status(400).json({ 
+        message: "Admission number and PIN are required" 
+      });
+    }
+
+    // Find student by registration/admission number
+    const student = await Student.findOne({ regNumber: admissionNumber })
+      .select("+pin");
+    
+    if (!student) {
+      return res.status(400).json({ 
+        message: "Invalid admission number or PIN" 
+      });
+    }
+
+    // Check if student has a PIN set
+    if (!student.pin) {
+      return res.status(400).json({ 
+        message: "No PIN set for this student. Please contact admin." 
+      });
+    }
+
+    // Compare PIN
+    const isPinValid = await student.comparePin(pin);
+    if (!isPinValid) {
+      return res.status(400).json({ 
+        message: "Invalid admission number or PIN" 
+      });
+    }
+
+    // Find or create user account for student
+    let user = await User.findOne({ 
+      student: student._id, 
+      role: "student" 
+    });
+
+    if (!user) {
+      // Create user account if it doesn't exist
+      user = await User.create({
+        name: student.name,
+        email: student.email || `${student.regNumber}@student.school.com`,
+        password: pin, // Use PIN as initial password
+        role: "student",
+        student: student._id,
+      });
+    }
+
+    // Check if user is active
+    if (!user.isActive) {
+      return res.status(403).json({ 
+        message: "Account is deactivated. Please contact admin." 
+      });
+    }
+
+    // Update last login
+    await user.updateLastLogin();
+
+    // Generate token
+    const token = jwt.sign(
+      { id: user._id, role: user.role, studentId: student._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.json({
+      message: "Login successful",
+      token,
+      expiresIn: "7 days",
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        student: {
+          _id: student._id,
+          name: student.name,
+          regNumber: student.regNumber,
+          classLevel: student.classLevel,
+        },
+        lastLogin: user.lastLogin,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Login parent with email and password
+// @route   POST /api/users/login/parent
+// @access  Public
+export const loginParent = async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -92,9 +208,13 @@ export const loginUser = async (req, res) => {
     }
 
     // Find user and include password for comparison
-    const user = await User.findOne({ email }).select("+password");
+    const user = await User.findOne({ email, role: "parent" })
+      .select("+password");
+    
     if (!user) {
-      return res.status(400).json({ message: "Invalid email or password" });
+      return res.status(400).json({ 
+        message: "Invalid email or password" 
+      });
     }
 
     // Check if user is active
@@ -107,7 +227,9 @@ export const loginUser = async (req, res) => {
     // Compare password
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      return res.status(400).json({ message: "Invalid email or password" });
+      return res.status(400).json({ 
+        message: "Invalid email or password" 
+      });
     }
 
     // Update last login
@@ -120,7 +242,7 @@ export const loginUser = async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    // Populate student details if applicable
+    // Populate student details
     await user.populate("student", "name regNumber classLevel");
 
     res.json({
@@ -135,6 +257,46 @@ export const loginUser = async (req, res) => {
         student: user.student,
         lastLogin: user.lastLogin,
       },
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Legacy login endpoint (deprecated - redirects based on role)
+// @route   POST /api/users/login
+// @access  Public
+export const loginUser = async (req, res) => {
+  try {
+    const { email, password, admissionNumber, pin } = req.body;
+
+    // If admission number and pin provided, use student login
+    if (admissionNumber && pin) {
+      return loginStudent(req, res);
+    }
+
+    // Otherwise, try parent login
+    if (email && password) {
+      // Find user to determine role
+      const user = await User.findOne({ email }).select("+password");
+      
+      if (!user) {
+        return res.status(400).json({ 
+          message: "Invalid email or password" 
+        });
+      }
+
+      if (user.role === "parent") {
+        return loginParent(req, res);
+      } else {
+        return res.status(400).json({ 
+          message: "Please use admission number and PIN for student login" 
+        });
+      }
+    }
+
+    return res.status(400).json({ 
+      message: "Invalid login credentials provided" 
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -249,7 +411,9 @@ export const changeUserPassword = async (req, res) => {
     // Verify current password
     const isMatch = await user.comparePassword(currentPassword);
     if (!isMatch) {
-      return res.status(400).json({ message: "Current password is incorrect" });
+      return res.status(400).json({ 
+        message: "Current password is incorrect" 
+      });
     }
 
     // Update password
@@ -262,6 +426,47 @@ export const changeUserPassword = async (req, res) => {
   }
 };
 
+// @desc    Reset student PIN (for students who forgot)
+// @route   POST /api/users/reset-pin
+// @access  Public
+export const resetStudentPin = async (req, res) => {
+  try {
+    const { admissionNumber, email } = req.body;
+
+    if (!admissionNumber || !email) {
+      return res.status(400).json({ 
+        message: "Admission number and email are required" 
+      });
+    }
+
+    // Find student
+    const student = await Student.findOne({ 
+      regNumber: admissionNumber,
+      email: email 
+    });
+
+    if (!student) {
+      return res.status(404).json({ 
+        message: "Student not found with provided details" 
+      });
+    }
+
+    // Generate temporary PIN (you can implement email sending here)
+    const tempPin = Math.floor(100000 + Math.random() * 900000).toString();
+    student.pin = tempPin;
+    await student.save();
+
+    // TODO: Send email with temporary PIN
+    // await sendEmail(email, "PIN Reset", `Your temporary PIN is: ${tempPin}`);
+
+    res.json({ 
+      message: "A temporary PIN has been sent to your email. Please check your inbox." 
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // @desc    Get all users (Admin only)
 // @route   GET /api/users
 // @access  Private (Admin only)
@@ -269,10 +474,14 @@ export const getAllUsers = async (req, res) => {
   try {
     const { role, isActive } = req.query;
 
-    // Build filter
+    // Build filter - only allow student and parent
     const filter = {};
-    if (role) filter.role = role;
-    if (isActive !== undefined) filter.isActive = isActive === "true";
+    if (role && ["student", "parent"].includes(role)) {
+      filter.role = role;
+    }
+    if (isActive !== undefined) {
+      filter.isActive = isActive === "true";
+    }
 
     const users = await User.find(filter)
       .select("-password")
@@ -321,7 +530,12 @@ export const updateUser = async (req, res) => {
     // Update fields
     user.name = req.body.name || user.name;
     user.email = req.body.email || user.email;
-    user.role = req.body.role || user.role;
+    
+    // Only allow student and parent roles
+    if (req.body.role && ["student", "parent"].includes(req.body.role)) {
+      user.role = req.body.role;
+    }
+    
     user.phoneNumber = req.body.phoneNumber || user.phoneNumber;
     user.isActive = req.body.isActive !== undefined ? req.body.isActive : user.isActive;
     
