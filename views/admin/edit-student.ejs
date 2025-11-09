@@ -1,0 +1,112 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Student - <%= student.name %></title>
+<link rel="stylesheet" href="/css/style2.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.cdnfonts.com/css/manrope" rel="stylesheet">
+</head>
+<body>
+<div class="dashboard">
+    <!-- Sidebar -->
+    <%- include('../partials/sidebar') %>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <header>
+        <button class="menu-btn" id="menuBtn">
+          <i class="fa fa-bars"></i>
+        </button>
+        <h1>EDIT STUDENT</h1>
+      </header>
+
+<section class="form-container">
+    <form action="/admin/students/edit/<%= student._id %>" method="POST" class="student-form">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="name">Student Name *</label>
+                <input type="text" id="name" name="name" value="<%= student.name %>" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="regNumber">Registration Number *</label>
+                <input type="text" id="regNumber" name="regNumber" value="<%= student.regNumber %>" required>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="classLevel">Class Level *</label>
+                <select id="classLevel" name="classLevel" required>
+                    <option value="">Select Class</option>
+                    <option value="JSS 1" <%= student.classLevel === 'JSS 1' ? 'selected' : '' %>>JSS 1</option>
+                    <option value="JSS 2" <%= student.classLevel === 'JSS 2' ? 'selected' : '' %>>JSS 2</option>
+                    <option value="JSS 3" <%= student.classLevel === 'JSS 3' ? 'selected' : '' %>>JSS 3</option>
+                    <option value="SSS 1" <%= student.classLevel === 'SSS 1' ? 'selected' : '' %>>SSS 1</option>
+                    <option value="SSS 2" <%= student.classLevel === 'SSS 2' ? 'selected' : '' %>>SSS 2</option>
+                    <option value="SSS 3" <%= student.classLevel === 'SSS 3' ? 'selected' : '' %>>SSS 3</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="gender">Gender *</label>
+                <select id="gender" name="gender" required>
+                    <option value="">Select Gender</option>
+                    <option value="Male" <%= student.gender === 'Male' ? 'selected' : '' %>>Male</option>
+                    <option value="Female" <%= student.gender === 'Female' ? 'selected' : '' %>>Female</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="session">Session *</label>
+                <input type="text" id="session" name="session" value="<%= student.session %>" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="dateOfBirth">Date of Birth</label>
+                <input type="date" id="dateOfBirth" name="dateOfBirth" value="<%= student.dateOfBirth ? student.dateOfBirth.toISOString().split('T')[0] : '' %>">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="address">Address</label>
+            <textarea id="address" name="address" rows="3"><%= student.address %></textarea>
+        </div>
+        
+        <h3>Parent Information</h3>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="parentName">Parent Name</label>
+                <input type="text" id="parentName" name="parentName" value="<%= student.parentName %>">
+            </div>
+            
+            <div class="form-group">
+                <label for="parentPhone">Parent Phone</label>
+                <input type="tel" id="parentPhone" name="parentPhone" value="<%= student.parentPhone %>">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="parentEmail">Parent Email</label>
+            <input type="email" id="parentEmail" name="parentEmail" value="<%= student.parentEmail %>">
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fa fa-save"></i> Update Student
+            </button>
+            <a href="/admin/students" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</section>
+</div>
+</div>
+
+</body>
+</html>

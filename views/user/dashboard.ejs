@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> - School Management</title>
+    <link rel="stylesheet" href="/css/style2.css">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <img src="/img/logo.png" width="150px" class="logo" alt="School Logo">
+            
+            <nav>
+                <ul>
+                    <li class="active">
+                        <a href="/user/dashboard">
+                            <i class="fa fa-home"></i> Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/user/results">
+                            <i class="fa fa-book"></i> My Results
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/user/logout">
+                            <i class="fa fa-sign-out-alt"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <header>
+                <h1>Welcome, <%= user.name %>!</h1>
+            </header>
+            
+            <section class="cards">
+                <div class="card">
+                    <h3>Your Role</h3>
+                    <p><%= user.role.charAt(0).toUpperCase() + user.role.slice(1) %></p>
+                </div>
+                
+                <% if (user.student) { %>
+                <div class="card">
+                    <h3>Student</h3>
+                    <p><%= user.student.name %></p>
+                    <p><small><%= user.student.classLevel %></small></p>
+                </div>
+                <% } %>
+                
+                <% if (result) { %>
+                <div class="card">
+                    <h3>Latest Result</h3>
+                    <p><%= result.term %> - <%= result.session %></p>
+                    <p><small>Average: <%= result.average %>%</small></p>
+                    <a href="/api/results/card/<%= user.student._id %>" target="_blank" class="btn btn-sm">View Card</a>
+                </div>
+                <% } %>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

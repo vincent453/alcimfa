@@ -1,0 +1,64 @@
+<nav class="navbar">
+  <div class="container">
+    <div class="nav-content">
+      <div class="logo">
+        <img
+          src="\img\al-cimfa logo.svg?height=80&width=80"
+          alt="Excellence Academy Logo"
+          class="logo-img"
+        />
+        <h1>Al-cimfa</h1>
+      </div>
+      <ul class="nav-links">
+        <li>
+          <a href="/" class="<%= title === 'Home' ? 'active' : '' %>">Home</a>
+        </li>
+        <li>
+          <a href="/about" class="<%= title === 'About' ? 'active' : '' %>"
+            >About</a
+          >
+        </li>
+        <li>
+          <a
+            href="/check-result"
+            class="<%= title === 'Check Result' ? 'active' : '' %>"
+            >Check Result</a
+          >
+        </li>
+        <li>
+          <a href="/contact" class="<%= title === 'Contact' ? 'active' : '' %>"
+            >Contact</a
+          >
+        </li>
+        <li>
+          <a
+            href="/admin/login"
+            class="<%= title === 'Admin Login' ? 'active' : '' %>"
+            >Admin</a
+          >
+        </li>
+        <li>
+          <a
+            href="/user/login"
+            class="<%= title === 'User Login' ? 'active' : '' %>"
+            >Login</a
+          >
+        </li>
+        <li>
+          <button
+            class="theme-toggle"
+            id="themeToggle"
+            aria-label="Toggle dark mode"
+          >
+            🌙
+          </button>
+        </li>
+      </ul>
+      <div class="hamburger" id="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div>
+</nav>

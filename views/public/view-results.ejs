@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View All Results - Al-cimfa International High School</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.cdnfonts.com/css/manrope" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <div class="logo">
+                    <img src="public\images\images\al-cimfa logo.svg?height=80&width=80"  alt="Excellence Academy Logo" class="logo-img">
+                    <h1>Al-cimfa</h1>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="index.html" class="active">Home</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="check-result.html">Check Result</a></li>
+                    <li><a href="contact.html">Contact</a></li>  <li><a href="/adminlogin.html">Admin</a></li>     
+                    <li><button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">🌙</button></li>
+                </ul>
+                <div class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!-- Main Content -->
+    <main>
+        <!-- Page Header -->
+        <section class="page-header">
+            <div class="container">
+                <h1>View All Results</h1>
+                <p>Browse results by class and term</p>
+            </div>
+        </section>
+
+        <!-- Filter Section -->
+        <section class="filter-section">
+            <div class="container">
+                <div class="filter-controls">
+                    <div class="filter-group">
+                        <label for="classFilter">Filter by Class:</label>
+                        <select id="classFilter">
+                            <option value="">All Classes</option>
+                            <option value="SS1A">SS1A</option>
+                            <option value="SS1B">SS1B</option>
+                            <option value="SS2A">SS2A</option>
+                            <option value="SS2B">SS2B</option>
+                            <option value="SS3A">SS3A</option>
+                            <option value="SS3B">SS3B</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="termFilter">Filter by Term:</label>
+                        <select id="termFilter">
+                            <option value="">All Terms</option>
+                            <option value="first-2024">First Term 2024</option>
+                            <option value="second-2024">Second Term 2024</option>
+                            <option value="third-2024">Third Term 2024</option>
+                            <option value="first-2025">First Term 2025</option>
+                        </select>
+                    </div>
+
+                    <button class="btn btn-secondary" id="resetFilters">Reset Filters</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results List Section -->
+        <section class="results-list-section">
+            <div class="container">
+                <div id="resultsList" class="results-list">
+                    <div class="loading-message">Loading results...</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>About Us</h4>
+                    <p>Excellence Academy is committed to providing quality education and developing well-rounded individuals.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="check-result.html">Check Result</a></li>
+                        <li><a href="contact.html">Contact</a></li>  <li><a href="/adminlogin.html">Admin</a></li>     
+                    </ul>
+                </div>
+               <div class="footer-section">
+                    <h4>Contact Info</h4>
+                    <p>Email: info@alcimfa.edu</p>
+                    <p>Phone: +234 8065772260, +234 8060316730, +234 705159098</p>
+                    <p>Address: Behind int'l Livestock Market, Jibi Dei-Dei, Abuja</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Al-cimfa International High School. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="view-results.js"></script>
+</body>
+</html>

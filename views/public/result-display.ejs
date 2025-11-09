@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Results - Excellence Academy</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.cdnfonts.com/css/manrope" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <div class="logo">
+                    <h1>Al-cimfa International High School</h1>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="check-result.html">Check Result</a></li>
+                    <li><a href="contact.html">Contact</a></li>  <li><a href="/adminlogin.html">Admin</a></li>     
+                    <li><button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">🌙</button></li>
+                </ul>
+                <div class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Page Header -->
+        <section class="page-header">
+            <div class="container">
+                <h1>Your Academic Results</h1>
+                <p>Second Term 2024 Performance Report</p>
+            </div>
+        </section>
+
+        <!-- Results Display Section -->
+        <section class="results-display-section">
+            <div class="container">
+                <!-- Student Info Card -->
+                <div class="student-info-card">
+                    <div class="info-row">
+                        <div class="info-item">
+                            <label>Student Name</label>
+                            <p id="studentName">Loading...</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Admission Number</label>
+                            <p id="admissionNum">Loading...</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Class</label>
+                            <p id="studentClass">Loading...</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Term/Session</label>
+                            <p id="termSession">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Table -->
+                <div class="results-table-wrapper">
+                    <h2>Subject Performance</h2>
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th>Subject</th>
+                                <th>Score</th>
+                                <th>Grade</th>
+                                <th>Remark</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsTableBody">
+                            <tr>
+                                <td colspan="4" style="text-align: center;">Loading results...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Summary Stats -->
+                <div class="results-summary">
+                    <div class="summary-item">
+                        <h3>Total Score</h3>
+                        <p class="summary-value" id="totalScore">0</p>
+                    </div>
+                    <div class="summary-item">
+                        <h3>Average Score</h3>
+                        <p class="summary-value" id="averageScore">0</p>
+                    </div>
+                    <div class="summary-item">
+                        <h3>Grade Point</h3>
+                        <p class="summary-value" id="gradePoint">0.0</p>
+                    </div>
+                    <div class="summary-item">
+                        <h3>Position</h3>
+                        <p class="summary-value" id="position">-</p>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" id="downloadPdfBtn">Download as PDF</button>
+                    <button class="btn btn-secondary" id="printBtn">Print Results</button>
+                    <a href="check-result.html" class="btn btn-secondary">Check Another Result</a>
+                </div>
+
+                <!-- Teacher's Comment -->
+                <div class="teacher-comment">
+                    <h3>Teacher's Comment</h3>
+                    <p id="teacherComment">Loading...</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>About Us</h4>
+                    <p>Excellence Academy is committed to providing quality education and developing well-rounded individuals.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="check-result.html">Check Result</a></li>
+                        <li><a href="contact.html">Contact</a></li>  <li><a href="/adminlogin.html">Admin</a></li>     
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact Info</h4>
+                    <p>Email: info@excellenceacademy.edu</p>
+                    <p>Phone: +1 (555) 123-4567</p>
+                    <p>Address: 123 Education Lane, Learning City</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Excellence Academy. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="script.js"></script>
+    <script src="result-display.js"></script>
+</body>
+</html>

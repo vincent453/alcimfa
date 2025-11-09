@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Registration - School Management</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.cdnfonts.com/css/manrope" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Manrope', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(to right, #2a5298, #1e3c72);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #333;
+    }
+
+    .bg {
+      position: fixed;
+      inset: 0;
+      background: url('/img/bg-pattern.png') no-repeat center/cover;
+      opacity: 0.15;
+      z-index: -1;
+    }
+
+    .register-container {
+      background: #fff;
+      border-radius: 12px;
+      width: 95%;
+      max-width: 600px;
+      padding: 30px 40px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    .register-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .register-header h1 {
+      color: #1e3c72;
+      margin: 10px 0;
+    }
+
+    .register-header p {
+      color: #555;
+      font-size: 15px;
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: #eee;
+      border-radius: 10px;
+      margin: 20px 0;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 8px;
+      background: linear-gradient(to right, #1e3c72, #2a5298);
+      width: 33%;
+      transition: width 0.3s ease-in-out;
+    }
+
+    .step-indicator {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 25px;
+    }
+
+    .step {
+      flex: 1;
+      text-align: center;
+      font-weight: 600;
+      color: #777;
+      position: relative;
+    }
+
+    .step.active {
+      color: #2a5298;
+    }
+
+    .step.completed {
+      color: #1e3c72;
+    }
+
+    .alert {
+      padding: 10px 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+
+    .alert-error {
+      background: #ffe5e5;
+      color: #b30000;
+      border: 1px solid #f5b0b0;
+    }
+
+    form {
+      width: 100%;
+    }
+
+    .form-step {
+      display: none;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .form-step.active {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 15px;
+      outline: none;
+      transition: border 0.2s ease;
+    }
+
+    input:focus, select:focus {
+      border-color: #2a5298;
+    }
+
+    .role-selector {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .role-card {
+      flex: 1;
+      min-width: 100px;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      text-align: center;
+      padding: 15px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .role-card:hover {
+      border-color: #2a5298;
+    }
+
+    .role-card.selected {
+      border-color: #1e3c72;
+      background: #f0f6ff;
+    }
+
+    .role-card i {
+      font-size: 35px;
+      color: #2a5298;
+      margin-bottom: 10px;
+    }
+
+    .info-box {
+      background: #f8f9ff;
+      border-left: 4px solid #2a5298;
+      padding: 10px 15px;
+      border-radius: 6px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      color: #444;
+      font-size: 14px;
+    }
+
+    .info-box i {
+      color: #2a5298;
+      margin-top: 3px;
+    }
+
+    .form-navigation {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    .btn {
+      padding: 10px 18px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 15px;
+      transition: 0.3s;
+    }
+
+    .btn-primary {
+      background: #2a5298;
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #1e3c72;
+    }
+
+    .btn-secondary {
+      background: #ccc;
+      color: #333;
+    }
+
+    .btn-secondary:hover {
+      background: #bbb;
+    }
+
+    .btn-success {
+      background: #2e8b57;
+      color: #fff;
+    }
+
+    .btn-success:hover {
+      background: #257a4b;
+    }
+
+    .student-info {
+      background: #f8f9ff;
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 10px;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(10px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+  </style>
+</head>
+<body>
+    <div class="bg"></div>
+    
+    <div class="register-container">
+        <div class="register-header">
+            <img src="/img/logo-removebg-preview.png" width="200px" alt="School Logo">
+            <h1>User Registration</h1>
+            <p>Create your account to access the student portal</p>
+        </div>
+
+        <!-- Progress Indicator -->
+        <div class="progress-bar">
+            <div class="progress-bar-fill" id="progressFill" style="width: 33%"></div>
+        </div>
+
+        <div class="step-indicator">
+            <div class="step active" id="step1Indicator">1. Role</div>
+            <div class="step" id="step2Indicator">2. Details</div>
+            <div class="step" id="step3Indicator">3. Confirm</div>
+        </div>
+
+        <% if (error) { %>
+            <div class="alert alert-error">
+                <i class="fa fa-exclamation-circle"></i>
+                <%= error %>
+            </div>
+        <% } %>
+
+        <form action="/user/register" method="POST" id="registerForm">
+            
+            <!-- STEP 1: Select Role -->
+            <div class="form-step active" id="step1">
+                <h2 style="color: #2a5298; margin-bottom: 20px;">Select Your Role</h2>
+                
+                <div class="role-selector">
+                    <label class="role-card">
+                        <input type="radio" name="role" value="student" required>
+                        <i class="fa fa-user-graduate"></i>
+                        <h3>Student</h3>
+                    </label>
+                    
+                    <label class="role-card">
+                        <input type="radio" name="role" value="parent" required>
+                        <i class="fa fa-users"></i>
+                        <h3>Parent</h3>
+                    </label>
+                    
+                    <label class="role-card">
+                        <input type="radio" name="role" value="teacher" required>
+                        <i class="fa fa-chalkboard-teacher"></i>
+                        <h3>Teacher</h3>
+                    </label>
+                </div>
+
+                <div class="info-box">
+                    <i class="fa fa-info-circle"></i>
+                    <p><strong>Students & Parents:</strong> You'll need your student registration number</p>
+                </div>
+            </div>
+
+            <!-- STEP 2: Personal Details -->
+            <div class="form-step" id="step2">
+                <h2 style="color: #2a5298; margin-bottom: 20px;">Personal Information</h2>
+                
+                <div class="form-group">
+                    <label for="name">Full Name *</label>
+                    <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address *</label>
+                    <input type="email" id="email" name="email" placeholder="your.email@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phoneNumber">Phone Number (Optional)</label>
+                    <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="08012345678">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password *</label>
+                    <input type="password" id="password" name="password" placeholder="At least 6 characters" minlength="6" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password *</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Re-enter your password" minlength="6" required>
+                </div>
+
+                <div id="studentSelectContainer" style="display: none;">
+                    <div class="form-group">
+                        <label for="studentId">Select Student *</label>
+                        <select id="studentId" name="studentId">
+                            <option value="">-- Select Student --</option>
+                            <% students.forEach(student => { %>
+                                <option value="<%= student._id %>" 
+                                        data-name="<%= student.name %>"
+                                        data-class="<%= student.classLevel %>"
+                                        data-reg="<%= student.regNumber %>">
+                                    <%= student.name %> - <%= student.classLevel %> (<%= student.regNumber %>)
+                                </option>
+                            <% }); %>
+                        </select>
+                    </div>
+
+                    <div id="studentInfoBox" class="student-info" style="display: none;">
+                        <h4 style="color: #2a5298; margin-bottom: 10px;">Student Details</h4>
+                        <p><strong>Name:</strong> <span id="studentName"></span></p>
+                        <p><strong>Class:</strong> <span id="studentClass"></span></p>
+                        <p><strong>Reg Number:</strong> <span id="studentReg"></span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 3: Confirmation -->
+            <div class="form-step" id="step3">
+                <h2 style="color: #2a5298; margin-bottom: 20px;">Confirm Registration</h2>
+                
+                <div class="student-info">
+                    <h4 style="color: #2a5298; margin-bottom: 15px;">Review Your Information</h4>
+                    <p><strong>Role:</strong> <span id="confirmRole"></span></p>
+                    <p><strong>Full Name:</strong> <span id="confirmName"></span></p>
+                    <p><strong>Email:</strong> <span id="confirmEmail"></span></p>
+                    <p><strong>Phone:</strong> <span id="confirmPhone"></span></p>
+                    <p id="confirmStudentInfo" style="display: none;">
+                        <strong>Student:</strong> <span id="confirmStudent"></span>
+                    </p>
+                </div>
+
+                <div class="info-box" style="margin-top: 20px;">
+                    <i class="fa fa-lock"></i>
+                    <p>Your password is encrypted and secure. You can change it anytime after registration.</p>
+                </div>
+
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" required>
+                        <span>I agree to the <a href="#" style="color: #2a5298;">Terms and Conditions</a></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="form-navigation">
+                <button type="button" class="btn btn-secondary" id="prevBtn" onclick="prevStep()" style="display: none;">
+                    <i class="fa fa-arrow-left"></i> Previous
+                </button>
+                
+                <button type="button" class="btn btn-primary" id="nextBtn" onclick="nextStep()">
+                    Next <i class="fa fa-arrow-right"></i>
+                </button>
+                
+                <button type="submit" class="btn btn-success" id="submitBtn" style="display: none;">
+                    <i class="fa fa-check"></i> Register
+                </button>
+            </div>
+        </form>
+
+        <p style="text-align: center; margin-top: 20px;">
+            Already have an account? <a href="/user/login" style="color: #2a5298; font-weight: 600;">Login here</a>
+        </p>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 3;
+
+        // Role selection
+        const roleCards = document.querySelectorAll('.role-card');
+        roleCards.forEach(card => {
+            card.addEventListener('click', () => {
+                roleCards.forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                
+                const radio = card.querySelector('input[type="radio"]');
+                radio.checked = true;
+
+                // Show/hide student select based on role
+                const role = radio.value;
+                const studentContainer = document.getElementById('studentSelectContainer');
+                const studentSelect = document.getElementById('studentId');
+                
+                if (role === 'student' || role === 'parent') {
+                    studentContainer.style.display = 'block';
+                    studentSelect.required = true;
+                } else {
+                    studentContainer.style.display = 'none';
+                    studentSelect.required = false;
+                    studentSelect.value = '';
+                }
+            });
+        });
+
+        // Student selection - show info
+        document.getElementById('studentId').addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const infoBox = document.getElementById('studentInfoBox');
+            
+            if (this.value) {
+                document.getElementById('studentName').textContent = selectedOption.dataset.name;
+                document.getElementById('studentClass').textContent = selectedOption.dataset.class;
+                document.getElementById('studentReg').textContent = selectedOption.dataset.reg;
+                infoBox.style.display = 'block';
+            } else {
+                infoBox.style.display = 'none';
+            }
+        });
+
+        function nextStep() {
+            // Validate current step
+            if (!validateStep(currentStep)) {
+                return;
+            }
+
+            if (currentStep < totalSteps) {
+                document.getElementById(`step${currentStep}`).classList.remove('active');
+                document.getElementById(`step${currentStep}Indicator`).classList.add('completed');
+                
+                currentStep++;
+                
+                document.getElementById(`step${currentStep}`).classList.add('active');
+                document.getElementById(`step${currentStep}Indicator`).classList.add('active');
+                
+                updateButtons();
+                updateProgress();
+                
+                // Populate confirmation step
+                if (currentStep === 3) {
+                    populateConfirmation();
+                }
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                document.getElementById(`step${currentStep}`).classList.remove('active');
+                document.getElementById(`step${currentStep}Indicator`).classList.remove('active');
+                
+                currentStep--;
+                
+                document.getElementById(`step${currentStep}`).classList.add('active');
+                document.getElementById(`step${currentStep}Indicator`).classList.remove('completed');
+                
+                updateButtons();
+                updateProgress();
+            }
+        }
+
+        function validateStep(step) {
+            if (step === 1) {
+                const roleSelected = document.querySelector('input[name="role"]:checked');
+                if (!roleSelected) {
+                    alert('Please select your role');
+                    return false;
+                }
+            }
+            
+            if (step === 2) {
+                const name = document.getElementById('name').value;
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                const role = document.querySelector('input[name="role"]:checked').value;
+                const studentId = document.getElementById('studentId').value;
+                
+                if (!name || !email || !password || !confirmPassword) {
+                    alert('Please fill in all required fields');
+                    return false;
+                }
+                
+                if (password !== confirmPassword) {
+                    alert('Passwords do not match');
+                    return false;
+                }
+                
+                if (password.length < 6) {
+                    alert('Password must be at least 6 characters');
+                    return false;
+                }
+                
+                if ((role === 'student' || role === 'parent') && !studentId) {
+                    alert('Please select a student');
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+
+        function updateButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            if (currentStep === 1) {
+                prevBtn.style.display = 'none';
+            } else {
+                prevBtn.style.display = 'inline-block';
+            }
+            
+            if (currentStep === totalSteps) {
+                nextBtn.style.display = 'none';
+                submitBtn.style.display = 'inline-block';
+            } else {
+                nextBtn.style.display = 'inline-block';
+                submitBtn.style.display = 'none';
+            }
+        }
+
+        function updateProgress() {
+            const progress = (currentStep / totalSteps) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function populateConfirmation() {
+            const role = document.querySelector('input[name="role"]:checked').value;
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phoneNumber').value || 'Not provided';
+            
+            document.getElementById('confirmRole').textContent = role.charAt(0).toUpperCase() + role.slice(1);
+            document.getElementById('confirmName').textContent = name;
+            document.getElementById('confirmEmail').textContent = email;
+            document.getElementById('confirmPhone').textContent = phone;
+            
+            if (role === 'student' || role === 'parent') {
+                const studentSelect = document.getElementById('studentId');
+                const selectedOption = studentSelect.options[studentSelect.selectedIndex];
+                if (selectedOption.value) {
+                    document.getElementById('confirmStudent').textContent = 
+                        `${selectedOption.dataset.name} (${selectedOption.dataset.reg})`;
+                    document.getElementById('confirmStudentInfo').style.display = 'block';
+                }
+            }
+        }
+
+        // Form submission
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            if (currentStep !== totalSteps) {
+                e.preventDefault();
+                nextStep();
+            }
+        });
+    </script>
+</body>
+</html>

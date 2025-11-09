@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Check Result - Al-cimfa International High School</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.cdnfonts.com/css/manrope" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .check-result-container {
+      max-width: 500px;
+      width: 100%;
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .logo {
+      display: block;
+      margin: 0 auto 30px;
+      max-width: 200px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      color: #2a5298;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .option-card {
+      border: 2px solid #e0e0e0;
+      padding: 25px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      transition: all 0.3s;
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+    }
+
+    .option-card:hover {
+      border-color: #2a5298;
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(42, 82, 152, 0.2);
+    }
+
+    .option-card i {
+      font-size: 40px;
+      color: #2a5298;
+      margin-bottom: 15px;
+    }
+
+    .option-card h3 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .option-card p {
+      color: #666;
+      font-size: 14px;
+      margin: 0;
+    }
+
+    .divider {
+      text-align: center;
+      margin: 30px 0;
+      position: relative;
+    }
+
+    .divider::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: #e0e0e0;
+    }
+
+    .divider span {
+      background: white;
+      padding: 0 15px;
+      position: relative;
+      color: #999;
+      font-size: 14px;
+    }
+
+    .info-box {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 15px;
+      border-radius: 5px;
+      margin-top: 20px;
+    }
+
+    .info-box p {
+      margin: 0;
+      color: #856404;
+      font-size: 13px;
+    }
+
+    .info-box i {
+      color: #856404;
+      margin-right: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="check-result-container">
+    
+    <img src="/img/logo.png" class="logo" alt="Al-cimfa Logo">
+    
+    <div class="header">
+      <h1>Check Your Results</h1>
+      <p>Choose how you want to access your academic results</p>
+    </div>
+
+    <!-- Option 1: Login to Portal -->
+    <a href="/user/login" class="option-card">
+      <i class="fa fa-user-lock"></i>
+      <h3>Login to Student Portal</h3>
+      <p>Access your results through your secure student account. View all terms, download report cards, and track your progress.</p>
+    </a>
+
+    <!-- Option 2: Register New Account -->
+    <a href="/user/register" class="option-card">
+      <i class="fa fa-user-plus"></i>
+      <h3>Create New Account</h3>
+      <p>Don't have an account? Register now to access your results and other portal features.</p>
+    </a>
+
+    <div class="divider">
+      <span>Benefits of Using the Portal</span>
+    </div>
+
+    <div class="info-box">
+      <p><i class="fa fa-check-circle"></i> <strong>Secure Access:</strong> Your results are protected and only visible to you.</p>
+    </div>
+    
+    <div class="info-box" style="margin-top: 10px;">
+      <p><i class="fa fa-download"></i> <strong>Download Reports:</strong> Save your report cards as PDF files.</p>
+    </div>
+    
+    <div class="info-box" style="margin-top: 10px;">
+      <p><i class="fa fa-history"></i> <strong>View History:</strong> Access all your past results in one place.</p>
+    </div>
+
+    <p style="text-align: center; margin-top: 30px; color: #666; font-size: 13px;">
+      Need help? Contact us at <a href="mailto:support@alcimfa.edu" style="color: #2a5298;">support@alcimfa.edu</a>
+    </p>
+  </div>
+
+</body>
+</html>

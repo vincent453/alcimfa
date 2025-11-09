@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Results - <%= user.name %></title>
+    <link rel="stylesheet" href="/css/style2.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <img src="/img/logo.png" width="150px" class="logo" alt="School Logo">
+            
+            <nav>
+                <ul>
+                    <li class="active">
+                        <a href="/user/dashboard">
+                            <i class="fa fa-home"></i> Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/user/results">
+                            <i class="fa fa-book"></i> My Results
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/user/logout">
+                            <i class="fa fa-sign-out-alt"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <section class="table-container">
+                <h2>My Results - <%= user.name %></h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Session</th>
+                            <th>Term</th>
+                            <th>Total Score</th>
+                            <th>Average</th>
+                            <th>GPA</th>
+                            <th>Status</th>
+                            <th>Report Card</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (results.length === 0) { %>
+                            <tr>
+                                <td colspan="7" class="text-center">No results found</td>
+                            </tr>
+                        <% } else { %>
+                            <% results.forEach(result => { %>
+                                <tr>
+                                    <td><%= result.session %></td>
+                                    <td><%= result.term %></td>
+                                    <td><%= result.totalScore %></td>
+                                    <td><%= result.average %>%</td>
+                                    <td><%= result.gpa %></td>
+                                    <td><%= result.resultStatus %></td>
+                                    <td>
+                                        <a href="/api/results/card/<%= user.student._id %>"  
+                                           target="_blank" class="btn btn-sm btn-view">
+                                           <i class="fa fa-eye"></i> View Card
+                                        </a>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        <% } %>
+                    </tbody>
+                </table>
+            </section>
+        </main>
+
+    </div>
+</body>
+</html>

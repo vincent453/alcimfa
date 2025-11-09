@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> - Add Student</title>
+  <link rel="stylesheet" href="/css/style2.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.cdnfonts.com/css/manrope" rel="stylesheet">
+</head>
+
+<body>
+  <div class="dashboard">
+    <!-- Admin Sidebar -->
+    <%- include('../partials/sidebar') %>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <header>
+        <h1>Add New Student</h1>
+      </header>
+
+      <section class="form-container">
+        <form action="/admin/students/add" method="POST" class="student-form">
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name">Student Name *</label>
+              <input type="text" id="name" name="name" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="regNumber">Registration Number *</label>
+              <input type="text" id="regNumber" name="regNumber" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="classLevel">Class Level *</label>
+              <select id="classLevel" name="classLevel" required>
+                <option value="">Select Class</option>
+                <option value="JSS 1">JSS 1</option>
+                <option value="JSS 2">JSS 2</option>
+                <option value="JSS 3">JSS 3</option>
+                <option value="SSS 1">SSS 1</option>
+                <option value="SSS 2">SSS 2</option>
+                <option value="SSS 3">SSS 3</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="gender">Gender *</label>
+              <select id="gender" name="gender" required>
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="session">Session *</label>
+              <input type="text" id="session" name="session" placeholder="e.g., 2024/2025" required>
+            </div>
+
+            <div class="form-group">
+              <label for="dateOfBirth">Date of Birth</label>
+              <input type="date" id="dateOfBirth" name="dateOfBirth">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="address">Address</label>
+            <textarea id="address" name="address" rows="3"></textarea>
+          </div>
+
+          <h3>Parent Information</h3>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="parentName">Parent Name</label>
+              <input type="text" id="parentName" name="parentName">
+            </div>
+
+            <div class="form-group">
+              <label for="parentPhone">Parent Phone</label>
+              <input type="tel" id="parentPhone" name="parentPhone">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="parentEmail">Parent Email</label>
+            <input type="email" id="parentEmail" name="parentEmail">
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+              <i class="fa fa-save"></i> Add Student
+            </button>
+            <a href="/admin/students" class="btn btn-secondary">Cancel</a>
+          </div>
+        </form>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    // Toggle sidebar on mobile
+    const menuBtn = document.getElementById('menuBtn');
+    const sidebar = document.getElementById('sidebar');
+    if (menuBtn && sidebar) {
+      menuBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('active');
+      });
+    }
+  </script>
+</body>
+</html>

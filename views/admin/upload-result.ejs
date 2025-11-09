@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upload Result - School Management</title>
+    <link rel="stylesheet" href="/css/style2.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <link href="https://fonts.cdnfonts.com/css/manrope" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="admin-layout">
+      <!-- Sidebar -->
+      <%- include('../partials/sidebar') %>
+
+      <!-- Main content -->
+      <div class="admin-main">
+        <!-- Header -->
+        <%- include('../partials/header') %>
+
+        <main class="admin-content">
+          <section class="form-container">
+            <form action="/api/results" method="POST" id="resultForm">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="studentId">Select Student *</label>
+                  <select id="studentId" name="studentId" required>
+                    <option value="">-- Select Student --</option>
+                    <% students.forEach(student => { %>
+                    <option value="<%= student._id %>">
+                      <%= student.name %> - <%= student.classLevel %> (<%=
+                      student.regNumber %>)
+                    </option>
+                    <% }); %>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="term">Term *</label>
+                  <select id="term" name="term" required>
+                    <option value="">Select Term</option>
+                    <option value="1st Term">1st Term</option>
+                    <option value="2nd Term">2nd Term</option>
+                    <option value="3rd Term">3rd Term</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="session">Session *</label>
+                  <input
+                    type="text"
+                    id="session"
+                    name="session"
+                    placeholder="e.g., 2024/2025"
+                    required
+                  />
+                </div>
+              </div>
+
+              <h3>Subjects & Scores</h3>
+              <div id="subjects-container">
+                <div class="subject-entry">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Subject Name *</label>
+                      <input
+                        type="text"
+                        name="subjects[0][name]"
+                        placeholder="e.g., Mathematics"
+                        required
+                      />
+                    </div>
+
+                    <div class="form-group">
+                      <label>CA1 (0-15) *</label>
+                      <input
+                        type="number"
+                        name="subjects[0][ca1]"
+                        min="0"
+                        max="15"
+                        required
+                      />
+                    </div>
+
+                    <div class="form-group">
+                      <label>CA2 (0-15) *</label>
+                      <input
+                        type="number"
+                        name="subjects[0][ca2]"
+                        min="0"
+                        max="15"
+                        required
+                      />
+                    </div>
+
+                    <div class="form-group">
+                      <label>Exam (0-70) *</label>
+                      <input
+                        type="number"
+                        name="subjects[0][exam]"
+                        min="0"
+                        max="70"
+                        required
+                      />
+                    </div>
+
+                    <div class="form-group">
+                      <button
+                        type="button"
+                        onclick="removeSubject(this)"
+                        class="btn btn-delete btn-sm"
+                      >
+                        <i class="fa fa-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onclick="addSubject()"
+                class="btn btn-secondary"
+              >
+                <i class="fa fa-plus"></i> Add Another Subject
+              </button>
+
+              <div class="form-group">
+                <label for="teacherRemark">Teacher's Remark</label>
+                <textarea
+                  id="teacherRemark"
+                  name="teacherRemark"
+                  rows="3"
+                  placeholder="Enter teacher's remark"
+                ></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="headRemark">Head of School's Remark</label>
+                <textarea
+                  id="headRemark"
+                  name="headRemark"
+                  rows="3"
+                  placeholder="Enter head's remark"
+                ></textarea>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                  <i class="fa fa-upload"></i> Upload Result
+                </button>
+                <a href="/admin/dashboard" class="btn btn-secondary">Cancel</a>
+              </div>
+            </form>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      let subjectCount = 1;
+
+      // Add new subject entry
+      function addSubject() {
+        const container = document.getElementById("subjects-container");
+        const newSubject = document.createElement("div");
+        newSubject.className = "subject-entry";
+        newSubject.innerHTML = `
+      <div class="form-row">
+        <div class="form-group">
+          <label>Subject Name *</label>
+          <input type="text" name="subjects[${subjectCount}][name]" placeholder="e.g., English" required>
+        </div>
+        <div class="form-group">
+          <label>CA1 (0-15) *</label>
+          <input type="number" name="subjects[${subjectCount}][ca1]" min="0" max="15" required>
+        </div>
+        <div class="form-group">
+          <label>CA2 (0-15) *</label>
+          <input type="number" name="subjects[${subjectCount}][ca2]" min="0" max="15" required>
+        </div>
+        <div class="form-group">
+          <label>Exam (0-70) *</label>
+          <input type="number" name="subjects[${subjectCount}][exam]" min="0" max="70" required>
+        </div>
+        <div class="form-group">
+          <button type="button" onclick="removeSubject(this)" class="btn btn-delete btn-sm">
+            <i class="fa fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    `;
+        container.appendChild(newSubject);
+        subjectCount++;
+      }
+
+      // Remove a subject entry and optionally re-index
+      function removeSubject(button) {
+        button.closest(".subject-entry").remove();
+        reindexSubjects();
+      }
+
+      // Re-index subject input names after adding/removing
+      function reindexSubjects() {
+        const entries = document.querySelectorAll(".subject-entry");
+        entries.forEach((entry, index) => {
+          entry.querySelectorAll("input").forEach((input) => {
+            if (input.name.includes("[name]"))
+              input.name = `subjects[${index}][name]`;
+            if (input.name.includes("[ca1]"))
+              input.name = `subjects[${index}][ca1]`;
+            if (input.name.includes("[ca2]"))
+              input.name = `subjects[${index}][ca2]`;
+            if (input.name.includes("[exam]"))
+              input.name = `subjects[${index}][exam]`;
+          });
+        });
+        subjectCount = entries.length;
+      }
+
+      // AJAX form submission
+      document
+        .getElementById("resultForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const formData = new FormData(e.target);
+
+          // Collect subjects dynamically from DOM
+          const subjects = [];
+          document.querySelectorAll(".subject-entry").forEach((entry) => {
+            const name = entry.querySelector('[name$="[name]"]').value.trim();
+            const ca1 = parseInt(entry.querySelector('[name$="[ca1]"]').value);
+            const ca2 = parseInt(entry.querySelector('[name$="[ca2]"]').value);
+            const exam = parseInt(
+              entry.querySelector('[name$="[exam]"]').value
+            );
+
+            if (name) {
+              subjects.push({ name, ca1, ca2, exam });
+            }
+          });
+
+          if (subjects.length === 0) {
+            alert("Please add at least one subject with scores.");
+            return;
+          }
+
+          const data = {
+            studentId: formData.get("studentId"),
+            term: formData.get("term"),
+            session: formData.get("session"),
+            subjects,
+            teacherRemark: formData.get("teacherRemark"),
+            headRemark: formData.get("headRemark"),
+          };
+
+          // Get admin token from EJS
+          const adminToken = "<%= adminToken %>";
+
+          try {
+            const response = await fetch("/api/results", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${adminToken}`,
+              },
+              body: JSON.stringify(data),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+              alert("Result uploaded successfully!");
+              window.location.href = "/admin/results";
+            } else {
+              alert("Error: " + result.message);
+            }
+          } catch (error) {
+            alert("Upload failed: " + error.message);
+          }
+        });
+    </script>
+  </body>
+</html>

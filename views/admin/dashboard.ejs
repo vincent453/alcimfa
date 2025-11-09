@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">    
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> - Admin Dashboard</title>
+  <link rel="stylesheet" href="/css/style2.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <%- include('../partials/sidebar') %>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <header>
+        <button class="menu-btn" id="menuBtn">
+          <i class="fa fa-bars"></i>
+        </button>
+        <h1>Admin Dashboard</h1>
+      </header>
+
+      <!-- Stats Cards -->
+      <section class="cards">
+        <div class="card">
+          <i class="fa fa-users"></i>
+          <h3>Total Students</h3>
+          <p class="stat-number"><%= stats.totalStudents %></p>
+        </div>
+
+        <div class="card">
+          <i class="fa fa-user-friends"></i>
+          <h3>Total Users</h3>
+          <p class="stat-number"><%= stats.totalUsers %></p>
+        </div>
+
+        <div class="card">
+          <i class="fa fa-book"></i>
+          <h3>Total Results</h3>
+          <p class="stat-number"><%= stats.totalResults %></p>
+        </div>
+
+        <div class="card">
+          <a href="/admin/results/upload" class="none">
+            <i class="fa-solid fa-upload"></i> Upload Result
+          </a>
+        </div>
+      </section>
+
+      <!-- Recent Students Table -->
+      <section class="recent-activity">
+        <h2>Recent Students</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Class</th>
+              <th>Reg Number</th>
+              <th>Date Added</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% recentStudents.forEach(student => { %>
+            <tr>
+              <td><%= student.name %></td>
+              <td><%= student.classLevel %></td>
+              <td><%= student.regNumber %></td>
+              <td><%= new Date(student.createdAt).toLocaleDateString() %></td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    // Sidebar toggle for mobile
+    const menuBtn = document.getElementById('menuBtn');
+    const sidebar = document.getElementById('sidebar');
+    menuBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('active');
+    });
+  </script>
+</body>
+</html>

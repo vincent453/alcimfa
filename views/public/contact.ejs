@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> - Al-cimfa International High School</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.cdnfonts.com/css/manrope" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Include Header -->
+  <%- include('../partials/header2') %>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Page Header -->
+    <section class="page-header">
+      <div class="container">
+        <h1>Contact Us</h1>
+        <p>We'd love to hear from you</p>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact-section">
+      <div class="container">
+        <div class="contact-grid">
+          
+          <!-- Contact Form -->
+          <div class="contact-form-wrapper">
+            <h2>Send us a Message</h2>
+            <form id="contactForm" class="contact-form">
+              <div class="form-group">
+                <label for="name">Full Name *</label>
+                <input type="text" id="name" name="name" required>
+              </div>
+
+              <div class="form-group">
+                <label for="email">Email Address *</label>
+                <input type="email" id="email" name="email" required>
+              </div>
+
+              <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone">
+              </div>
+
+              <div class="form-group">
+                <label for="subject">Subject *</label>
+                <select id="subject" name="subject" required>
+                  <option value="">Select a subject</option>
+                  <option value="admission">Admission Inquiry</option>
+                  <option value="academic">Academic Concerns</option>
+                  <option value="event">Event Information</option>
+                  <option value="feedback">Feedback</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="message">Message *</label>
+                <textarea id="message" name="message" rows="5" required></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-secondary">Send Message</button>
+            </form>
+          </div>
+
+          <!-- Contact Information -->
+          <div class="contact-info-wrapper">
+            <h2>Contact Information</h2>
+            
+            <div class="info-item">
+              <h3>Address</h3>
+              <p>Behind int'l Livestock Market<br>Jibi Dei-Dei<br>Abuja</p>
+            </div>
+
+            <div class="info-item">
+              <h3>Phone</h3>
+              <p>Main Office: +234 8065772260<br>Admissions: +234 8060316730<br>Academic: +234 705159098</p>
+            </div>
+
+            <div class="info-item">
+              <h3>Email</h3>
+              <p>General: info@alcimfa.edu</p>
+            </div>
+
+            <div class="info-item">
+              <h3>Office Hours</h3>
+              <p>Monday - Friday: 8:00 AM - 4:00 PM<br>Saturday: 9:00 AM - 1:00 PM<br>Sunday: Closed</p>
+            </div>
+
+            <div class="info-item">
+              <h3>Follow Us</h3>
+              <div class="social-links">
+                <a href="#" class="social-link">Facebook</a>
+                <a href="#" class="social-link">Twitter</a>
+                <a href="#" class="social-link">Instagram</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Map Section -->
+    <section class="map-section">
+      <div class="container">
+        <h2>Find Us</h2>
+        <div class="map-placeholder">
+          <p>📍 Map location would be displayed here</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Include Footer -->
+  <%- include('../partials/footer2') %>
+
+  <!-- Scripts -->
+  <script src="/js/script.js"></script>
+  <script src="/js/contact.js"></script>
+</body>
+</html>

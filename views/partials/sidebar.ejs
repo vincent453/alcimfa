@@ -1,0 +1,43 @@
+<aside class="sidebar" id="sidebar">
+    <img src="/img/logo.png" width="150px" class="logo" alt="School Logo">
+    
+    <nav>
+        <ul>
+            <li class="<%= title === 'Admin Dashboard' ? 'active' : '' %>">
+                <a href="/admin/dashboard">
+                    <i class="fa fa-home"></i> Dashboard
+                </a>
+            </li>
+            <li class="<%= title === 'Students Management' ? 'active' : '' %>">
+                <a href="/admin/students">
+                    <i class="fa fa-users"></i> Students
+                </a>
+            </li>
+            <li class="<%= title === 'Upload Result' ? 'active' : '' %>">
+                <a href="/admin/results/upload">
+                    <i class="fa-solid fa-upload"></i> Upload Result
+                </a>
+            </li>
+            <li class="<%= title === 'View Results' ? 'active' : '' %>">
+                <a href="/admin/results">
+                    <i class="fa-solid fa-eye"></i> View Results
+                </a>
+            </li>
+            <li class="<%= title === 'User Management' ? 'active' : '' %>">
+                <a href="/admin/users">
+                    <i class="fa fa-user-friends"></i> Users
+                </a>
+            </li>
+            <li class="<%= title === 'Settings' ? 'active' : '' %>">
+                <a href="/admin/settings">
+                    <i class="fa fa-cog"></i> Settings
+                </a>
+            </li>
+            <li>
+                <a href="/admin/logout">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </nav>
+</aside>

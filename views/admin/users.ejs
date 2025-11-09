@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> - School Management</title>
+    <link rel="stylesheet" href="/css/style2.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.cdnfonts.com/css/manrope" rel="stylesheet">
+</head>
+<body>
+<div class="admin-layout">
+    <!-- Sidebar -->
+    <%- include('../partials/sidebar') %>
+
+    <!-- Main content area -->
+    <div class="admin-main">
+        <!-- Header -->
+        <%- include('../partials/header') %>
+
+        <!-- Page content -->
+        <main class="admin-content">
+            <!-- Filters -->
+            <section class="filters card">
+                <div class="filter-box">
+                    <label for="filter-role">Role:</label>
+                    <select id="filter-role" onchange="filterUsers()">
+                        <option value="all">All Roles</option>
+                        <option value="student">Student</option>
+                        <option value="parent">Parent</option>
+                        <option value="teacher">Teacher</option>
+                    </select>
+                </div>
+                
+                <div class="filter-box">
+                    <label for="filter-status">Status:</label>
+                    <select id="filter-status" onchange="filterUsers()">
+                        <option value="all">All Status</option>
+                        <option value="true">Active</option>
+                        <option value="false">Inactive</option>
+                    </select>
+                </div>
+            </section>
+
+            <!-- Users table -->
+            <section class="table-container">
+                <table id="users-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Student</th>
+                            <th>Status</th>
+                            <th>Joined</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (users.length === 0) { %>
+                            <tr>
+                                <td colspan="7" class="text-center">No users found</td>
+                            </tr>
+                        <% } else { %>
+                            <% users.forEach(user => { %>
+                            <tr data-role="<%= user.role %>" data-status="<%= user.isActive %>">
+                                <td><%= user.name %></td>
+                                <td><%= user.email %></td>
+                                <td>
+                                    <span class="badge badge-<%= user.role %>">
+                                        <%= user.role.charAt(0).toUpperCase() + user.role.slice(1) %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <% if (user.student) { %>
+                                        <%= user.student.name %> (<%= user.student.regNumber %>)
+                                    <% } else { %>
+                                        N/A
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <span class="badge badge-<%= user.isActive ? 'success' : 'danger' %>">
+                                        <%= user.isActive ? 'Active' : 'Inactive' %>
+                                    </span>
+                                </td>
+                                <td><%= new Date(user.createdAt).toLocaleDateString() %></td>
+                                <td class="actions">
+                                    <% if (user.isActive) { %>
+                                        <form action="/api/users/<%= user._id %>/deactivate" method="POST" style="display:inline;">
+                                            <button type="submit" class="btn btn-sm btn-warning">
+                                                <i class="fa fa-ban"></i> Deactivate
+                                            </button>
+                                        </form>
+                                    <% } else { %>
+                                        <form action="/api/users/<%= user._id %>/activate" method="POST" style="display:inline;">
+                                            <button type="submit" class="btn btn-sm btn-success">
+                                                <i class="fa fa-check"></i> Activate
+                                            </button>
+                                        </form>
+                                    <% } %>
+                                </td>
+                            </tr>
+                            <% }); %>
+                        <% } %>
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+</div>
+
+<script>
+function filterUsers() {
+    const roleFilter = document.getElementById('filter-role').value;
+    const statusFilter = document.getElementById('filter-status').value;
+    const rows = document.querySelectorAll('#users-table tbody tr');
+    
+    rows.forEach(row => {
+        const rowRole = row.getAttribute('data-role');
+        const rowStatus = row.getAttribute('data-status');
+        
+        const roleMatch = roleFilter === 'all' || rowRole === roleFilter;
+        const statusMatch = statusFilter === 'all' || rowStatus === statusFilter;
+        
+        row.style.display = (roleMatch && statusMatch) ? '' : 'none';
+    });
+}
+</script>
+</body>
+</html>
