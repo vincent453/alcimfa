@@ -145,6 +145,35 @@ body {
   flex: 1;
   padding: 20px;
   background: #f8f9fa;
+  /* Option 1: Simple background image */
+  background-image: url('/img/items234.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  
+  /* Option 2: Background image with overlay (uncomment to use) */
+  /*
+  background: linear-gradient(rgba(248, 249, 250, 0.95), rgba(248, 249, 250, 0.95)), 
+              url('/images/bg-pattern.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  */
+  
+  /* Option 3: Subtle pattern (uncomment to use) */
+  /*
+  background-color: #f8f9fa;
+  background-image: url('/images/subtle-pattern.png');
+  background-repeat: repeat;
+  */
+  
+  /* Option 4: Gradient with pattern (uncomment to use) */
+  /*
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%),
+              url('/images/pattern.png');
+  background-blend-mode: overlay;
+  */
 }
 
 /* Sidebar */
