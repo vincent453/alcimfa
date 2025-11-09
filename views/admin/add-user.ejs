@@ -3,153 +3,86 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Add User - Admin Dashboard</title>
+  <title><%= title %> - Add User</title>
+  <link rel="stylesheet" href="/css/style2.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link href="https://fonts.cdnfonts.com/css/manrope" rel="stylesheet">
- <link rel="stylesheet" href="/css/style2.css">
-   <style>
-    body {
-      font-family: 'Manrope', sans-serif;
-      display: flex;
-      background: #f7f8fc;
-      color: #333;
-    }
-
-    .main-content {
-      flex: 1;
-      padding: 30px;
-    }
-
-    .form-container {
-      background: #fff;
-      padding: 25px 30px;
-      border-radius: 10px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    h1 {
-      font-size: 22px;
-      color: #1e3c72;
-      text-align: center;
-      margin-bottom: 25px;
-    }
-
-    form label {
-      font-weight: 600;
-      margin-bottom: 5px;
-      display: block;
-    }
-
-    form input, form select {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      margin-bottom: 15px;
-      font-size: 15px;
-    }
-
-    form input:focus, form select:focus {
-      border-color: #2a5298;
-      outline: none;
-    }
-
-    .btn {
-      display: inline-block;
-      padding: 10px 20px;
-      background: #2a5298;
-      color: #fff;
-      font-weight: 600;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    .btn:hover {
-      background: #1e3c72;
-    }
-
-    .alert {
-      padding: 10px 15px;
-      border-radius: 8px;
-      margin-bottom: 15px;
-    }
-
-    .alert-error {
-      background: #ffe5e5;
-      color: #b30000;
-      border: 1px solid #f5b0b0;
-    }
-
-    .alert-success {
-      background: #e5ffe9;
-      color: #157d3d;
-      border: 1px solid #b7f0c1;
-    }
-  </style>
 </head>
-<body>
 
- <div class="dashboard">
+<body>
+  <div class="dashboard">
     <!-- Admin Sidebar -->
     <%- include('../partials/sidebar') %>
 
     <!-- Main Content -->
     <div class="main-content">
       <header>
-        <h1>Add New Student</h1>
+        <h1>Add New User</h1>
       </header>
 
-    <% if (error) { %>
-      <div class="alert alert-error"><%= error %></div>
-    <% } %>
+      <% if (error) { %>
+        <div class="alert alert-error"><%= error %></div>
+      <% } %>
 
-    <% if (success) { %>
-      <div class="alert alert-success"><%= success %></div>
-    <% } %>
+      <% if (success) { %>
+        <div class="alert alert-success"><%= success %></div>
+      <% } %>
 
-    <div class="form-container">
-      <form action="/admin/add-user" method="POST">
-        <label for="name">Full Name</label>
-        <input type="text" id="name" name="name" placeholder="Enter full name" required>
+      <section class="form-container">
+        <form action="/admin/add-user" method="POST" class="student-form">
+          
+          <div class="form-group">
+            <label for="name">Full Name *</label>
+            <input type="text" id="name" name="name" placeholder="Enter full name" required>
+          </div>
 
-        <label for="email">Email Address</label>
-        <input type="email" id="email" name="email" placeholder="Enter email address" required>
+          <div class="form-group">
+            <label for="email">Email Address *</label>
+            <input type="email" id="email" name="email" placeholder="Enter email address" required>
+          </div>
 
-        <label for="role">Select Role</label>
-        <select id="role" name="role" required>
-          <option value="">-- Choose Role --</option>
-          <option value="student">Student</option>
-          <option value="parent">Parent</option>
-          <option value="teacher">Teacher</option>
-        </select>
+          <div class="form-group">
+            <label for="role">Select Role *</label>
+            <select id="role" name="role" required>
+              <option value="">-- Choose Role --</option>
+              <option value="student">Student</option>
+              <option value="parent">Parent</option>
+              <option value="teacher">Teacher</option>
+            </select>
+          </div>
 
-        <div id="studentField" style="display: none;">
-          <label for="studentId">Linked Student (for Parent/Student)</label>
-          <select id="studentId" name="studentId">
-            <option value="">-- Select Student --</option>
-            <% students.forEach(student => { %>
-              <option value="<%= student._id %>">
-                <%= student.name %> (<%= student.regNumber %>)
-              </option>
-            <% }); %>
-          </select>
-        </div>
+          <div class="form-group" id="studentField" style="display: none;">
+            <label for="studentId">Linked Student (for Parent/Student)</label>
+            <select id="studentId" name="studentId">
+              <option value="">-- Select Student --</option>
+              <% students.forEach(student => { %>
+                <option value="<%= student._id %>">
+                  <%= student.name %> (<%= student.regNumber %>)
+                </option>
+              <% }); %>
+            </select>
+          </div>
 
-        <label for="password">Temporary Password / PIN</label>
-        <input type="password" id="password" name="password" placeholder="Enter a temporary password or PIN" required>
+          <div class="form-group">
+            <label for="password">Temporary Password / PIN *</label>
+            <input type="password" id="password" name="password" placeholder="Enter a temporary password or PIN" required>
+          </div>
 
-        <label for="phoneNumber">Phone Number (optional)</label>
-        <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="08012345678">
+          <div class="form-group">
+            <label for="phoneNumber">Phone Number (optional)</label>
+            <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="08012345678">
+          </div>
 
-        <button type="submit" class="btn">Add User</button>
-      </form>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+              <i class="fa fa-save"></i> Add User
+            </button>
+            <a href="/admin/users" class="btn btn-secondary">Cancel</a>
+          </div>
+        </form>
+      </section>
     </div>
-  </main>
-</div>
+  </div>
 
   <script>
     const roleSelect = document.getElementById('role');
@@ -164,13 +97,120 @@
       }
     });
 
-  // Sidebar toggle for mobile
+    // Sidebar toggle for mobile
+    const menuBtn = document.getElementById('menuBtn');
+    const sidebar = document.getElementById('sidebar');
+    menuBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('active');<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> - Add User</title>
+  <link rel="stylesheet" href="/css/style2.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.cdnfonts.com/css/manrope" rel="stylesheet">
+</head>
+
+<body>
+  <div class="dashboard">
+    <!-- Admin Sidebar -->
+    <%- include('../partials/sidebar') %>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <header>
+        <h1>Add New User</h1>
+      </header>
+
+      <% if (error) { %>
+        <div class="alert alert-error"><%= error %></div>
+      <% } %>
+
+      <% if (success) { %>
+        <div class="alert alert-success"><%= success %></div>
+      <% } %>
+
+      <section class="form-container">
+        <form action="/admin/add-user" method="POST" class="student-form">
+          
+          <div class="form-group">
+            <label for="name">Full Name *</label>
+            <input type="text" id="name" name="name" placeholder="Enter full name" required>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email Address *</label>
+            <input type="email" id="email" name="email" placeholder="Enter email address" required>
+          </div>
+
+          <div class="form-group">
+            <label for="role">Select Role *</label>
+            <select id="role" name="role" required>
+              <option value="">-- Choose Role --</option>
+              <option value="student">Student</option>
+              <option value="parent">Parent</option>
+              <option value="teacher">Teacher</option>
+            </select>
+          </div>
+
+          <div class="form-group" id="studentField" style="display: none;">
+            <label for="studentId">Linked Student (for Parent/Student)</label>
+            <select id="studentId" name="studentId">
+              <option value="">-- Select Student --</option>
+              <% students.forEach(student => { %>
+                <option value="<%= student._id %>">
+                  <%= student.name %> (<%= student.regNumber %>)
+                </option>
+              <% }); %>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Temporary Password / PIN *</label>
+            <input type="password" id="password" name="password" placeholder="Enter a temporary password or PIN" required>
+          </div>
+
+          <div class="form-group">
+            <label for="phoneNumber">Phone Number (optional)</label>
+            <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="08012345678">
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+              <i class="fa fa-save"></i> Add User
+            </button>
+            <a href="/admin/users" class="btn btn-secondary">Cancel</a>
+          </div>
+        </form>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const roleSelect = document.getElementById('role');
+    const studentField = document.getElementById('studentField');
+
+    roleSelect.addEventListener('change', function() {
+      const value = this.value;
+      if (value === 'student' || value === 'parent') {
+        studentField.style.display = 'block';
+      } else {
+        studentField.style.display = 'none';
+      }
+    });
+
+    // Sidebar toggle for mobile
     const menuBtn = document.getElementById('menuBtn');
     const sidebar = document.getElementById('sidebar');
     menuBtn.addEventListener('click', () => {
       sidebar.classList.toggle('active');
     });
   </script>
+</body>
+</html>
 
+    });
+  </script>
 </body>
 </html>
