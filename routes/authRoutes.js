@@ -4,14 +4,15 @@ import {
   logoutAdmin, 
   getAdminProfile,
   updateAdminProfile,
-  changePassword
+  changePassword,
+  registerUser
 } from "../controllers/authController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 // Public routes (no authentication required)
-
+router.post("/add-user", registerUser);
 router.post("/login", loginAdmin);
 
 
