@@ -6,30 +6,43 @@ const htmlElement = document.documentElement
 const savedTheme = localStorage.getItem("theme") || "light"
 if (savedTheme === "dark") {
   htmlElement.classList.add("dark-mode")
-  themeToggle.textContent = "☀️"
+  if (themeToggle) themeToggle.textContent = "☀️"
 }
 
-themeToggle.addEventListener("click", () => {
-  htmlElement.classList.toggle("dark-mode")
-  const isDarkMode = htmlElement.classList.contains("dark-mode")
-  localStorage.setItem("theme", isDarkMode ? "dark" : "light")
-  themeToggle.textContent = isDarkMode ? "☀️" : "🌙"
-})
+if (themeToggle) {
+  themeToggle.addEventListener("click", () => {
+    htmlElement.classList.toggle("dark-mode")
+    const isDarkMode = htmlElement.classList.contains("dark-mode")
+    localStorage.setItem("theme", isDarkMode ? "dark" : "light")
+    themeToggle.textContent = isDarkMode ? "☀️" : "🌙"
+  })
+}
 
-// Mobile Menu Toggle
-const hamburger = document.getElementById("hamburger")
+// Mobile Menu Toggle - FIXED TO USE CLASS SELECTOR
+const hamburger = document.querySelector(".hamburger")
 const navLinks = document.querySelector(".nav-links")
 
-if (hamburger) {
-  hamburger.addEventListener("click", () => {
+if (hamburger && navLinks) {
+  hamburger.addEventListener("click", (e) => {
+    e.stopPropagation() // Prevent event from bubbling
     navLinks.classList.toggle("active")
+    hamburger.classList.toggle("active")
   })
 
   // Close menu when a link is clicked
   document.querySelectorAll(".nav-links a").forEach((link) => {
     link.addEventListener("click", () => {
       navLinks.classList.remove("active")
+      hamburger.classList.remove("active")
     })
+  })
+
+  // Close menu when clicking outside
+  document.addEventListener("click", (e) => {
+    if (!hamburger.contains(e.target) && !navLinks.contains(e.target)) {
+      navLinks.classList.remove("active")
+      hamburger.classList.remove("active")
+    }
   })
 }
 
