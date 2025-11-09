@@ -378,5 +378,11 @@ router.post("/profile", requireAdminAuth, async (req, res) => {
     res.redirect("/admin/profile?error=" + error.message);
   }
 });
+router.get("/add-user", (req, res) => {
+  if (!req.session.admin) {
+    return res.redirect("/admin/login");
+  }
+  res.render("admin/add-user", { title: "Add User", error: null, success: null });
+});
 
 export default router;
