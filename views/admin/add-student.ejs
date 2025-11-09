@@ -106,15 +106,13 @@
     </div>
   </div>
 
-  <script>
-    // Toggle sidebar on mobile
+ <script>
+    // Sidebar toggle for mobile
     const menuBtn = document.getElementById('menuBtn');
     const sidebar = document.getElementById('sidebar');
-    if (menuBtn && sidebar) {
-      menuBtn.addEventListener('click', () => {
-        sidebar.classList.toggle('active');
-      });
-    }
+    menuBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('active');
+    });
   </script>
 </body>
 </html>
