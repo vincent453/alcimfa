@@ -13,7 +13,7 @@
   </head>
   <body>
     <div class="admin-layout">
-       <!-- Sidebar -->
+      <!-- Sidebar -->
     <%- include('../partials/sidebar') %>
 
     <!-- Main Content -->
@@ -167,13 +167,6 @@
 
     <script>
 
-    // Sidebar toggle for mobile
-    const menuBtn = document.getElementById('menuBtn');
-    const sidebar = document.getElementById('sidebar');
-    menuBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('active');
-    });
-
       let subjectCount = 1;
 
       // Add new subject entry
@@ -296,6 +289,13 @@
             alert("Upload failed: " + error.message);
           }
         });
+
+    // Sidebar toggle for mobile
+    const menuBtn = document.getElementById('menuBtn');
+    const sidebar = document.getElementById('sidebar');
+    menuBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('active');
+    });
     </script>
   </body>
 </html>
