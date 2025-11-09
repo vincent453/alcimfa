@@ -6,7 +6,83 @@ import jwt from "jsonwebtoken";
 // API ENDPOINTS ONLY (JSON responses)
 // ==========================================
 
+export const registerUser = async (req, res) => {
+  try {
+    // Ensure only admins can register users
+    if (!req.user || req.user.role !== "admin") {
+      return res.status(403).json({
+        message: "Access denied. Only admin can register new users."
+      });
+    }
 
+    const { name, email, password, role, studentId, phoneNumber } = req.body;
+
+    if (!name || !email || !password || !role) {
+      return res.status(400).json({ 
+        message: "Name, email, password, and role are required" 
+      });
+    }
+
+    // Validate password length
+    if (password.length < 6) {
+      return res.status(400).json({ 
+        message: "Password must be at least 6 characters" 
+      });
+    }
+
+    // Check if email already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email already registered" });
+    }
+
+    // Validate student ID for students and parents
+    if ((role === "student" || role === "parent") && !studentId) {
+      return res.status(400).json({ 
+        message: `Student ID is required for ${role}s` 
+      });
+    }
+
+    // Verify student exists
+    if (studentId) {
+      const student = await Student.findById(studentId);
+      if (!student) {
+        return res.status(404).json({ message: "Student not found" });
+      }
+    }
+
+    // Create user
+    const user = await User.create({
+      name,
+      email,
+      password,
+      role,
+      student: studentId || undefined,
+      phoneNumber,
+    });
+
+    // Generate token
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.status(201).json({
+      message: "User registered successfully",
+      token,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        student: user.student,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 // Login Admin (API) - Returns JSON with token
 export const loginAdmin = async (req, res) => {
