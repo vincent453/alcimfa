@@ -93,11 +93,15 @@
 </head>
 <body>
 
-  <!-- Include sidebar -->
-  <%- include('../partials/sidebar') %>
+ <div class="dashboard">
+    <!-- Admin Sidebar -->
+    <%- include('../partials/sidebar') %>
 
-  <main class="main-content">
-    <h1><i class="fa fa-user-plus"></i> Add New User</h1>
+    <!-- Main Content -->
+    <div class="main-content">
+      <header>
+        <h1>Add New Student</h1>
+      </header>
 
     <% if (error) { %>
       <div class="alert alert-error"><%= error %></div>
@@ -145,6 +149,7 @@
       </form>
     </div>
   </main>
+</div>
 
   <script>
     const roleSelect = document.getElementById('role');
@@ -158,6 +163,14 @@
         studentField.style.display = 'none';
       }
     });
+
+  // Sidebar toggle for mobile
+    const menuBtn = document.getElementById('menuBtn');
+    const sidebar = document.getElementById('sidebar');
+    menuBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('active');
+    });
   </script>
+
 </body>
 </html>
