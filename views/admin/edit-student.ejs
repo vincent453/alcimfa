@@ -108,12 +108,54 @@
 </div>
 </div>
  <script>
-    // Sidebar toggle for mobile
+    document.addEventListener('DOMContentLoaded', function() {
+    // Get elements
     const menuBtn = document.getElementById('menuBtn');
     const sidebar = document.getElementById('sidebar');
-    menuBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('active');
+    
+    // Check if elements exist
+    if (!menuBtn || !sidebar) {
+        console.error('Menu button or sidebar not found');
+        return;
+    }
+    
+    // Create overlay for mobile
+    const overlay = document.createElement('div');
+    overlay.className = 'sidebar-overlay';
+    document.body.appendChild(overlay);
+    
+    // Toggle sidebar when menu button is clicked
+    menuBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
     });
+    
+    // Close sidebar when clicking overlay
+    overlay.addEventListener('click', function() {
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+    });
+    
+    // Close sidebar when clicking a link (mobile only)
+    if (window.innerWidth <= 768) {
+        const sidebarLinks = sidebar.querySelectorAll('a');
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+        });
+    }
+    
+    // Handle window resize
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768) {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        }
+    });
+});
   </script>
 </body>
 </html>
