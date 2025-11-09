@@ -378,18 +378,30 @@ router.post("/profile", requireAdminAuth, async (req, res) => {
     res.redirect("/admin/profile?error=" + error.message);
   }
 });
-import express from "express";
-const router = express.Router();
-
-router.get("/users/add", requireAdminAuth, (req, res) => {
-  res.render("admin/add-user", { 
-    title: "Add User",
-    admin: req.admin,
-    adminToken: req.session.adminToken,
-    error: null
-  });
+router.get("/add-user", protectAdmin, async (req, res) => {
+  const students = await Student.find().select("name regNumber");
+  res.render("admin/add-user", { title: "Add User", students, error: null, success: null });
 });
 
-export default router;
+// Handle form submission
+router.post("/add-user", protectAdmin, async (req, res) => {
+  try {
+    const { name, email, password, role, studentId, phoneNumber } = req.body;
+    // You can reuse your registerUser logic here
+    res.render("admin/add-user", { 
+      title: "Add User", 
+      students: await Student.find().select("name regNumber"),
+      success: "User added successfully!",
+      error: null 
+    });
+  } catch (err) {
+    res.render("admin/add-user", { 
+      title: "Add User", 
+      students: await Student.find().select("name regNumber"),
+      error: "Failed to add user.",
+      success: null 
+    });
+  }
+});
 
 export default router;
