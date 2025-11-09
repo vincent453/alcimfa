@@ -123,6 +123,14 @@ function filterResults() {
 function printResult(studentId) {
   window.open(`/api/results/card/${studentId}`, "_blank");
 }
+
+    // Sidebar toggle for mobile
+    const menuBtn = document.getElementById('menuBtn');
+    const sidebar = document.getElementById('sidebar');
+    menuBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('active');
+    });
+
 </script>
 </body>
 </html>
