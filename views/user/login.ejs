@@ -6,6 +6,78 @@
     <title>User Login - School Management</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="/css/style2.css">
+    <style>
+        .role-tabs {
+            display: flex;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #f0f0f0;
+        }
+        
+        .role-tab {
+            flex: 1;
+            padding: 12px 20px;
+            text-align: center;
+            cursor: pointer;
+            background: #f0f0f0;
+            color: #666;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        
+        .role-tab:hover {
+            background: #e0e0e0;
+        }
+        
+        .role-tab.active {
+            background: #2a5298;
+            color: white;
+        }
+        
+        .login-form {
+            display: none;
+        }
+        
+        .login-form.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .form-title {
+            text-align: center;
+            color: #2a5298;
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+        
+        .info-note {
+            background: #f0f6ff;
+            border-left: 4px solid #2a5298;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #444;
+        }
+        
+        .info-note i {
+            color: #2a5298;
+            margin-right: 8px;
+        }
+    </style>
 </head>
 <body>
     <div class="bg"></div>
@@ -16,19 +88,63 @@
             <div class="alert alert-error"><%= error %></div>
         <% } %>
 
-        <form action="/user/login" method="POST">
-            <h1 style="text-align: center; color: #2a5298;">Student/Parent Login</h1> <br>
+        <!-- Role Selection Tabs -->
+        <div class="role-tabs">
+            <button type="button" class="role-tab active" onclick="switchRole('student')">
+                <i class="fa fa-user-graduate"></i> Student
+            </button>
+            <button type="button" class="role-tab" onclick="switchRole('parent')">
+                <i class="fa fa-users"></i> Parent
+            </button>
+        </div>
+
+        <!-- Student Login Form -->
+        <form action="/user/login/student" method="POST" class="login-form active" id="studentForm">
+            <h1 class="form-title">Student Login</h1>
             
-            <div class="input-container">
-                <label for="email">Email</label> <br>
-                <i class="fa fa-user"></i>
-                <input type="email" id="email" name="email" placeholder="Email" required>
+            <div class="info-note">
+                <i class="fa fa-info-circle"></i>
+                <strong>Students:</strong> Use your admission/registration number and PIN to login
             </div>
             
             <div class="input-container">
-                <label for="password">Password</label> <br>
+                <label for="admissionNumber">Admission Number</label> <br>
+                <i class="fa fa-id-card"></i>
+                <input type="text" id="admissionNumber" name="admissionNumber" placeholder="Enter your admission number" required>
+            </div>
+            
+            <div class="input-container">
+                <label for="pin">PIN</label> <br>
                 <i class="fa fa-lock"></i>
-                <input type="password" id="password" name="password" placeholder="Password" required>
+                <input type="password" id="pin" name="pin" placeholder="Enter your PIN" required>
+            </div>
+            
+            <button type="submit">Login</button>
+            
+            <p style="text-align: center; margin-top: 15px;">
+                <a href="/user/forgot-pin">Forgot your PIN?</a>
+            </p>
+        </form>
+
+        <!-- Parent Login Form -->
+        <form action="/user/login/parent" method="POST" class="login-form" id="parentForm">
+            <h1 class="form-title">Parent Login</h1>
+            
+            <div class="info-note">
+                <i class="fa fa-info-circle"></i>
+                <strong>Parents:</strong> Use your registered email and password
+            </div>
+            
+            <div class="input-container">
+                <label for="parentEmail">Email</label> <br>
+                <i class="fa fa-envelope"></i>
+                <input type="email" id="parentEmail" name="email" placeholder="Enter your email" required>
+            </div>
+            
+            <div class="input-container">
+                <label for="parentPassword">Password</label> <br>
+                <i class="fa fa-lock"></i>
+                <input type="password" id="parentPassword" name="password" placeholder="Enter your password" required>
             </div>
             
             <button type="submit">Login</button>
@@ -37,6 +153,22 @@
                 Don't have an account? <a href="/user/register">Register here</a>
             </p>
         </form>
+
+
     </div>
+
+    <script>
+        function switchRole(role) {
+            // Update active tab
+            const tabs = document.querySelectorAll('.role-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.target.closest('.role-tab').classList.add('active');
+            
+            // Show corresponding form
+            const forms = document.querySelectorAll('.login-form');
+            forms.forEach(form => form.classList.remove('active'));
+            document.getElementById(role + 'Form').classList.add('active');
+        }
+    </script>
 </body>
 </html>
