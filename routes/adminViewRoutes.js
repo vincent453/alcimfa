@@ -378,11 +378,18 @@ router.post("/profile", requireAdminAuth, async (req, res) => {
     res.redirect("/admin/profile?error=" + error.message);
   }
 });
-router.get("/add-user", (req, res) => {
-  if (!req.session.admin) {
-    return res.redirect("/admin/login");
-  }
-  res.render("admin/add-user", { title: "Add User", error: null, success: null });
+import express from "express";
+const router = express.Router();
+
+router.get("/users/add", requireAdminAuth, (req, res) => {
+  res.render("admin/add-user", { 
+    title: "Add User",
+    admin: req.admin,
+    adminToken: req.session.adminToken,
+    error: null
+  });
 });
+
+export default router;
 
 export default router;
