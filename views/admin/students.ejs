@@ -12,11 +12,14 @@
     <!-- Sidebar -->
     <%- include('../partials/sidebar') %>
 
-    <!-- Main content -->
-    <div class="admin-main">
-        <!-- Header -->
-        <%- include('../partials/header') %>
-
+    <!-- Main Content -->
+    <div class="main-content">
+      <header>
+        <button class="menu-btn" id="menuBtn">
+          <i class="fa fa-bars"></i>
+        </button>
+        <h1>Students Management</h1>
+      </header>
         <main class="admin-content">
             <section class="page-actions">
                 <a href="/admin/students/add" class="btn btn-primary">
