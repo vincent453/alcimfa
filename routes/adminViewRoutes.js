@@ -378,13 +378,13 @@ router.post("/profile", requireAdminAuth, async (req, res) => {
     res.redirect("/admin/profile?error=" + error.message);
   }
 });
-router.get("/add-user", protectAdmin, async (req, res) => {
+router.get("/add-user", requireAdminAuth, async (req, res) => {
   const students = await Student.find().select("name regNumber");
   res.render("admin/add-user", { title: "Add User", students, error: null, success: null });
 });
 
 // Handle form submission
-router.post("/add-user", protectAdmin, async (req, res) => {
+router.post("/add-user", requireAdminAuth, async (req, res) => {
   try {
     const { name, email, password, role, studentId, phoneNumber } = req.body;
     // You can reuse your registerUser logic here
