@@ -12,51 +12,50 @@ const router = express.Router();
 // ==========================================
 // ADMIN LOGIN & LOGOUT (No Auth Required)
 // ==========================================
+// Handle form submission
 router.post("/add-user", requireAdminAuth, async (req, res) => {
   try {
     const { name, email, password, role, studentId, phoneNumber } = req.body;
 
-    // Check for existing email
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      const students = await Student.find().select("name regNumber");
-      return res.render("admin/add-user", {
-        title: "Add User",
-        students,
-        error: "Email already exists!",
-        success: null
-      });
+    // Check required fields
+    if (!name || !email || !password || !role) {
+      return res.redirect("/admin/add-user?error=Name, email, password, and role are required");
     }
 
-    // Hash password before saving
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Check if email already exists
+    const existing = await User.findOne({ email });
+    if (existing) {
+      return res.redirect("/admin/add-user?error=Email already registered");
+    }
 
+    // Validate student ID if role requires it
+    let studentRef = undefined;
+    if ((role === "student" || role === "parent") && studentId) {
+      const student = await Student.findById(studentId);
+      if (!student) {
+        return res.redirect("/admin/add-user?error=Student not found");
+      }
+      studentRef = student._id;
+    }
+
+    // Create the user
     await User.create({
       name,
       email,
-      password: hashedPassword,
+      password,
       role,
-      student: studentId || undefined,
+      student: studentRef,
       phoneNumber
     });
 
-    const students = await Student.find().select("name regNumber");
-    res.render("admin/add-user", {
-      title: "Add User",
-      students,
-      success: "User added successfully!",
-      error: null
-    });
+    // Redirect to users list with success message
+    res.redirect("/admin/users?success=User added successfully");
+
   } catch (err) {
-    const students = await Student.find().select("name regNumber");
-    res.render("admin/add-user", {
-      title: "Add User",
-      students,
-      error: "Failed to add user: " + err.message,
-      success: null
-    });
+    res.redirect("/admin/add-user?error=Failed to add user: " + err.message);
   }
 });
+
 
 
 // Show login page
