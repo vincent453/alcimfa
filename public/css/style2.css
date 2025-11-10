@@ -246,7 +246,7 @@ body {
     margin-bottom: 20px;
    display: flex;
     gap: 5rem;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: space-between;
   }
 
@@ -715,11 +715,11 @@ table tbody tr:last-child td {
 
   /* Header mobile layout */
   header {
-    padding: 15px 0;
-    margin-bottom: 20px;
-    gap: 10px;
-    flex-direction: row;
-    justify-content: space-between;
+   padding: 15px 0;
+        margin-bottom: 20px;
+        gap: 10px;
+        flex-direction: row-reverse;
+        justify-content: space-between;
   }
 
   header h1 {
