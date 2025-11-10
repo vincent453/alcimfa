@@ -725,19 +725,20 @@ table tbody tr:last-child td {
     padding: 15px 0;
     margin-bottom: 20px;
     gap: 10px;
+    flex-direction: row;
+    justify-content: space-between;
   }
 
   header h1 {
     font-size: 20px;
     flex: 1;
-    order: 2;
-    width: 100%;
+    order: 1;
   }
 
   .header-actions {
-    order: 1;
-    width: 100%;
-    justify-content: space-between;
+    order: 2;
+    width: auto;
+    justify-content: flex-end;
   }
 
   .admin-name {
