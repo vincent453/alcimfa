@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>User Login - Al-cimfa</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <title>Check Result - Al-cimfa</title>
+  <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.cdnfonts.com/css/manrope" rel="stylesheet">
-  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
     .role-tabs {
       display: flex;
@@ -26,24 +26,17 @@
       transition: all 0.3s ease;
       border: none;
     }
-    .role-tab:hover {
-      background: #e0e0e0;
-    }
-    .role-tab.active {
-      background: #2a5298;
-      color: white;
-    }
-    .login-form {
-      display: none;
-    }
-    .login-form.active {
-      display: block;
-      animation: fadeIn 0.3s ease-in-out;
-    }
+    .role-tab:hover { background: #e0e0e0; }
+    .role-tab.active { background: #2a5298; color: white; }
+
+    .login-form { display: none; }
+    .login-form.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
+
     .form-title {
       text-align: center;
       color: #2a5298;
@@ -59,13 +52,32 @@
       font-size: 14px;
       color: #444;
     }
-    .info-note i {
-      color: #2a5298;
-      margin-right: 8px;
+    .info-note i { color: #2a5298; margin-right: 8px; }
+    .input-container { margin-bottom: 15px; }
+    .input-container i { margin-right: 8px; color: #2a5298; }
+    .input-container input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 15px;
+    }
+    .check-form-container button {
+      width: 100%;
+      background: #2a5298;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+    .check-form-container button:hover {
+      background: #1f3e72;
     }
   </style>
 </head>
-
 <body>
   <!-- Navigation -->
   <nav class="navbar">
@@ -94,46 +106,45 @@
   <main>
     <section class="page-header">
       <div class="container">
-        <h1>Login Portal</h1>
-        <p>Select your role and login to access results.</p>
+        <h1>Check Your Results</h1>
+        <p>Login to view your academic performance</p>
       </div>
     </section>
 
-    <!-- Login Section -->
     <section class="result-check-section">
       <div class="container">
         <div class="result-check-wrapper">
           <div class="check-form-container">
-            <img src="/img/logo-removebg-preview.png" width="500px" alt="School Logo">
+            <h2>Student Result Portal</h2>
+            <p class="form-description">Login as a Student or Parent to access your results.</p>
 
             <!-- Role Tabs -->
             <div class="role-tabs">
-              <button type="button" class="role-tab active" onclick="switchRole('student')">
+              <button type="button" class="role-tab active" onclick="switchRole('student', event)">
                 <i class="fa fa-user-graduate"></i> Student
               </button>
-              <button type="button" class="role-tab" onclick="switchRole('parent')">
+              <button type="button" class="role-tab" onclick="switchRole('parent', event)">
                 <i class="fa fa-users"></i> Parent
               </button>
             </div>
 
-            <!-- Student Login -->
+            <!-- Student Login Form -->
             <form action="/user/login" method="POST" class="login-form active" id="studentForm">
               <h1 class="form-title">Student Login</h1>
               <div class="info-note">
-                <i class="fa fa-info-circle"></i>
-                <strong>Students:</strong> Use your Email and PIN to login.
+                <i class="fa fa-info-circle"></i> <strong>Students:</strong> Use your Email and PIN to login.
               </div>
 
               <div class="input-container">
-                <label>Email</label><br>
+                <label for="email">Email</label><br>
                 <i class="fa fa-envelope"></i>
-                <input type="email" name="email" placeholder="Enter your email" required>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
               </div>
 
               <div class="input-container">
-                <label>PIN</label><br>
+                <label for="password">PIN</label><br>
                 <i class="fa fa-lock"></i>
-                <input type="password" name="password" placeholder="Enter your PIN" required>
+                <input type="password" id="password" name="password" placeholder="Enter your Pin" required>
               </div>
 
               <button type="submit">Login</button>
@@ -142,24 +153,23 @@
               </p>
             </form>
 
-            <!-- Parent Login -->
+            <!-- Parent Login Form -->
             <form action="/user/login/parent" method="POST" class="login-form" id="parentForm">
               <h1 class="form-title">Parent Login</h1>
               <div class="info-note">
-                <i class="fa fa-info-circle"></i>
-                <strong>Parents:</strong> Use your registered email and password.
+                <i class="fa fa-info-circle"></i> <strong>Parents:</strong> Use your registered email and password.
               </div>
 
               <div class="input-container">
-                <label>Email</label><br>
+                <label for="parentEmail">Email</label><br>
                 <i class="fa fa-envelope"></i>
-                <input type="email" name="email" placeholder="Enter your email" required>
+                <input type="email" id="parentEmail" name="email" placeholder="Enter your email" required>
               </div>
 
               <div class="input-container">
-                <label>Password</label><br>
+                <label for="parentPassword">Password</label><br>
                 <i class="fa fa-lock"></i>
-                <input type="password" name="password" placeholder="Enter your password" required>
+                <input type="password" id="parentPassword" name="password" placeholder="Enter your password" required>
               </div>
 
               <button type="submit">Login</button>
@@ -172,37 +182,33 @@
           <div class="info-box">
             <h3>Important Information</h3>
             <ul>
-              <li>Your login credentials are confidential and should not be shared.</li>
-              <li>Results are released within 2 weeks after exams.</li>
-              <li>Contact <strong>support@alcimfa.edu</strong> for login assistance.</li>
-              <li>Download results as PDF once logged in.</li>
-              <li>All student data is secure and private.</li>
+              <li>Your login details are confidential and should not be shared with anyone.</li>
+              <li>Results are typically released within 2 weeks after exams.</li>
+              <li>For technical issues, contact <b>support@alcimfa.edu</b>.</li>
+              <li>You can download your result as a PDF after login.</li>
+              <li>Keep your credentials safe for future logins.</li>
             </ul>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- FAQ -->
+    <!-- FAQ Section -->
     <section class="faq-section">
       <div class="container">
         <h2>Frequently Asked Questions</h2>
         <div class="faq-grid">
           <div class="faq-item">
             <h3>When will my results be available?</h3>
-            <p>Results are released within two weeks after exams. You’ll be notified via email when ready.</p>
+            <p>Results are typically released within 2 weeks after the examination period ends.</p>
           </div>
           <div class="faq-item">
-            <h3>What if I forgot my login details?</h3>
-            <p>Contact the school office with your email or student ID to reset your login.</p>
+            <h3>What if I forgot my PIN?</h3>
+            <p>Contact the school office with your admission number and valid ID to reset it.</p>
           </div>
           <div class="faq-item">
             <h3>Can I download my results?</h3>
-            <p>Yes, you can download your result as a PDF file once logged in.</p>
-          </div>
-          <div class="faq-item">
-            <h3>Are parent accounts separate?</h3>
-            <p>Yes, parents can view results linked to their children through their own login portal.</p>
+            <p>Yes, once you login and view your results, you can download them as a PDF.</p>
           </div>
         </div>
       </div>
@@ -215,7 +221,7 @@
       <div class="footer-content">
         <div class="footer-section">
           <h4>About Us</h4>
-          <p>Al-cimfa International High School is committed to academic excellence and character building.</p>
+          <p>Al-cimfa International High School is committed to providing quality education and shaping future leaders.</p>
         </div>
         <div class="footer-section">
           <h4>Quick Links</h4>
@@ -230,8 +236,8 @@
         <div class="footer-section">
           <h4>Contact Info</h4>
           <p>Email: info@alcimfa.edu</p>
-          <p>Phone: +234 8065772260, +234 8060316730, +234 705159098</p>
-          <p>Address: Behind Int'l Livestock Market, Jibi Dei-Dei, Abuja</p>
+          <p>Phone: +234 8065772260, +234 8060316730</p>
+          <p>Address: Behind int'l Livestock Market, Jibi Dei-Dei, Abuja</p>
         </div>
       </div>
       <div class="footer-bottom">
@@ -241,13 +247,11 @@
   </footer>
 
   <script>
-    function switchRole(role) {
-      const tabs = document.querySelectorAll('.role-tab');
-      tabs.forEach(tab => tab.classList.remove('active'));
+    function switchRole(role, event) {
+      document.querySelectorAll('.role-tab').forEach(tab => tab.classList.remove('active'));
       event.target.closest('.role-tab').classList.add('active');
 
-      const forms = document.querySelectorAll('.login-form');
-      forms.forEach(form => form.classList.remove('active'));
+      document.querySelectorAll('.login-form').forEach(form => form.classList.remove('active'));
       document.getElementById(role + 'Form').classList.add('active');
     }
   </script>
