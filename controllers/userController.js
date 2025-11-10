@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 // @desc    Login user
 // @route   POST /api/users/login
 // @access  Public
+
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
@@ -21,18 +22,10 @@ export const loginUser = async (req, res) => {
 
     // Successful login
     req.session.user = user; // store user in session
-    return res.redirect("/user/dashboard"); // ← this redirects after login
+    res.redirect("/user/dashboard"); // no 'return' needed if it's the last line
   } catch (err) {
     console.error(err);
-    return res.render("login", { error: "Something went wrong" });
-  }
-};
-
-    // ✅ Redirect to dashboard after successful login
-    return res.redirect("/user/dashboard");
-  } catch (error) {
-    console.error("Login error:", error);
-    return res.status(500).render("user-login", { error: "Server error" });
+    res.render("login", { error: "Something went wrong" });
   }
 };
 
