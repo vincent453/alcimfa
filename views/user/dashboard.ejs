@@ -5,12 +5,126 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= title %> - School Management</title>
     <link rel="stylesheet" href="/css/style2.css">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        /* Mobile Menu Styles */
+        .mobile-header {
+            display: none;
+            background: #2c3e50;
+            padding: 1rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .mobile-header .logo {
+            width: 100px;
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .sidebar {
+            transition: transform 0.3s ease;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .mobile-header {
+                display: flex;
+            }
+
+            .dashboard {
+                padding-top: 70px;
+            }
+
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 70px;
+                height: calc(100vh - 70px);
+                transform: translateX(-100%);
+                z-index: 999;
+                width: 250px;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .sidebar .logo {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            /* Overlay */
+            .overlay {
+                display: none;
+                position: fixed;
+                top: 70px;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 998;
+            }
+
+            .overlay.active {
+                display: block;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .mobile-header {
+                padding: 0.75rem;
+            }
+
+            .mobile-header .logo {
+                width: 80px;
+            }
+
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            .card {
+                padding: 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <img src="/img/logo.png" class="logo" alt="School Logo">
+        <button class="menu-toggle" id="menuToggle">
+            <i class="fa fa-bars"></i>
+        </button>
+    </div>
+
+    <!-- Overlay for mobile menu -->
+    <div class="overlay" id="overlay"></div>
+
     <div class="dashboard">
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
             <img src="/img/logo.png" width="150px" class="logo" alt="School Logo">
             
             <nav>
@@ -64,5 +178,40 @@
             </section>
         </main>
     </div>
+
+    <script>
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        function toggleMenu() {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            
+            // Change icon
+            const icon = menuToggle.querySelector('i');
+            if (sidebar.classList.contains('active')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        }
+
+        menuToggle.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
+
+        // Close menu when clicking on nav links
+        const navLinks = sidebar.querySelectorAll('nav a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    toggleMenu();
+                }
+            });
+        });
+    </script>
 </body>
 </html>
