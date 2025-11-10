@@ -99,6 +99,9 @@
           <div class="check-form-container">
             <h2>Student Result Portal</h2>
             <p class="form-description">Login as a Student or Parent to access your results.</p>
+ <% if (error) { %>
+      <div class="alert alert-error"><%= error %></div>
+    <% } %>
 
             <!-- Role Tabs -->
             <div class="role-tabs">
@@ -111,7 +114,7 @@
             </div>
 
             <!-- Student Login Form -->
-            <form action="/user/login" method="POST" class="login-form active" id="studentForm">
+            <formaction="/user/login" method="POST" class="login-form active" id="studentForm">
               <h1 class="form-title">Student Login</h1>
               <div class="info-note">
                 <i class="fa fa-info-circle"></i> <strong>Students:</strong> Use your Email and PIN to login.
