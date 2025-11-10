@@ -2,74 +2,33 @@ import User from "../models/userModel.js";
 import Student from "../models/studentModel.js";
 import jwt from "jsonwebtoken";
 
-// @desc    Register a new user (student/parent/teacher)
-// @route   POST /api/users/register
-// @access  Public
-
-
 // @desc    Login user
 // @route   POST /api/users/login
 // @access  Public
 export const loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, pin } = req.body; // or password — match this with your form
 
-    // Validate input
-    if (!email || !password) {
-      return res.status(400).json({ 
-        message: "Email and password are required" 
-      });
-    }
-
-    // Find user and include password for comparison
-    const user = await User.findOne({ email }).select("+password");
+    const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: "Invalid email or password" });
+      return res.status(400).render("user-login", { error: "User not found" });
     }
 
-    // Check if user is active
-    if (!user.isActive) {
-      return res.status(403).json({ 
-        message: "Account is deactivated. Please contact admin." 
-      });
+    if (user.pin !== pin) {
+      return res.status(400).render("user-login", { error: "Invalid credentials" });
     }
 
-    // Compare password
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      return res.status(400).json({ message: "Invalid email or password" });
-    }
+    // ✅ Save session or token
+    req.session.user = user;
 
-    // Update last login
-    await user.updateLastLogin();
-
-    // Generate token
-    const token = jwt.sign(
-      { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
-
-    // Populate student details if applicable
-    await user.populate("student", "name regNumber classLevel");
-
-    res.json({
-      message: "Login successful",
-      token,
-      expiresIn: "7 days",
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        student: user.student,
-        lastLogin: user.lastLogin,
-      },
-    });
+    // ✅ Redirect to dashboard after successful login
+    return res.redirect("/user/dashboard");
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Login error:", error);
+    return res.status(500).render("user-login", { error: "Server error" });
   }
 };
+
 
 // @desc    Get user profile
 // @route   GET /api/users/profile
