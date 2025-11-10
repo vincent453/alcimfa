@@ -12,6 +12,51 @@ const router = express.Router();
 // ==========================================
 // ADMIN LOGIN & LOGOUT (No Auth Required)
 // ==========================================
+// Registration page
+router.get("/register", redirectIfLoggedIn, async (req, res) => {
+  const students = await Student.find().sort({ name: 1 });
+  res.render("user/register", { 
+    error: null,
+    students,
+    title: "User Registration"
+  });
+});
+
+// Process registration
+router.post("/register", async (req, res) => {
+  try {
+    const { name, email, password, role, studentId, phoneNumber } = req.body;
+    
+    const existing = await User.findOne({ email });
+    if (existing) {
+      const students = await Student.find().sort({ name: 1 });
+      return res.render("user/register", { 
+        error: "Email already registered",
+        students,
+        title: "User Registration"
+      });
+    }
+    
+    await User.create({
+      name,
+      email,
+      password,
+      role,
+      student: studentId || undefined,
+      phoneNumber
+    });
+    
+    res.redirect("/user/login?success=Registration successful");
+  } catch (error) {
+    const students = await Student.find().sort({ name: 1 });
+    res.render("user/register", { 
+      error: error.message,
+      students,
+      title: "User Registration"
+    });
+  }
+});
+
 
 // Show login page
 router.get("/login", redirectIfLoggedIn, (req, res) => {
