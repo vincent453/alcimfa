@@ -6,20 +6,27 @@ import jwt from "jsonwebtoken";
 // @route   POST /api/users/login
 // @access  Public
 export const loginUser = async (req, res) => {
-  try {
-    const { email, pin } = req.body; // or password — match this with your form
+  const { email, password } = req.body;
 
+  try {
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).render("user-login", { error: "User not found" });
+      return res.render("login", { error: "Invalid email or password" });
     }
 
-    if (user.pin !== pin) {
-      return res.status(400).render("user-login", { error: "Invalid credentials" });
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.render("login", { error: "Invalid email or password" });
     }
 
-    // ✅ Save session or token
-    req.session.user = user;
+    // Successful login
+    req.session.user = user; // store user in session
+    return res.redirect("/user/dashboard"); // ← this redirects after login
+  } catch (err) {
+    console.error(err);
+    return res.render("login", { error: "Something went wrong" });
+  }
+};
 
     // ✅ Redirect to dashboard after successful login
     return res.redirect("/user/dashboard");
