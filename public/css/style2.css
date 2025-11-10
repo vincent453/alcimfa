@@ -240,34 +240,26 @@ body {
   transition: margin-left 0.3s ease;
 }
 
-/* Header */
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 0;
-  margin-bottom: 30px;
-  border-bottom: 2px solid var(--border-color);
-  flex-wrap: wrap;
-  gap: 15px;
-}
+  /* Header mobile layout */
+  header {
+    padding: 15px 0;
+    margin-bottom: 20px;
+    gap: 10px;
+    flex-direction: row;
+    justify-content: space-between;
+  }
 
-header h1 {
-  font-size: 28px;
-  color: var(--primary-color);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 1;
-  min-width: 0;
-}
+  header h1 {
+    font-size: 20px;
+    flex: 1;
+    order: 1;
+  }
 
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  flex-wrap: nowrap;
-}
+  .header-actions {
+    order: 2;
+    width: auto;
+    justify-content: flex-end;
+  }
 
 .admin-name {
   font-weight: 500;
