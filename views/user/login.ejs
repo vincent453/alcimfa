@@ -1,174 +1,255 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Login - School Management</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="/css/style2.css">
-    <style>
-        .role-tabs {
-            display: flex;
-            margin-bottom: 25px;
-            border-radius: 8px;
-            overflow: hidden;
-            background: #f0f0f0;
-        }
-        
-        .role-tab {
-            flex: 1;
-            padding: 12px 20px;
-            text-align: center;
-            cursor: pointer;
-            background: #f0f0f0;
-            color: #666;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            border: none;
-        }
-        
-        .role-tab:hover {
-            background: #e0e0e0;
-        }
-        
-        .role-tab.active {
-            background: #2a5298;
-            color: white;
-        }
-        
-        .login-form {
-            display: none;
-        }
-        
-        .login-form.active {
-            display: block;
-            animation: fadeIn 0.3s ease-in-out;
-        }
-        
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .form-title {
-            text-align: center;
-            color: #2a5298;
-            margin-bottom: 25px;
-            font-size: 24px;
-        }
-        
-        .info-note {
-            background: #f0f6ff;
-            border-left: 4px solid #2a5298;
-            padding: 12px 15px;
-            margin-bottom: 20px;
-            border-radius: 4px;
-            font-size: 14px;
-            color: #444;
-        }
-        
-        .info-note i {
-            color: #2a5298;
-            margin-right: 8px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Login - Al-cimfa</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.cdnfonts.com/css/manrope" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .role-tabs {
+      display: flex;
+      margin-bottom: 25px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #f0f0f0;
+    }
+    .role-tab {
+      flex: 1;
+      padding: 12px 20px;
+      text-align: center;
+      cursor: pointer;
+      background: #f0f0f0;
+      color: #666;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border: none;
+    }
+    .role-tab:hover {
+      background: #e0e0e0;
+    }
+    .role-tab.active {
+      background: #2a5298;
+      color: white;
+    }
+    .login-form {
+      display: none;
+    }
+    .login-form.active {
+      display: block;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .form-title {
+      text-align: center;
+      color: #2a5298;
+      margin-bottom: 25px;
+      font-size: 24px;
+    }
+    .info-note {
+      background: #f0f6ff;
+      border-left: 4px solid #2a5298;
+      padding: 12px 15px;
+      margin-bottom: 20px;
+      border-radius: 4px;
+      font-size: 14px;
+      color: #444;
+    }
+    .info-note i {
+      color: #2a5298;
+      margin-right: 8px;
+    }
+  </style>
 </head>
+
 <body>
-    <div class="bg"></div>
-    <div class="form-container">
-        <img src="/img/logo-removebg-preview.png" width="600px" alt="School Logo">
-
-        <% if (error) { %>
-            <div class="alert alert-error"><%= error %></div>
-        <% } %>
-
-        <!-- Role Selection Tabs -->
-        <div class="role-tabs">
-            <button type="button" class="role-tab active" onclick="switchRole('student')">
-                <i class="fa fa-user-graduate"></i> Student
-            </button>
-            <button type="button" class="role-tab" onclick="switchRole('parent')">
-                <i class="fa fa-users"></i> Parent
-            </button>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container">
+      <div class="nav-content">
+        <div class="logo">
+          <img src="public/images/images/al-cimfa logo.svg" alt="al-cimfa logo" class="logo-img">
+          <h1>Al-cimfa School</h1>
         </div>
-
-        <!-- Student Login Form -->
-        <form action="/user/login" method="POST" class="login-form active" id="studentForm">
-            <h1 class="form-title">Student Login</h1>
-            
-            <div class="info-note">
-                <i class="fa fa-info-circle"></i>
-                <strong>Students:</strong> Use your Email and PIN to login
-            </div>
-            
-            <div class="input-container">
-                <label for="admissionNumber">Email</label> <br>
-                <i class="fa fa-id-card"></i>
-                <input type="email" id="email" name="email" placeholder="Enter your email" required>
-            </div>
-            
-            <div class="input-container">
-                <label for="pin">PIN</label> <br>
-                <i class="fa fa-lock"></i>
-              <input type="password" id="password" name="password" placeholder="Enter your Pin" required>
-            </div>
-            
-            <button type="submit">Login</button>
-            
-            <p style="text-align: center; margin-top: 15px; color: #777;">
-  For new accounts, please contact the school administrator.
-</p>
-        </form>
-
-        <!-- Parent Login Form -->
-        <form action="/user/login/parent" method="POST" class="login-form" id="parentForm">
-            <h1 class="form-title">Parent Login</h1>
-            
-            <div class="info-note">
-                <i class="fa fa-info-circle"></i>
-                <strong>Parents:</strong> Use your registered email and password
-            </div>
-            
-            <div class="input-container">
-                <label for="parentEmail">Email</label> <br>
-                <i class="fa fa-envelope"></i>
-                <input type="email" id="parentEmail" name="email" placeholder="Enter your email" required>
-            </div>
-            
-            <div class="input-container">
-                <label for="parentPassword">Password</label> <br>
-                <i class="fa fa-lock"></i>
-                <input type="password" id="parentPassword" name="password" placeholder="Enter your password" required>
-            </div>
-            
-            <button type="submit">Login</button>
-<p style="text-align: center; margin-top: 15px; color: #777;">
-  For new accounts, please contact the school administrator.
-</p>
-
-        </form>
-
-
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="check-result.html" class="active">Check Result</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="/adminlogin.html">Admin</a></li>
+          <li><button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">🌙</button></li>
+        </ul>
+        <div class="hamburger" id="hamburger">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
     </div>
+  </nav>
 
-    <script>
-        function switchRole(role) {
-            // Update active tab
-            const tabs = document.querySelectorAll('.role-tab');
-            tabs.forEach(tab => tab.classList.remove('active'));
-            event.target.closest('.role-tab').classList.add('active');
-            
-            // Show corresponding form
-            const forms = document.querySelectorAll('.login-form');
-            forms.forEach(form => form.classList.remove('active'));
-            document.getElementById(role + 'Form').classList.add('active');
-        }
-    </script>
+  <!-- Main Content -->
+  <main>
+    <section class="page-header">
+      <div class="container">
+        <h1>Login Portal</h1>
+        <p>Select your role and login to access results.</p>
+      </div>
+    </section>
+
+    <!-- Login Section -->
+    <section class="result-check-section">
+      <div class="container">
+        <div class="result-check-wrapper">
+          <div class="check-form-container">
+            <img src="/img/logo-removebg-preview.png" width="500px" alt="School Logo">
+
+            <!-- Role Tabs -->
+            <div class="role-tabs">
+              <button type="button" class="role-tab active" onclick="switchRole('student')">
+                <i class="fa fa-user-graduate"></i> Student
+              </button>
+              <button type="button" class="role-tab" onclick="switchRole('parent')">
+                <i class="fa fa-users"></i> Parent
+              </button>
+            </div>
+
+            <!-- Student Login -->
+            <form action="/user/login" method="POST" class="login-form active" id="studentForm">
+              <h1 class="form-title">Student Login</h1>
+              <div class="info-note">
+                <i class="fa fa-info-circle"></i>
+                <strong>Students:</strong> Use your Email and PIN to login.
+              </div>
+
+              <div class="input-container">
+                <label>Email</label><br>
+                <i class="fa fa-envelope"></i>
+                <input type="email" name="email" placeholder="Enter your email" required>
+              </div>
+
+              <div class="input-container">
+                <label>PIN</label><br>
+                <i class="fa fa-lock"></i>
+                <input type="password" name="password" placeholder="Enter your PIN" required>
+              </div>
+
+              <button type="submit">Login</button>
+              <p style="text-align: center; margin-top: 15px; color: #777;">
+                For new accounts, please contact the school administrator.
+              </p>
+            </form>
+
+            <!-- Parent Login -->
+            <form action="/user/login/parent" method="POST" class="login-form" id="parentForm">
+              <h1 class="form-title">Parent Login</h1>
+              <div class="info-note">
+                <i class="fa fa-info-circle"></i>
+                <strong>Parents:</strong> Use your registered email and password.
+              </div>
+
+              <div class="input-container">
+                <label>Email</label><br>
+                <i class="fa fa-envelope"></i>
+                <input type="email" name="email" placeholder="Enter your email" required>
+              </div>
+
+              <div class="input-container">
+                <label>Password</label><br>
+                <i class="fa fa-lock"></i>
+                <input type="password" name="password" placeholder="Enter your password" required>
+              </div>
+
+              <button type="submit">Login</button>
+              <p style="text-align: center; margin-top: 15px; color: #777;">
+                For new accounts, please contact the school administrator.
+              </p>
+            </form>
+          </div>
+
+          <div class="info-box">
+            <h3>Important Information</h3>
+            <ul>
+              <li>Your login credentials are confidential and should not be shared.</li>
+              <li>Results are released within 2 weeks after exams.</li>
+              <li>Contact <strong>support@alcimfa.edu</strong> for login assistance.</li>
+              <li>Download results as PDF once logged in.</li>
+              <li>All student data is secure and private.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="faq-section">
+      <div class="container">
+        <h2>Frequently Asked Questions</h2>
+        <div class="faq-grid">
+          <div class="faq-item">
+            <h3>When will my results be available?</h3>
+            <p>Results are released within two weeks after exams. You’ll be notified via email when ready.</p>
+          </div>
+          <div class="faq-item">
+            <h3>What if I forgot my login details?</h3>
+            <p>Contact the school office with your email or student ID to reset your login.</p>
+          </div>
+          <div class="faq-item">
+            <h3>Can I download my results?</h3>
+            <p>Yes, you can download your result as a PDF file once logged in.</p>
+          </div>
+          <div class="faq-item">
+            <h3>Are parent accounts separate?</h3>
+            <p>Yes, parents can view results linked to their children through their own login portal.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h4>About Us</h4>
+          <p>Al-cimfa International High School is committed to academic excellence and character building.</p>
+        </div>
+        <div class="footer-section">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="check-result.html">Check Result</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="/adminlogin.html">Admin</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Contact Info</h4>
+          <p>Email: info@alcimfa.edu</p>
+          <p>Phone: +234 8065772260, +234 8060316730, +234 705159098</p>
+          <p>Address: Behind Int'l Livestock Market, Jibi Dei-Dei, Abuja</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Al-cimfa International High School. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function switchRole(role) {
+      const tabs = document.querySelectorAll('.role-tab');
+      tabs.forEach(tab => tab.classList.remove('active'));
+      event.target.closest('.role-tab').classList.add('active');
+
+      const forms = document.querySelectorAll('.login-form');
+      forms.forEach(form => form.classList.remove('active'));
+      document.getElementById(role + 'Form').classList.add('active');
+    }
+  </script>
 </body>
 </html>
