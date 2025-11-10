@@ -244,8 +244,8 @@ body {
   header {
     padding: 15px 0;
     margin-bottom: 20px;
-    gap: 10px;
-    flex-direction: row;
+    gap: 5rem;
+    flex-direction: column;
     justify-content: space-between;
   }
 
