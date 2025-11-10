@@ -19,7 +19,8 @@
 </head>
 
 <body>
-   <%- include('../partials/sidebar') %>
+  <!-- Sidebar -->
+    <%- include('../partials/sidebar') %>
 
     <!-- Main Content -->
     <div class="main-content">
@@ -27,9 +28,9 @@
         <button class="menu-btn" id="menuBtn">
           <i class="fa fa-bars"></i>
         </button>
-        <h1>Add User</h1>
+           <h1>Add User</h1>
       </header>
-
+    
       <% if (error) { %>
         <div class="alert alert-error"><%= error %></div>
       <% } %>
