@@ -19,14 +19,15 @@
 </head>
 
 <body>
-  <div class="dashboard">
-    <!-- Admin Sidebar -->
-    <%- include('../partials/sidebar') %>
+   <%- include('../partials/sidebar') %>
 
     <!-- Main Content -->
     <div class="main-content">
       <header>
-        <h1>Add New User</h1>
+        <button class="menu-btn" id="menuBtn">
+          <i class="fa fa-bars"></i>
+        </button>
+        <h1>Add User</h1>
       </header>
 
       <% if (error) { %>
