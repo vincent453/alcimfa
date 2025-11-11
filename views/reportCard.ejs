@@ -418,27 +418,14 @@
           </div>
         </div>
 
-        <!-- Grading Scale -->
-        <div class="section-title">Grading Scale</div>
-        <div class="grading-scale">
-          <table>
-            <thead>
-              <tr>
-                <th>Grade</th>
-                <th>Min %</th>
-                <th>Max %</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% gradingScale.forEach(scale => { %>
-              <tr>
-                <td><%= scale.grade %></td>
-                <td><%= scale.min %></td>
-                <td><%= scale.max %></td>
-              </tr>
-              <% }); %>
-            </tbody>
-          </table>
+        <!-- Grading Scale - Compact -->
+        <div style="margin-bottom: 12px; padding: 8px 12px; background: #f8f9fa; border-radius: 6px; font-size: 10px;">
+          <strong style="color: #2a5298; font-size: 11px;">Grading Scale:</strong>
+          <span style="margin-left: 10px;">
+            <% gradingScale.forEach((scale, index) => { %>
+              <%= scale.grade %> (<%= scale.min %>-<%= scale.max %>%)<%= index < gradingScale.length - 1 ? ' | ' : '' %>
+            <% }); %>
+          </span>
         </div>
 
         <!-- Remarks -->
