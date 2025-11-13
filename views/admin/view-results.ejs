@@ -172,15 +172,22 @@
   </div>
 
   <script>
+    let originalRows = [];
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // store a copy of all original rows (so we never lose them)
+      const rows = document.querySelectorAll("#results-table tbody tr");
+      originalRows = Array.from(rows);
+    });
+
     function filterResults() {
       const classFilter = document.getElementById("filter-class").value;
       const termFilter = document.getElementById("filter-term").value;
       const searchText = document.getElementById("searchInput").value.toLowerCase();
       const sortValue = document.getElementById("sort-select").value;
-      const rows = Array.from(document.querySelectorAll("#results-table tbody tr"));
 
-      // Filter
-      let filtered = rows.filter(row => {
+      // Always use original data set
+      let filtered = [...originalRows].filter(row => {
         const rowClass = row.dataset.class;
         const rowTerm = row.dataset.term;
         const name = row.dataset.name;
@@ -192,7 +199,7 @@
         return classMatch && termMatch && searchMatch;
       });
 
-      // Sort
+      // Sorting
       filtered.sort((a, b) => {
         switch (sortValue) {
           case "name-asc": return a.dataset.name.localeCompare(b.dataset.name);
@@ -205,7 +212,7 @@
         }
       });
 
-      // Render
+      // Render new table
       const tbody = document.querySelector("#results-table tbody");
       tbody.innerHTML = "";
       filtered.forEach(row => tbody.appendChild(row));
@@ -215,7 +222,7 @@
       window.open(`/api/results/card/${studentId}`, "_blank");
     }
 
-    // Sidebar toggle for mobile
+    // Sidebar toggle
     const menuBtn = document.getElementById("menuBtn");
     const sidebar = document.getElementById("sidebar");
     menuBtn.addEventListener("click", () => {
