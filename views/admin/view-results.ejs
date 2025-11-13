@@ -1,16 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><%= title %> - School Management</title>
-  <link rel="stylesheet" href="/css/style2.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link href="https://fonts.cdnfonts.com/css/manrope" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style2.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link href="https://fonts.cdnfonts.com/css/manrope" rel="stylesheet" />
+
+  <style>
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      padding: 10px;
+      border-radius: 8px;
+      background: #f9f9f9;
+    }
+
+    .filters .filter-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .filters input[type="text"], .filters select {
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .filters label {
+      font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+      .filters {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .filters .filter-box {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .filters input[type="text"], .filters select {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 <body>
-<div class="admin-layout">
-     <!-- Sidebar -->
+  <div class="admin-layout">
+    <!-- Sidebar -->
     <%- include('../partials/sidebar') %>
 
     <!-- Main Content -->
@@ -22,119 +69,158 @@
         <h1>View Results</h1>
       </header>
 
-        <!-- Page content -->
-        <main class="admin-content">
-            <!-- Filters -->
-            <section class="filters card">
-              <div class="filter-box">
-                <label for="filter-class">Class:</label>
-                <select id="filter-class" onchange="filterResults()">
-                  <option value="all">All Classes</option>
-                  <option value="JSS 1">JSS 1</option>
-                  <option value="JSS 2">JSS 2</option>
-                  <option value="JSS 3">JSS 3</option>
-                  <option value="SSS 1">SSS 1</option>
-                  <option value="SSS 2">SSS 2</option>
-                  <option value="SSS 3">SSS 3</option>
-                </select>
-              </div>
+      <main class="admin-content">
+        <!-- Filters -->
+        <section class="filters card">
+          <div class="filter-box">
+            <label for="searchInput">Search:</label>
+            <input type="text" id="searchInput" placeholder="Search by student name..." oninput="filterResults()" />
+          </div>
 
-              <div class="filter-box">
-                <label for="filter-term">Term:</label>
-                <select id="filter-term" onchange="filterResults()">
-                  <option value="all">All Terms</option>
-                  <option value="1st Term">1st Term</option>
-                  <option value="2nd Term">2nd Term</option>
-                  <option value="3rd Term">3rd Term</option>
-                </select>
-              </div>
-            </section>
+          <div class="filter-box">
+            <label for="filter-class">Class:</label>
+            <select id="filter-class" onchange="filterResults()">
+              <option value="all">All Classes</option>
+              <option value="JSS 1">JSS 1</option>
+              <option value="JSS 2">JSS 2</option>
+              <option value="JSS 3">JSS 3</option>
+              <option value="SSS 1">SSS 1</option>
+              <option value="SSS 2">SSS 2</option>
+              <option value="SSS 3">SSS 3</option>
+            </select>
+          </div>
 
-            <!-- Results table -->
-            <section class="table-container">
-              <table id="results-table">
-                <thead>
-                  <tr>
-                    <th>Student Name</th>
-                    <th>Class</th>
-                    <th>Term</th>
-                    <th>Total Score</th>
-                    <th>Average</th>
-                    <th>GPA</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% if (results.length === 0) { %>
-                  <tr>
-                    <td colspan="8" class="text-center">No results found</td>
-                  </tr>
-                  <% } else { %> 
-                    <% results.forEach(item => { %>
-                      <tr
-                        data-class="<%= item.student.classLevel %>"
-                        data-term="<%= item.result.term %>"
-                      >
-                        <td><%= item.student.name %></td>
-                        <td><%= item.student.classLevel %></td>
-                        <td><%= item.result.term %></td>
-                        <td>
-                          <%= item.result.totalScore %>/<%= item.result.subjects.length * 100 %>
-                        </td>
-                        <td><%= item.result.average %>%</td>
-                        <td><%= item.result.gpa %></td>
-                        <td>
-                          <span class="badge badge-<%= item.result.resultStatus.toLowerCase() %>">
-                            <%= item.result.resultStatus %>
-                          </span>
-                        </td>
-                        <td class="actions">
-                          <a href="/api/results/card/<%= item.student._id %>" target="_blank" class="btn btn-sm btn-view">
-                            <i class="fa fa-eye"></i> View Card
-                          </a>
-                          <button onclick="printResult('<%= item.student._id %>')" class="btn btn-sm btn-print">
-                            <i class="fa fa-print"></i> Print
-                          </button>
-                        </td>
-                      </tr>
-                    <% }); %>
-                  <% } %>
-                </tbody>
-              </table>
-            </section>
-        </main>
+          <div class="filter-box">
+            <label for="filter-term">Term:</label>
+            <select id="filter-term" onchange="filterResults()">
+              <option value="all">All Terms</option>
+              <option value="1st Term">1st Term</option>
+              <option value="2nd Term">2nd Term</option>
+              <option value="3rd Term">3rd Term</option>
+            </select>
+          </div>
+
+          <div class="filter-box">
+            <label for="sort-select">Sort By:</label>
+            <select id="sort-select" onchange="filterResults()">
+              <option value="">Default</option>
+              <option value="name-asc">Name (A–Z)</option>
+              <option value="name-desc">Name (Z–A)</option>
+              <option value="class-asc">Class (A–Z)</option>
+              <option value="class-desc">Class (Z–A)</option>
+              <option value="avg-asc">Average (Low–High)</option>
+              <option value="avg-desc">Average (High–Low)</option>
+            </select>
+          </div>
+        </section>
+
+        <!-- Results Table -->
+        <section class="table-container">
+          <table id="results-table">
+            <thead>
+              <tr>
+                <th>Student Name</th>
+                <th>Class</th>
+                <th>Term</th>
+                <th>Total Score</th>
+                <th>Average</th>
+                <th>GPA</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (results.length === 0) { %>
+              <tr>
+                <td colspan="8" class="text-center">No results found</td>
+              </tr>
+              <% } else { %>
+              <% results.forEach(item => { %>
+              <tr
+                data-class="<%= item.student.classLevel %>"
+                data-term="<%= item.result.term %>"
+                data-name="<%= item.student.name.toLowerCase() %>"
+                data-average="<%= item.result.average %>"
+              >
+                <td><%= item.student.name %></td>
+                <td><%= item.student.classLevel %></td>
+                <td><%= item.result.term %></td>
+                <td><%= item.result.totalScore %>/<%= item.result.subjects.length * 100 %></td>
+                <td><%= item.result.average %>%</td>
+                <td><%= item.result.gpa %></td>
+                <td>
+                  <span class="badge badge-<%= item.result.resultStatus.toLowerCase() %>">
+                    <%= item.result.resultStatus %>
+                  </span>
+                </td>
+                <td class="actions">
+                  <a href="/api/results/card/<%= item.student._id %>" target="_blank" class="btn btn-sm btn-view">
+                    <i class="fa fa-eye"></i> View Card
+                  </a>
+                  <button onclick="printResult('<%= item.student._id %>')" class="btn btn-sm btn-print">
+                    <i class="fa fa-print"></i> Print
+                  </button>
+                </td>
+              </tr>
+              <% }); %>
+              <% } %>
+            </tbody>
+          </table>
+        </section>
+      </main>
     </div>
-</div>
+  </div>
 
-<script>
-function filterResults() {
-  const classFilter = document.getElementById("filter-class").value;
-  const termFilter = document.getElementById("filter-term").value;
-  const rows = document.querySelectorAll("#results-table tbody tr");
+  <script>
+    function filterResults() {
+      const classFilter = document.getElementById("filter-class").value;
+      const termFilter = document.getElementById("filter-term").value;
+      const searchText = document.getElementById("searchInput").value.toLowerCase();
+      const sortValue = document.getElementById("sort-select").value;
+      const rows = Array.from(document.querySelectorAll("#results-table tbody tr"));
 
-  rows.forEach((row) => {
-    const rowClass = row.getAttribute("data-class");
-    const rowTerm = row.getAttribute("data-term");
+      // Filter
+      let filtered = rows.filter(row => {
+        const rowClass = row.dataset.class;
+        const rowTerm = row.dataset.term;
+        const name = row.dataset.name;
 
-    const classMatch = classFilter === "all" || rowClass === classFilter;
-    const termMatch = termFilter === "all" || rowTerm === termFilter;
+        const classMatch = classFilter === "all" || rowClass === classFilter;
+        const termMatch = termFilter === "all" || rowTerm === termFilter;
+        const searchMatch = name.includes(searchText);
 
-    row.style.display = (classMatch && termMatch) ? "" : "none";
-  });
-}
+        return classMatch && termMatch && searchMatch;
+      });
 
-function printResult(studentId) {
-  window.open(`/api/results/card/${studentId}`, "_blank");
-}
+      // Sort
+      filtered.sort((a, b) => {
+        switch (sortValue) {
+          case "name-asc": return a.dataset.name.localeCompare(b.dataset.name);
+          case "name-desc": return b.dataset.name.localeCompare(a.dataset.name);
+          case "class-asc": return a.dataset.class.localeCompare(b.dataset.class);
+          case "class-desc": return b.dataset.class.localeCompare(a.dataset.class);
+          case "avg-asc": return parseFloat(a.dataset.average) - parseFloat(b.dataset.average);
+          case "avg-desc": return parseFloat(b.dataset.average) - parseFloat(a.dataset.average);
+          default: return 0;
+        }
+      });
+
+      // Render
+      const tbody = document.querySelector("#results-table tbody");
+      tbody.innerHTML = "";
+      filtered.forEach(row => tbody.appendChild(row));
+    }
+
+    function printResult(studentId) {
+      window.open(`/api/results/card/${studentId}`, "_blank");
+    }
 
     // Sidebar toggle for mobile
-    const menuBtn = document.getElementById('menuBtn');
-    const sidebar = document.getElementById('sidebar');
-    menuBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('active');
+    const menuBtn = document.getElementById("menuBtn");
+    const sidebar = document.getElementById("sidebar");
+    menuBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("active");
     });
-
-</script>
+  </script>
 </body>
 </html>
