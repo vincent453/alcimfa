@@ -191,26 +191,75 @@
     </main>
   </div>
 
-  <script>
-    function filterUsers() {
-      const roleFilter = document.getElementById('filter-role').value;
-      const statusFilter = document.getElementById('filter-status').value;
-      const searchText = document.getElementById('searchInput').value.toLowerCase();
-      const sortValue = document.getElementById('sort-select').value;
-      const rows = Array.from(document.querySelectorAll('#users-table tbody tr'));
+<script>
+  let originalRows = [];
 
-      // Filter
-      let filtered = rows.filter(row => {
-        const rowRole = row.dataset.role;
-        const rowStatus = row.dataset.status;
-        const name = row.dataset.name;
-        const email = row.dataset.email;
+  window.addEventListener("DOMContentLoaded", () => {
+    // Store all rows when page first loads
+    const rows = document.querySelectorAll("#users-table tbody tr");
+    originalRows = Array.from(rows);
+  });
 
-        const roleMatch = roleFilter === 'all' || rowRole === roleFilter;
-        const statusMatch = statusFilter === 'all' || rowStatus === statusFilter;
-        const searchMatch = name.includes(searchText) || email.includes(searchText);
+  function filterUsers() {
+    const roleFilter = document.getElementById("filter-role").value;
+    const statusFilter = document.getElementById("filter-status").value;
+    const searchText = document.getElementById("searchInput").value.toLowerCase();
+    const sortValue = document.getElementById("sort-select").value;
 
-        return roleMatch && statusMatch && searchMatch;
-      });
+    // Start filtering from the original dataset
+    let filtered = [...originalRows].filter((row) => {
+      const rowRole = row.dataset.role;
+      const rowStatus = row.dataset.status;
+      const name = row.dataset.name;
+      const email = row.dataset.email;
 
-      // Sort
+      const roleMatch = roleFilter === "all" || rowRole === roleFilter;
+      const statusMatch = statusFilter === "all" || rowStatus === statusFilter;
+      const searchMatch = name.includes(searchText) || email.includes(searchText);
+
+      return roleMatch && statusMatch && searchMatch;
+    });
+
+    // Sorting logic
+    filtered.sort((a, b) => {
+      const nameA = a.dataset.name;
+      const nameB = b.dataset.name;
+      const roleA = a.dataset.role;
+      const roleB = b.dataset.role;
+      const dateA = parseInt(a.dataset.date);
+      const dateB = parseInt(b.dataset.date);
+
+      switch (sortValue) {
+        case "name-asc":
+          return nameA.localeCompare(nameB);
+        case "name-desc":
+          return nameB.localeCompare(nameA);
+        case "role-asc":
+          return roleA.localeCompare(roleB);
+        case "role-desc":
+          return roleB.localeCompare(roleA);
+        case "date-asc":
+          return dateA - dateB;
+        case "date-desc":
+          return dateB - dateA;
+        default:
+          return 0;
+      }
+    });
+
+    // Re-render the table body
+    const tbody = document.querySelector("#users-table tbody");
+    tbody.innerHTML = "";
+    filtered.forEach((row) => tbody.appendChild(row));
+  }
+
+  // Trigger filtering whenever search input changes
+  document.getElementById("searchInput").addEventListener("input", filterUsers);
+
+  // Sidebar toggle for mobile
+  const menuBtn = document.getElementById("menuBtn");
+  const sidebar = document.getElementById("sidebar");
+  menuBtn.addEventListener("click", () => {
+    sidebar.classList.toggle("active");
+  });
+</script>
