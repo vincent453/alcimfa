@@ -1,7 +1,7 @@
 import Student from "../models/studentModel.js";
 
 // @desc Add new student
-// @route POST /api/students
+// @route POST /admin/students/add
 export const addStudent = async (req, res) => {
   try {
     const {
@@ -26,6 +26,12 @@ export const addStudent = async (req, res) => {
       return res.status(400).json({ message: "Reg Number already exists" });
     }
 
+    // ⭐ If a profile picture is uploaded
+    let profilePhotoUrl = null;
+    if (req.file && req.file.path) {
+      profilePhotoUrl = req.file.path; // Cloudinary gives the full URL
+    }
+
     const student = await Student.create({
       name,
       classLevel,
@@ -36,17 +42,21 @@ export const addStudent = async (req, res) => {
       address,
       parentName,
       parentPhone,
-      parentEmail
+      parentEmail,
+      profilePhoto: profilePhotoUrl,
     });
 
     res.status(201).json(student);
+
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: error.message });
   }
 };
 
+
 // @desc Get all students
-// @route GET /api/students
+// @route GET /admin/students
 export const getStudents = async (req, res) => {
   try {
     const students = await Student.find().sort({ createdAt: -1 });
@@ -56,26 +66,45 @@ export const getStudents = async (req, res) => {
   }
 };
 
+
 // @desc Update student
-// @route PUT /api/students/:id
+// @route POST /admin/students/edit/:id
 export const updateStudent = async (req, res) => {
   try {
     const { id } = req.params;
-    const updated = await Student.findByIdAndUpdate(id, req.body, { new: true });
-    if (!updated) return res.status(404).json({ message: "Student not found" });
+
+    let updateData = { ...req.body };
+
+    // ⭐ If new profile photo uploaded, replace old one
+    if (req.file && req.file.path) {
+      updateData.profilePhoto = req.file.path;
+    }
+
+    const updated = await Student.findByIdAndUpdate(id, updateData, { new: true });
+
+    if (!updated) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
     res.status(200).json(updated);
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
+
 // @desc Delete student
-// @route DELETE /api/students/:id
+// @route DELETE /admin/students/delete/:id
 export const deleteStudent = async (req, res) => {
   try {
     const { id } = req.params;
+
     const deleted = await Student.findByIdAndDelete(id);
-    if (!deleted) return res.status(404).json({ message: "Student not found" });
+    if (!deleted) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
     res.status(200).json({ message: "Student removed successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
