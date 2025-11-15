@@ -15,7 +15,6 @@ const router = express.Router();
 router.post(
   "/",
   protect,
-  upload.single("profilePhoto"), // <-- IMPORTANT
   addStudent
 );
 
