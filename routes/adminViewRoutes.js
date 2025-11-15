@@ -1,5 +1,6 @@
 import express from "express";
 import { requireAdminAuth, redirectIfLoggedIn } from "../middleware/renderMiddleware.js";
+import { upload, uploadToCloudinary } from '../config/cloudinary.js'; // ⭐ MULTER + CLOUDINARY
 import Admin from "../models/adminModel.js";
 import Student from "../models/studentModel.js";
 import Result from "../models/resultModel.js";
