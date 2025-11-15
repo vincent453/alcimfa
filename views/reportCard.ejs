@@ -61,13 +61,43 @@
         margin-top: 2px;
       }
 
+      /* ⭐ NEW: Student Info with Photo */
+      .student-info-wrapper {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 12px;
+        padding: 8px 15px;
+        background: #f8f9fa;
+        border-bottom: 2px solid #2a5298;
+      }
+
+      .student-photo {
+        width: 80px;
+        height: 100px;
+        border-radius: 5px;
+        object-fit: cover;
+        border: 3px solid #2a5298;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      }
+
+      .student-photo-placeholder {
+        width: 80px;
+        height: 100px;
+        border-radius: 5px;
+        border: 3px dashed #2a5298;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #e9ecef;
+        font-size: 10px;
+        color: #6c757d;
+        text-align: center;
+      }
+
       .student-info {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 6px;
-        padding: 8px 15px;
-        background: #f8f9fa;
-        border-bottom: 2px solid #2a5298;
         font-size: 10px;
       }
 
@@ -223,13 +253,24 @@
         <div class="session-info"><%= session %> Academic Session</div>
       </div>
 
-      <div class="student-info">
-        <div class="info-item"><span class="info-label">Name:</span> <span class="info-value"><%= student.name %></span></div>
-        <div class="info-item"><span class="info-label">Adm. No:</span> <span class="info-value"><%= student.regNumber %></span></div>
-        <div class="info-item"><span class="info-label">Class:</span> <span class="info-value"><%= student.classLevel %></span></div>
-        <div class="info-item"><span class="info-label">Section:</span> <span class="info-value"><%= student.section %></span></div>
-        <div class="info-item"><span class="info-label">Exam:</span> <span class="info-value"><%= student.examName %></span></div>
-        <div class="info-item"><span class="info-label">Gender:</span> <span class="info-value"><%= student.gender %></span></div>
+      <!-- ⭐ UPDATED: Student Info with Photo -->
+      <div class="student-info-wrapper">
+        <div>
+          <% if (student.photo) { %>
+            <img src="<%= student.photo %>" alt="<%= student.name %>" class="student-photo" />
+          <% } else { %>
+            <div class="student-photo-placeholder">No Photo</div>
+          <% } %>
+        </div>
+        
+        <div class="student-info">
+          <div class="info-item"><span class="info-label">Name:</span> <span class="info-value"><%= student.name %></span></div>
+          <div class="info-item"><span class="info-label">Adm. No:</span> <span class="info-value"><%= student.regNumber %></span></div>
+          <div class="info-item"><span class="info-label">Class:</span> <span class="info-value"><%= student.classLevel %></span></div>
+          <div class="info-item"><span class="info-label">Section:</span> <span class="info-value"><%= student.section %></span></div>
+          <div class="info-item"><span class="info-label">Exam:</span> <span class="info-value"><%= student.examName %></span></div>
+          <div class="info-item"><span class="info-label">Gender:</span> <span class="info-value"><%= student.gender %></span></div>
+        </div>
       </div>
 
       <div class="content">
