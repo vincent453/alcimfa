@@ -178,7 +178,8 @@ router.get("/students", requireAdminAuth, async (req, res) => {
 });
 
 // Show add student form
-router.get("/students/add", upload.single('photo'), requireAdminAuth, (req, res) => {
+// ✅ CORRECT ORDER
+router.get("/students/add", requireAdminAuth, (req, res) => {
   res.render("admin/add-student", {
     title: "Add New Student",
     admin: req.admin,
@@ -188,9 +189,17 @@ router.get("/students/add", upload.single('photo'), requireAdminAuth, (req, res)
 });
 
 // Process add student
-router.post("/students/add", requireAdminAuth, async (req, res) => {
+// ✅ Add upload middleware to POST route
+router.post("/students/add", requireAdminAuth, upload.single('photo'), async (req, res) => {
   try {
     const { name, classLevel, session, regNumber, gender, dateOfBirth, address, parentName, parentPhone, parentEmail } = req.body;
+    
+    // Handle photo upload if present
+    let photoUrl = null;
+    if (req.file) {
+      const result = await uploadToCloudinary(req.file.buffer, 'students');
+      photoUrl = result.secure_url;
+    }
     
     // Check if reg number exists
     const existing = await Student.findOne({ regNumber });
@@ -198,7 +207,7 @@ router.post("/students/add", requireAdminAuth, async (req, res) => {
       return res.render("admin/add-student", {
         title: "Add New Student",
         admin: req.admin,
-        adminToken: req.session.adminToken, // ✅ Added
+        adminToken: req.session.adminToken,
         error: "Registration number already exists"
       });
     }
@@ -213,7 +222,8 @@ router.post("/students/add", requireAdminAuth, async (req, res) => {
       address,
       parentName,
       parentPhone,
-      parentEmail
+      parentEmail,
+      photo: photoUrl // Save photo URL
     });
     
     res.redirect("/admin/students?success=Student added successfully");
@@ -221,12 +231,11 @@ router.post("/students/add", requireAdminAuth, async (req, res) => {
     res.render("admin/add-student", {
       title: "Add New Student",
       admin: req.admin,
-      adminToken: req.session.adminToken, // ✅ Added
+      adminToken: req.session.adminToken,
       error: error.message
     });
   }
 });
-
 // Show edit student form
 router.get("/students/edit/:id", requireAdminAuth, async (req, res) => {
   try {
