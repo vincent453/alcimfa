@@ -25,7 +25,6 @@ router.get("/", protect, getStudents);
 router.put(
   "/:id",
   protect,
-  upload.single("profilePhoto"), // <-- allow updating profile photo
   updateStudent
 );
 
