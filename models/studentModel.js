@@ -7,46 +7,58 @@ const studentSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+
     classLevel: {
       type: String,
       required: true,
     },
+
     session: {
       type: String,
       required: true,
     },
+
     regNumber: {
       type: String,
       required: true,
       unique: true,
     },
+
     gender: {
       type: String,
-      enum: {
-        values: ["Male", "Female"],
-        message: "Gender must be either Male or Female",
-      },
+      enum: ["Male", "Female"],
       required: true,
     },
+
     dateOfBirth: {
       type: Date,
     },
+
     address: {
       type: String,
       trim: true,
     },
+
     parentName: {
       type: String,
       trim: true,
     },
+
     parentPhone: {
       type: String,
       trim: true,
     },
+
     parentEmail: {
       type: String,
       trim: true,
       lowercase: true,
+    },
+
+    // ⭐ NEW FIELD FOR PROFILE PICTURE
+    profilePhoto: {
+      type: String,
+      default: null, // Will store Cloudinary URL
     },
   },
   { timestamps: true }
