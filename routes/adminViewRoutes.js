@@ -177,7 +177,7 @@ router.get("/students", requireAdminAuth, async (req, res) => {
 });
 
 // Show add student form
-router.get("/students/add", requireAdminAuth, (req, res) => {
+router.get("/students/add", upload.single('photo'), requireAdminAuth, (req, res) => {
   res.render("admin/add-student", {
     title: "Add New Student",
     admin: req.admin,
