@@ -7,7 +7,7 @@ import {
 } from "../controllers/studentController.js";
 
 import { protect } from "../middleware/authMiddleware.js";
-import { upload, uploadToCloudinary } from '../config/cloudinary.js'; // ⭐ MULTER + CLOUDINARY
+
 
 const router = express.Router();
 
