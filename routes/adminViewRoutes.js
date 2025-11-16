@@ -189,16 +189,17 @@ router.get("/students/add", requireAdminAuth, (req, res) => {
 });
 
 // Process add student
-// ✅ Add upload middleware to POST route
 router.post("/students/add", requireAdminAuth, upload.single('photo'), async (req, res) => {
   try {
     const { name, classLevel, session, regNumber, gender, dateOfBirth, address, parentName, parentPhone, parentEmail } = req.body;
     
     // Handle photo upload if present
-    let photoUrl = null;
+    let profilePhotoUrl = null;
     if (req.file) {
+      console.log('File received:', req.file); // Debug log
       const result = await uploadToCloudinary(req.file.buffer, 'students');
-      photoUrl = result.secure_url;
+      profilePhotoUrl = result.secure_url;
+      console.log('Cloudinary URL:', profilePhotoUrl); // Debug log
     }
     
     // Check if reg number exists
@@ -212,7 +213,7 @@ router.post("/students/add", requireAdminAuth, upload.single('photo'), async (re
       });
     }
     
-    await Student.create({
+    const newStudent = await Student.create({
       name,
       classLevel,
       session,
@@ -223,11 +224,13 @@ router.post("/students/add", requireAdminAuth, upload.single('photo'), async (re
       parentName,
       parentPhone,
       parentEmail,
-      photo: photoUrl // Save photo URL
+      profilePhoto: profilePhotoUrl // ⭐ Save as profilePhoto
     });
     
+    console.log('Student created:', newStudent); // Debug log
     res.redirect("/admin/students?success=Student added successfully");
   } catch (error) {
+    console.error('Error adding student:', error);
     res.render("admin/add-student", {
       title: "Add New Student",
       admin: req.admin,
