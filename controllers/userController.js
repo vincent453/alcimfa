@@ -288,7 +288,7 @@ export const activateUser = async (req, res) => {
     user.isActive = true;
     await user.save();
 
-    res.json({ message: "User account activated successfully" });
+     return res.redirect("/admin/users");
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
