@@ -34,17 +34,9 @@
       font-size: 14px;
     }
 
-    .filters label {
-      font-weight: 600;
-    }
-
     .table-container table {
       width: 100%;
       border-collapse: collapse;
-    }
-
-    .text-center {
-      text-align: center;
     }
 
     @media (max-width: 768px) {
@@ -52,19 +44,11 @@
         flex-direction: column;
         align-items: stretch;
       }
-
-      .filters .filter-box {
-        width: 100%;
-        justify-content: space-between;
-      }
-
-      .filters input[type="text"], .filters select {
-        width: 100%;
-      }
     }
   </style>
 </head>
 <body>
+
   <!-- Sidebar -->
   <%- include('../partials/sidebar') %>
 
@@ -77,8 +61,8 @@
       <h1>User Management</h1>
     </header>
 
-    <!-- Page content -->
     <main class="admin-content">
+
       <!-- Filters -->
       <section class="filters card">
         <div class="filter-box">
@@ -149,11 +133,13 @@
                 >
                   <td><%= user.name %></td>
                   <td><%= user.email %></td>
+
                   <td>
                     <span class="badge badge-<%= user.role %>">
                       <%= user.role.charAt(0).toUpperCase() + user.role.slice(1) %>
                     </span>
                   </td>
+
                   <td>
                     <% if (user.student) { %>
                       <%= user.student.name %> (<%= user.student.regNumber %>)
@@ -161,26 +147,31 @@
                       N/A
                     <% } %>
                   </td>
+
                   <td>
                     <span class="badge badge-<%= user.isActive ? 'success' : 'danger' %>">
                       <%= user.isActive ? 'Active' : 'Inactive' %>
                     </span>
                   </td>
+
                   <td><%= new Date(user.createdAt).toLocaleDateString() %></td>
+
                   <td class="actions">
+
                     <% if (user.isActive) { %>
-                      <form action="/api/users/<%= user._id %>/deactivate" method="POST" style="display:inline;">
-                        <button type="submit" class="btn btn-sm btn-warning">
+                      <form action="/api/users/<%= user._id %>/deactivate" method="POST" class="deactivate-form" style="display:inline;">
+                        <button type="button" class="btn btn-sm btn-warning deactivate-btn">
                           <i class="fa fa-ban"></i> Deactivate
                         </button>
                       </form>
                     <% } else { %>
-                      <form action="/api/users/<%= user._id %>/activate" method="POST" style="display:inline;">
-                        <button type="submit" class="btn btn-sm btn-success">
+                      <form action="/api/users/<%= user._id %>/activate" method="POST" class="activate-form" style="display:inline;">
+                        <button type="button" class="btn btn-sm btn-success activate-btn">
                           <i class="fa fa-check"></i> Activate
                         </button>
                       </form>
                     <% } %>
+
                   </td>
                 </tr>
               <% }); %>
@@ -188,78 +179,106 @@
           </tbody>
         </table>
       </section>
+
     </main>
   </div>
 
-<script>
-  let originalRows = [];
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-  window.addEventListener("DOMContentLoaded", () => {
-    // Store all rows when page first loads
-    const rows = document.querySelectorAll("#users-table tbody tr");
-    originalRows = Array.from(rows);
-  });
+  <script>
+    let originalRows = [];
 
-  function filterUsers() {
-    const roleFilter = document.getElementById("filter-role").value;
-    const statusFilter = document.getElementById("filter-status").value;
-    const searchText = document.getElementById("searchInput").value.toLowerCase();
-    const sortValue = document.getElementById("sort-select").value;
-
-    // Start filtering from the original dataset
-    let filtered = [...originalRows].filter((row) => {
-      const rowRole = row.dataset.role;
-      const rowStatus = row.dataset.status;
-      const name = row.dataset.name;
-      const email = row.dataset.email;
-
-      const roleMatch = roleFilter === "all" || rowRole === roleFilter;
-      const statusMatch = statusFilter === "all" || rowStatus === statusFilter;
-      const searchMatch = name.includes(searchText) || email.includes(searchText);
-
-      return roleMatch && statusMatch && searchMatch;
+    window.addEventListener("DOMContentLoaded", () => {
+      originalRows = Array.from(document.querySelectorAll("#users-table tbody tr"));
     });
 
-    // Sorting logic
-    filtered.sort((a, b) => {
-      const nameA = a.dataset.name;
-      const nameB = b.dataset.name;
-      const roleA = a.dataset.role;
-      const roleB = b.dataset.role;
-      const dateA = parseInt(a.dataset.date);
-      const dateB = parseInt(b.dataset.date);
+    function filterUsers() {
+      const roleFilter = document.getElementById("filter-role").value;
+      const statusFilter = document.getElementById("filter-status").value;
+      const searchText = document.getElementById("searchInput").value.toLowerCase();
+      const sortValue = document.getElementById("sort-select").value;
 
-      switch (sortValue) {
-        case "name-asc":
-          return nameA.localeCompare(nameB);
-        case "name-desc":
-          return nameB.localeCompare(nameA);
-        case "role-asc":
-          return roleA.localeCompare(roleB);
-        case "role-desc":
-          return roleB.localeCompare(roleA);
-        case "date-asc":
-          return dateA - dateB;
-        case "date-desc":
-          return dateB - dateA;
-        default:
-          return 0;
-      }
+      let filtered = [...originalRows].filter(row => {
+        const roleMatch = roleFilter === "all" || row.dataset.role === roleFilter;
+        const statusMatch = statusFilter === "all" || row.dataset.status === statusFilter;
+        const searchMatch =
+          row.dataset.name.includes(searchText) ||
+          row.dataset.email.includes(searchText);
+
+        return roleMatch && statusMatch && searchMatch;
+      });
+
+      filtered.sort((a, b) => {
+        const nameA = a.dataset.name;
+        const nameB = b.dataset.name;
+
+        switch (sortValue) {
+          case "name-asc": return nameA.localeCompare(nameB);
+          case "name-desc": return nameB.localeCompare(nameA);
+          default: return 0;
+        }
+      });
+
+      const tbody = document.querySelector("#users-table tbody");
+      tbody.innerHTML = "";
+      filtered.forEach(row => tbody.appendChild(row));
+    }
+
+    document.getElementById("searchInput").addEventListener("input", filterUsers);
+
+
+    // ===============================
+    // 🔥 CONFIRMATION POPUPS
+    // ===============================
+
+    document.addEventListener("DOMContentLoaded", () => {
+
+      // Deactivate confirmation
+      document.querySelectorAll(".deactivate-btn").forEach(btn => {
+        btn.addEventListener("click", function () {
+          const form = this.closest("form");
+
+          Swal.fire({
+            title: "Deactivate User?",
+            text: "This user will no longer be able to log in.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, Deactivate"
+          }).then(result => {
+            if (result.isConfirmed) {
+              form.submit();
+            }
+          });
+        });
+      });
+
+      // Activate confirmation
+      document.querySelectorAll(".activate-btn").forEach(btn => {
+        btn.addEventListener("click", function () {
+          const form = this.closest("form");
+
+          Swal.fire({
+            title: "Activate User?",
+            text: "This user will regain access to their account.",
+            icon: "info",
+            showCancelButton: true,
+            confirmButtonColor: "#28a745",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, Activate"
+          }).then(result => {
+            if (result.isConfirmed) {
+              form.submit();
+            }
+          });
+        });
+      });
+
     });
 
-    // Re-render the table body
-    const tbody = document.querySelector("#users-table tbody");
-    tbody.innerHTML = "";
-    filtered.forEach((row) => tbody.appendChild(row));
-  }
+  </script>
 
-  // Trigger filtering whenever search input changes
-  document.getElementById("searchInput").addEventListener("input", filterUsers);
-
-  // Sidebar toggle for mobile
-  const menuBtn = document.getElementById("menuBtn");
-  const sidebar = document.getElementById("sidebar");
-  menuBtn.addEventListener("click", () => {
-    sidebar.classList.toggle("active");
-  });
-</script>
+</body>
+</html>
