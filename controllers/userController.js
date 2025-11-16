@@ -268,7 +268,7 @@ export const deactivateUser = async (req, res) => {
     user.isActive = false;
     await user.save();
 
-    res.json({ message: "User account deactivated successfully" });
+    return res.redirect("/admin/users");
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
