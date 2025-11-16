@@ -35,8 +35,8 @@ router.get("/", protectAdmin, getAllUsers);
 router.get("/:id", protectAdmin, getUserById);
 router.put("/:id", protectAdmin, updateUser);
 router.delete("/:id", protectAdmin, deleteUser);
-router.post("/:id/deactivate", protectAdmin, deactivateUser);
-router.post("/:id/activate", protectAdmin, activateUser);
+router.post("/:id/deactivate", deactivateUser);
+router.post("/:id/activate", activateUser);
 
 
 export default router;
