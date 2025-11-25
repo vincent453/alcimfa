@@ -1,4 +1,4 @@
-qimport express from "express";
+import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { requireAdminAuth, redirectIfLoggedIn } from "../middleware/renderMiddleware.js";
