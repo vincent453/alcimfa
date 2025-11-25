@@ -138,6 +138,54 @@ export const getStudentResult = async (req, res) => {
 
 /**
  * ----------------------------------------------------
+ * VIEW ALL RESULTS (Render EJS page with table)
+ * ----------------------------------------------------
+ */
+export const viewAllResults = async (req, res) => {
+  try {
+    // Fetch all results and populate student details
+    const results = await Result.find()
+      .populate('student')
+      .sort({ createdAt: -1 }); // Sort by newest first
+
+    // Filter out any results where student doesn't exist (orphaned records)
+    const validResults = results.filter(result => result.student);
+
+    // Transform data to match your template structure
+    const formattedResults = validResults.map(result => ({
+      student: {
+        _id: result.student._id,
+        name: result.student.name,
+        classLevel: result.student.classLevel
+      },
+      result: {
+        term: result.term,
+        session: result.session,
+        totalScore: result.totalScore,
+        average: result.average,
+        gpa: result.gpa,
+        resultStatus: result.resultStatus,
+        subjects: result.subjects
+      }
+    }));
+
+    return res.render('results/view', { 
+      title: 'View Results',
+      results: formattedResults 
+    });
+
+  } catch (error) {
+    console.error('View All Results Error:', error);
+    return res.render('results/view', { 
+      title: 'View Results',
+      results: [],
+      error: 'Failed to load results'
+    });
+  }
+};
+
+/**
+ * ----------------------------------------------------
  * RENDER EJS REPORT CARD WITH PHOTO
  * ----------------------------------------------------
  */
