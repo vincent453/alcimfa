@@ -86,7 +86,7 @@ app.use((req, res, next) => {
       <body>
         <div>
           <h1>Site Temporarily Suspended</h1>
-          <p>This site has been temporarily suspended. Please contact the administrator for more information.</p>
+          <p>This website has been temporarily suspended due to outstanding payment. Access will be restored once payment is received.</p>
         </div>
       </body>
       </html>
