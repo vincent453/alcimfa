@@ -54,6 +54,47 @@ app.use((req, res, next) => {
   next();
 });
 
+// =======================
+// SITE SUSPENSION MIDDLEWARE
+// =======================
+const isSuspended = true; // Set to false to resume site
+
+app.use((req, res, next) => {
+  if (isSuspended && !req.path.startsWith("/admin")) {
+    return res.send(`
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Site Suspended</title>
+        <style>
+          body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            color: #333;
+            text-align: center;
+          }
+          h1 { font-size: 2rem; margin-bottom: 10px; }
+          p { font-size: 1.2rem; }
+        </style>
+      </head>
+      <body>
+        <div>
+          <h1>Site Temporarily Suspended</h1>
+          <p>This site has been temporarily suspended. Please contact the administrator for more information.</p>
+        </div>
+      </body>
+      </html>
+    `);
+  }
+  next();
+});
+
 // Set EJS as view engine
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
