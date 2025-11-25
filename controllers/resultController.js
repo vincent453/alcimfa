@@ -141,102 +141,70 @@ export const getStudentResult = async (req, res) => {
  * VIEW ALL RESULTS (Render EJS page with table)
  * ----------------------------------------------------
  */
-export const viewAllResults = async (req, res) => {
+export const getStudentResult = async (req, res) => {
   try {
-    // Fetch all results and populate student details
-    const results = await Result.find()
-      .populate('student')
-      .sort({ createdAt: -1 }); // Sort by newest first
+    const { studentId } = req.params;
+    const result = await Result.findOne({ student: studentId })
+      .populate("student", "name regNumber classLevel gender");
 
-    console.log('📊 Total results found:', results.length);
-    
-    // Filter out any results where student doesn't exist (orphaned records)
-    const validResults = results.filter(result => result.student);
-    
-    console.log('✅ Valid results (with students):', validResults.length);
+    if (!result) {
+      return res.status(404).json({ message: "No result found" });
+    }
 
-    // Transform data to match your template structure
-    const formattedResults = validResults.map(result => ({
-      student: {
-        _id: result.student._id,
-        name: result.student.name,
-        classLevel: result.student.classLevel
-      },
-      result: {
-        term: result.term,
-        session: result.session,
-        totalScore: result.totalScore,
-        average: result.average,
-        gpa: result.gpa,
-        resultStatus: result.resultStatus,
-        subjects: result.subjects
-      }
-    }));
-
-    console.log('📦 Formatted results:', formattedResults.length);
-
-    // ⭐ Changed from 'results/view' to 'admin/view-results'
-    return res.render('admin/view-results', { 
-      title: 'View Results',
-      results: formattedResults 
-    });
-
+    res.json(result);
   } catch (error) {
-    console.error('❌ View All Results Error:', error);
-    return res.render('admin/view-results', { 
-      title: 'View Results',
-      results: []
-    });
+    res.status(500).json({ message: error.message });
   }
 };
 
-/**
- * ----------------------------------------------------
- * RENDER EJS REPORT CARD WITH PHOTO
- * ----------------------------------------------------
- */
+// Render EJS Report Card
 export const renderResultCard = async (req, res) => {
   try {
     const { studentId } = req.params;
-
+    
     const result = await Result.findOne({ student: studentId })
-      .populate("student");
+      .populate("student", "name regNumber classLevel session gender");
 
     if (!result) {
-      return res.status(404).render("error", { message: "No result found" });
+      return res.status(404).render("error", { 
+        message: "No result found for this student" 
+      });
     }
 
+    // Calculate total marks for display
     const maxMarks = result.subjects.length * 100;
     const totalInWords = convertNumberToWords(result.totalScore);
 
+    // Prepare data for EJS template
     const reportData = {
       student: {
         name: result.student.name,
         admissionNo: result.student.regNumber,
         class: result.student.classLevel,
-        gender: result.student.gender,
-        session: result.student.session,
-        photo: result.student.profilePhoto || null, // ⭐ Student photo included
+        section: "Senior Secondary Section",
+        gender: result.student.gender || "Male", // ✅ Use from database or default
+        examName: `${result.term} Examination`,
       },
-
-      term: result.term,
       session: result.session,
+      term: result.term,
       subjects: result.subjects,
-
       summary: {
         grandTotal: result.totalScore,
-        maxMarks,
+        maxMarks: maxMarks,
         average: result.average,
         gpa: result.gpa,
-        totalInWords,
+        totalInWords: totalInWords,
         resultStatus: result.resultStatus,
       },
-
       remarks: {
-        teacher: result.teacherRemark || "",
-        headOfSchool: result.headRemark || "",
+        teacher: result.teacherRemark || "Keep up the good work!",
+        headOfSchool: result.headRemark || "Well done!",
       },
-
+      attendance: {
+        workingDays: 0, // You can add this to your result model
+        daysAttended: 0,
+        percentage: "0.00",
+      },
       gradingScale: [
         { grade: "A", min: "70%", max: "100%" },
         { grade: "B", min: "60%", max: "69%" },
@@ -244,58 +212,53 @@ export const renderResultCard = async (req, res) => {
         { grade: "D", min: "40%", max: "49%" },
         { grade: "F", min: "0%", max: "39%" },
       ],
+      nextTermDate: "28th of April, 2025",
     };
 
-    return res.render("reportCard", reportData);
-  } catch (err) {
-    console.error("Render Report Card Error:", err);
-    return res.status(500).render("error", {
-      message: "Error loading report card",
+    res.render("reportCard", reportData);
+  } catch (error) {
+    console.error("Error rendering report card:", error);
+    res.status(500).render("error", { 
+      message: "Error loading report card" 
     });
   }
 };
 
-/**
- * ----------------------------------------------------
- * NUMBER → WORDS CONVERTER
- * ----------------------------------------------------
- */
+// Helper function to convert numbers to words
 function convertNumberToWords(num) {
-  const ones = [
-    "", "One", "Two", "Three", "Four", "Five",
-    "Six", "Seven", "Eight", "Nine"
-  ];
-  const tens = [
-    "", "", "Twenty", "Thirty", "Forty",
-    "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"
-  ];
-  const teens = [
-    "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen",
-    "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"
-  ];
+  const ones = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"];
+  const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+  const teens = ["Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
 
   if (num === 0) return "Zero";
 
   let words = "";
 
+  // Handle thousands
   if (num >= 1000) {
     words += ones[Math.floor(num / 1000)] + " Thousand ";
     num %= 1000;
   }
 
+  // Handle hundreds
   if (num >= 100) {
     words += ones[Math.floor(num / 100)] + " Hundred ";
     num %= 100;
   }
 
+  // Handle tens and ones
   if (num >= 20) {
     words += tens[Math.floor(num / 10)] + " ";
     num %= 10;
   } else if (num >= 10) {
-    return words + teens[num - 10];
+    words += teens[num - 10] + " ";
+    return words.trim();
   }
 
-  if (num > 0) words += ones[num] + " ";
+  if (num > 0) {
+    words += ones[num] + " ";
+  }
 
   return words.trim();
+}words.trim();
 }
