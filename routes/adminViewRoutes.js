@@ -162,54 +162,31 @@ router.get("/results/upload", requireAdminAuth, async (req, res) => {
 // View all results
 router.get("/results", requireAdminAuth, async (req, res) => {
   try {
-    const results = await Result.find()
-      .populate("student")
-      .sort({ createdAt: -1 });
-
-    console.log('📊 Total results found:', results.length);
-
-    // Filter out any results with missing student
-    const validResults = results.filter(r => r.student);
-
-    console.log('✅ Valid results (with students):', validResults.length);
-
-    // Transform data to match your template structure
-    const formattedResults = validResults.map(result => ({
-      student: {
-        _id: result.student._id,
-        name: result.student.name,
-        classLevel: result.student.classLevel
-      },
-      result: {
-        term: result.term,
-        session: result.session,
-        totalScore: result.totalScore,
-        average: result.average,
-        gpa: result.gpa,
-        resultStatus: result.resultStatus,
-        subjects: result.subjects
+    const students = await Student.find().sort({ name: 1 });
+    const results = [];
+    
+    // Get results for each student
+    for (const student of students) {
+      const result = await Result.findOne({ student: student._id });
+      if (result) {
+        results.push({
+          student,
+          result
+        });
       }
-    }));
-
-    console.log('📦 Formatted results:', formattedResults.length);
-
+    }
+    
     res.render("admin/view-results", {
       title: "View Results",
       admin: req.admin,
-      adminToken: req.session.adminToken,
-      results: formattedResults
+      adminToken: req.session.adminToken, // ✅ Added
+      results
     });
-
   } catch (error) {
-    console.error('❌ View Results Error:', error);
-    res.render("admin/view-results", {
-      title: "View Results",
-      admin: req.admin || null,
-      adminToken: req.session.adminToken || null,
-      results: []
-    });
+    res.render("error", { message: error.message });
   }
 });
+
 // ======================
 // USER MANAGEMENT
 // ======================
