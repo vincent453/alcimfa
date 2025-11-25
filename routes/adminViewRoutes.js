@@ -160,23 +160,25 @@ router.get("/results/upload", requireAdminAuth, async (req, res) => {
 });
 
 // View all results
-router.get("/results", requireAdminAuth, async (req, res) => {
+router.get("/results", async (req, res) => {
   try {
     const results = await Result.find()
-      .populate("student")
+      .populate("student")  // <-- important!
       .sort({ createdAt: -1 });
+
+    // Filter out any results with missing student
+    const filteredResults = results.filter(r => r.student);
 
     res.render("admin/view-results", {
       title: "View Results",
-      admin: req.admin,
-      adminToken: req.session.adminToken,
-      results
+      results: filteredResults,
     });
   } catch (error) {
-    console.error("Error loading results:", error);
-    res.render("error", { message: error.message });
+    console.error(error);
+    res.status(500).render("error", { message: "Failed to load results", error });
   }
 });
+
 
 // ======================
 // USER MANAGEMENT
