@@ -25,23 +25,27 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Middleware
+// =======================
+// MIDDLEWARE
+// =======================
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(morgan("dev"));
 
 // MongoDB URI
-const uri = process.env.MONGO_URI || 'mongodb://localhost:27017/myDatabase';
+const mongoUri = process.env.MONGO_URI || "mongodb://localhost:27017/myDatabase";
 
 // Session middleware with MongoDB store
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'your-secret-key',
-  resave: false,
-  saveUninitialized: false,
-  store: MongoStore.create({ mongoUrl: uri }),
-  cookie: { maxAge: 24 * 60 * 60 * 1000 } // 24 hours
-}));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "your-secret-key",
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({ mongoUrl: mongoUri }),
+    cookie: { maxAge: 24 * 60 * 60 * 1000 }, // 24 hours
+  })
+);
 
 // Make session data available to all views
 app.use((req, res, next) => {
@@ -57,53 +61,57 @@ app.set("views", path.join(__dirname, "views"));
 // Serve static files
 app.use(express.static(path.join(__dirname, "public")));
 
-// API Routes
+// =======================
+// API ROUTES
+// =======================
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/results", resultRoutes);
 
-// VIEW Routes
+// =======================
+// VIEW ROUTES
+// =======================
 app.use("/admin", adminViewRoutes);
 app.use("/user", userViewRoutes);
 
-// Root routes (public pages)
-app.get("/", (req, res) => {
-  res.render("public/index", { title: "Home" });
-});
+// =======================
+// PUBLIC PAGES
+// =======================
+app.get("/", (req, res) => res.render("public/index", { title: "Home" }));
+app.get("/about", (req, res) => res.render("public/about", { title: "About" }));
+app.get("/check-result", (req, res) => res.render("public/check-result", { title: "Check result" }));
+app.get("/contact", (req, res) => res.render("public/contact", { title: "Contact" }));
 
-app.get("/about", (req, res) => {
-  res.render("public/about", { title: "About" });
-});
-
-app.get("/check-result", (req, res) => {
-  res.render("public/check-result", { title: "Check result" });
-});
-
-app.get("/contact", (req, res) => {
-  res.render("public/contact", { title: "Contact" });
-});
-
-// Connect to MongoDB
-
+// =======================
+// CONNECT TO MONGODB
+// =======================
 await connectDB();
+console.log("✅ MongoDB connected");
+
+// =======================
+// ERROR HANDLING
+// =======================
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).render('error', { 
+  res.status(404).render("error", {
     message: "Page not found",
-    error: { status: 404 }
+    error: { status: 404 },
   });
 });
 
-// Error handler
+// Global error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).render('error', { 
+  res.status(500).render("error", {
     message: "Something went wrong!",
-    error: process.env.NODE_ENV === 'development' ? err : {}
+    error: process.env.NODE_ENV === "development" ? err : {},
   });
 });
 
+// =======================
+// START SERVER
+// =======================
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
