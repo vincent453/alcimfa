@@ -141,6 +141,11 @@ export const getStudentResult = async (req, res) => {
  * VIEW ALL RESULTS (Render EJS page with table)
  * ----------------------------------------------------
  */
+/**
+ * ----------------------------------------------------
+ * VIEW ALL RESULTS (Render EJS page with table)
+ * ----------------------------------------------------
+ */
 export const viewAllResults = async (req, res) => {
   try {
     // Fetch all results and populate student details
