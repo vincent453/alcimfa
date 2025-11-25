@@ -121,7 +121,7 @@ export const renderResultCard = async (req, res) => {
         class: result.student.classLevel,
         gender: result.student.gender,
         session: result.student.session,
-        photo: result.student.profilePhoto || null,  // ⭐ ADDED PROFILE PHOTO
+        photo: result.student.profilePhoto || null,
       },
       term: result.term,
       session: result.session,
@@ -150,6 +150,71 @@ export const renderResultCard = async (req, res) => {
     res.render("reportCard", reportData);
   } catch (err) {
     res.status(500).render("error", { message: "Error loading report card" });
+  }
+};
+
+/**
+ * ----------------------------------------------------
+ * VIEW ALL RESULTS (Render EJS page with table)
+ * ----------------------------------------------------
+ */
+export const viewAllResults = async (req, res) => {
+  try {
+    const results = await Result.find()
+      .populate('student')
+      .sort({ createdAt: -1 });
+
+    console.log('📊 Total results found:', results.length);
+
+    // Debug: Check what's in the results
+    results.forEach((result, index) => {
+      console.log(`Result ${index + 1}:`, {
+        resultId: result._id,
+        studentId: result.student ? result.student._id : 'MISSING',
+        studentName: result.student ? result.student.name : 'STUDENT NOT FOUND',
+        term: result.term
+      });
+    });
+
+    // Filter out any results with missing student
+    const validResults = results.filter(r => r.student);
+    console.log('✅ Valid results (with students):', validResults.length);
+
+    // Transform data to match your template structure
+    const formattedResults = validResults.map(result => ({
+      student: {
+        _id: result.student._id,
+        name: result.student.name,
+        classLevel: result.student.classLevel
+      },
+      result: {
+        term: result.term,
+        session: result.session,
+        totalScore: result.totalScore,
+        average: result.average,
+        gpa: result.gpa,
+        resultStatus: result.resultStatus,
+        subjects: result.subjects
+      }
+    }));
+
+    console.log('📦 Formatted results:', formattedResults.length);
+
+    return res.render('admin/view-results', { 
+      title: 'View Results',
+      admin: req.admin || null,
+      adminToken: req.session?.adminToken || null,
+      results: formattedResults 
+    });
+
+  } catch (error) {
+    console.error('❌ View All Results Error:', error);
+    return res.render('admin/view-results', { 
+      title: 'View Results',
+      admin: null,
+      adminToken: null,
+      results: []
+    });
   }
 };
 
@@ -183,4 +248,3 @@ function convertNumberToWords(num) {
 
   return words.trim();
 }
-
