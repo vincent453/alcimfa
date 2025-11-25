@@ -130,40 +130,36 @@
               </tr>
             </thead>
             <tbody>
-              <% if (results.length === 0) { %>
-              <tr>
-                <td colspan="8" class="text-center">No results found</td>
-              </tr>
-              <% } else { %>
               <% results.forEach(item => { %>
-              <tr
-                data-class="<%= item.student.classLevel %>"
-                data-term="<%= item.result.term %>"
-                data-name="<%= item.student.name.toLowerCase() %>"
-                data-average="<%= item.result.average %>"
-              >
-                <td><%= item.student.name %></td>
-                <td><%= item.student.classLevel %></td>
-                <td><%= item.result.term %></td>
-                <td><%= item.result.totalScore %>/<%= item.result.subjects.length * 100 %></td>
-                <td><%= item.result.average %>%</td>
-                <td><%= item.result.gpa %></td>
-                <td>
-                  <span class="badge badge-<%= item.result.resultStatus.toLowerCase() %>">
-                    <%= item.result.resultStatus %>
-                  </span>
-                </td>
-                <td class="actions">
-                  <a href="/api/results/card/<%= item.student._id %>" target="_blank" class="btn btn-sm btn-view">
-                    <i class="fa fa-eye"></i> View Card
-                  </a>
-                  <button onclick="printResult('<%= item.student._id %>')" class="btn btn-sm btn-print">
-                    <i class="fa fa-print"></i> Print
-                  </button>
-                </td>
-              </tr>
-              <% }); %>
-              <% } %>
+  <% if (!item.student) return; %>  <!-- Skip if student is null -->
+  <tr
+    data-class="<%= item.student.classLevel %>"
+    data-term="<%= item.result.term %>"
+    data-name="<%= item.student.name.toLowerCase() %>"
+    data-average="<%= item.result.average %>"
+  >
+    <td><%= item.student.name %></td>
+    <td><%= item.student.classLevel %></td>
+    <td><%= item.result.term %></td>
+    <td><%= item.result.totalScore %>/<%= item.result.subjects.length * 100 %></td>
+    <td><%= item.result.average %>%</td>
+    <td><%= item.result.gpa %></td>
+    <td>
+      <span class="badge badge-<%= item.result.resultStatus.toLowerCase() %>">
+        <%= item.result.resultStatus %>
+      </span>
+    </td>
+    <td class="actions">
+      <a href="/api/results/card/<%= item.student._id %>" target="_blank" class="btn btn-sm btn-view">
+        <i class="fa fa-eye"></i> View Card
+      </a>
+      <button onclick="printResult('<%= item.student._id %>')" class="btn btn-sm btn-print">
+        <i class="fa fa-print"></i> Print
+      </button>
+    </td>
+  </tr>
+<% }); %>
+
             </tbody>
           </table>
         </section>
