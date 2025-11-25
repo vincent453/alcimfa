@@ -141,11 +141,6 @@ export const getStudentResult = async (req, res) => {
  * VIEW ALL RESULTS (Render EJS page with table)
  * ----------------------------------------------------
  */
-/**
- * ----------------------------------------------------
- * VIEW ALL RESULTS (Render EJS page with table)
- * ----------------------------------------------------
- */
 export const viewAllResults = async (req, res) => {
   try {
     // Fetch all results and populate student details
@@ -153,8 +148,12 @@ export const viewAllResults = async (req, res) => {
       .populate('student')
       .sort({ createdAt: -1 }); // Sort by newest first
 
+    console.log('📊 Total results found:', results.length);
+    
     // Filter out any results where student doesn't exist (orphaned records)
     const validResults = results.filter(result => result.student);
+    
+    console.log('✅ Valid results (with students):', validResults.length);
 
     // Transform data to match your template structure
     const formattedResults = validResults.map(result => ({
@@ -174,17 +173,19 @@ export const viewAllResults = async (req, res) => {
       }
     }));
 
-    return res.render('results/view', { 
+    console.log('📦 Formatted results:', formattedResults.length);
+
+    // ⭐ Changed from 'results/view' to 'admin/view-results'
+    return res.render('admin/view-results', { 
       title: 'View Results',
       results: formattedResults 
     });
 
   } catch (error) {
-    console.error('View All Results Error:', error);
-    return res.render('results/view', { 
+    console.error('❌ View All Results Error:', error);
+    return res.render('admin/view-results', { 
       title: 'View Results',
-      results: [],
-      error: 'Failed to load results'
+      results: []
     });
   }
 };
