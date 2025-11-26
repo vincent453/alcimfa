@@ -275,12 +275,35 @@ router.post("/students/edit/:id", requireAdminAuth, async (req, res) => {
   }
 });
 
-// Delete student
+
+// Delete student and all associated data
 router.post("/students/delete/:id", requireAdminAuth, async (req, res) => {
   try {
-    await Student.findByIdAndDelete(req.params.id);
-    res.redirect("/admin/students?success=Student deleted successfully");
+    const studentId = req.params.id;
+    
+    // Check if student exists
+    const student = await Student.findById(studentId);
+    if (!student) {
+      return res.redirect("/admin/students?error=Student not found");
+    }
+    
+    // Delete all associated results
+    const deletedResults = await Result.deleteMany({ student: studentId });
+    
+    // Delete all associated users (parent/student accounts)
+    const deletedUsers = await User.deleteMany({ student: studentId });
+    
+    // Finally delete the student
+    await Student.findByIdAndDelete(studentId);
+    
+    console.log(`🗑️ Deleted student: ${student.name}`);
+    console.log(`📊 Deleted ${deletedResults.deletedCount} results`);
+    console.log(`👤 Deleted ${deletedUsers.deletedCount} user accounts`);
+    
+    res.redirect("/admin/students?success=Student and all associated data deleted successfully");
+    
   } catch (error) {
+    console.error("Delete student error:", error);
     res.redirect("/admin/students?error=" + error.message);
   }
 });
