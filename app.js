@@ -13,7 +13,7 @@ import studentRoutes from "./routes/studentRoutes.js";
 import resultRoutes from "./routes/resultRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 
-// Import VIEW routes
+// Import VIEW route
 import adminViewRoutes from "./routes/adminViewRoutes.js";
 import userViewRoutes from "./routes/userViewRoutes.js";
 import connectDB from "./config/db.js";
