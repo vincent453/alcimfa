@@ -10,6 +10,67 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     />
     <link href="https://fonts.cdnfonts.com/css/manrope" rel="stylesheet" />
+    <style>
+      .search-container {
+        position: relative;
+        margin-bottom: 10px;
+      }
+      
+      .search-input {
+        width: 100%;
+        padding: 10px 40px 10px 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+      }
+      
+      .search-input:focus {
+        outline: none;
+        border-color: #4CAF50;
+      }
+      
+      .search-icon {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #888;
+      }
+      
+      .clear-search {
+        position: absolute;
+        right: 40px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #888;
+        cursor: pointer;
+        font-size: 16px;
+        display: none;
+      }
+      
+      .clear-search:hover {
+        color: #333;
+      }
+      
+      .clear-search.show {
+        display: block;
+      }
+      
+      .no-results {
+        padding: 10px;
+        color: #888;
+        font-style: italic;
+        display: none;
+      }
+      
+      .student-count {
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+      }
+    </style>
   </head>
   <body>
     <div class="admin-layout">
@@ -30,15 +91,36 @@
               <div class="form-row">
                 <div class="form-group">
                   <label for="studentId">Select Student *</label>
+                  
+                  <!-- Search Input -->
+                  <div class="search-container">
+                    <input 
+                      type="text" 
+                      id="studentSearch" 
+                      class="search-input"
+                      placeholder="Search by name, class, or registration number..."
+                      autocomplete="off"
+                    />
+                    <button type="button" class="clear-search" id="clearSearch">
+                      <i class="fa fa-times"></i>
+                    </button>
+                    <i class="fa fa-search search-icon"></i>
+                  </div>
+                  
                   <select id="studentId" name="studentId" required>
                     <option value="">-- Select Student --</option>
                     <% students.forEach(student => { %>
-                    <option value="<%= student._id %>">
-                      <%= student.name %> - <%= student.classLevel %> (<%=
-                      student.regNumber %>)
+                    <option value="<%= student._id %>" 
+                            data-name="<%= student.name.toLowerCase() %>"
+                            data-class="<%= student.classLevel.toLowerCase() %>"
+                            data-reg="<%= student.regNumber.toLowerCase() %>">
+                      <%= student.name %> - <%= student.classLevel %> (<%= student.regNumber %>)
                     </option>
                     <% }); %>
                   </select>
+                  
+                  <div class="no-results" id="noResults">No students found</div>
+                  <div class="student-count" id="studentCount"></div>
                 </div>
               </div>
 
@@ -226,6 +308,84 @@
         });
         subjectCount = entries.length;
       }
+
+      // Student Search Functionality
+      const studentSearch = document.getElementById('studentSearch');
+      const studentSelect = document.getElementById('studentId');
+      const clearSearchBtn = document.getElementById('clearSearch');
+      const noResults = document.getElementById('noResults');
+      const studentCount = document.getElementById('studentCount');
+
+      // Update student count
+      function updateStudentCount() {
+        const visibleOptions = Array.from(studentSelect.options).filter(
+          opt => opt.value && opt.style.display !== 'none'
+        );
+        const total = studentSelect.options.length - 1; // Exclude placeholder
+        
+        if (studentSearch.value.trim()) {
+          studentCount.textContent = `Showing ${visibleOptions.length} of ${total} students`;
+        } else {
+          studentCount.textContent = `${total} students available`;
+        }
+      }
+
+      // Filter students based on search
+      function filterStudents() {
+        const searchTerm = studentSearch.value.toLowerCase().trim();
+        let visibleCount = 0;
+
+        Array.from(studentSelect.options).forEach(option => {
+          if (!option.value) return; // Skip placeholder
+
+          const name = option.dataset.name || '';
+          const classLevel = option.dataset.class || '';
+          const regNumber = option.dataset.reg || '';
+
+          const matches = name.includes(searchTerm) || 
+                         classLevel.includes(searchTerm) || 
+                         regNumber.includes(searchTerm);
+
+          if (matches) {
+            option.style.display = '';
+            visibleCount++;
+          } else {
+            option.style.display = 'none';
+          }
+        });
+
+        // Show/hide no results message
+        if (visibleCount === 0 && searchTerm) {
+          noResults.style.display = 'block';
+          studentSelect.style.display = 'none';
+        } else {
+          noResults.style.display = 'none';
+          studentSelect.style.display = 'block';
+        }
+
+        // Show/hide clear button
+        if (searchTerm) {
+          clearSearchBtn.classList.add('show');
+        } else {
+          clearSearchBtn.classList.remove('show');
+        }
+
+        updateStudentCount();
+      }
+
+      // Clear search
+      function clearSearch() {
+        studentSearch.value = '';
+        filterStudents();
+        studentSearch.focus();
+      }
+
+      // Event listeners
+      studentSearch.addEventListener('input', filterStudents);
+      clearSearchBtn.addEventListener('click', clearSearch);
+
+      // Initialize count
+      updateStudentCount();
 
       // AJAX form submission
       document
