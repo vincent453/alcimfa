@@ -1,6 +1,6 @@
 import express from "express";
 import { requireAdminAuth, redirectIfLoggedIn } from "../middleware/renderMiddleware.js";
-import { upload, uploadToCloudinary } from '../config/cloudinary.js'; // ⭐ MULTER + CLOUDINARY
+import { upload, uploadToCloudinary } from '../config/cloudinary.js';
 import Admin from "../models/adminModel.js";
 import Student from "../models/studentModel.js";
 import Result from "../models/resultModel.js";
@@ -13,51 +13,6 @@ const router = express.Router();
 // ==========================================
 // ADMIN LOGIN & LOGOUT (No Auth Required)
 // ==========================================
-// Handle form submission
-router.post("/add-user", requireAdminAuth, async (req, res) => {
-  try {
-    const { name, email, password, role, studentId, phoneNumber } = req.body;
-
-    // Check required fields
-    if (!name || !email || !password || !role) {
-      return res.redirect("/admin/add-user?error=Name, email, password, and role are required");
-    }
-
-    // Check if email already exists
-    const existing = await User.findOne({ email });
-    if (existing) {
-      return res.redirect("/admin/add-user?error=Email already registered");
-    }
-
-    // Validate student ID if role requires it
-    let studentRef = undefined;
-    if ((role === "student" || role === "parent") && studentId) {
-      const student = await Student.findById(studentId);
-      if (!student) {
-        return res.redirect("/admin/add-user?error=Student not found");
-      }
-      studentRef = student._id;
-    }
-
-    // Create the user
-    await User.create({
-      name,
-      email,
-      password,
-      role,
-      student: studentRef,
-      phoneNumber
-    });
-
-    // Redirect to users list with success message
-    res.redirect("/admin/users?success=User added successfully");
-
-  } catch (err) {
-    res.redirect("/admin/add-user?error=Failed to add user: " + err.message);
-  }
-});
-
-
 
 // Show login page
 router.get("/login", redirectIfLoggedIn, (req, res) => {
@@ -142,7 +97,7 @@ router.get("/dashboard", requireAdminAuth, async (req, res) => {
     res.render("admin/dashboard", {
       title: "Admin Dashboard",
       admin: req.admin,
-      adminToken: req.session.adminToken, // ✅ Added
+      adminToken: req.session.adminToken,
       stats: {
         totalStudents,
         totalUsers,
@@ -167,7 +122,7 @@ router.get("/students", requireAdminAuth, async (req, res) => {
     res.render("admin/students", {
       title: "Students Management",
       admin: req.admin,
-      adminToken: req.session.adminToken, // ✅ Added
+      adminToken: req.session.adminToken,
       students,
       success: req.query.success,
       error: req.query.error
@@ -178,12 +133,11 @@ router.get("/students", requireAdminAuth, async (req, res) => {
 });
 
 // Show add student form
-// ✅ CORRECT ORDER
 router.get("/students/add", requireAdminAuth, (req, res) => {
   res.render("admin/add-student", {
     title: "Add New Student",
     admin: req.admin,
-    adminToken: req.session.adminToken, // ✅ Added
+    adminToken: req.session.adminToken,
     error: null
   });
 });
@@ -196,10 +150,10 @@ router.post("/students/add", requireAdminAuth, upload.single('photo'), async (re
     // Handle photo upload if present
     let profilePhotoUrl = null;
     if (req.file) {
-      console.log('File received:', req.file); // Debug log
+      console.log('File received:', req.file);
       const result = await uploadToCloudinary(req.file.buffer, 'students');
       profilePhotoUrl = result.secure_url;
-      console.log('Cloudinary URL:', profilePhotoUrl); // Debug log
+      console.log('Cloudinary URL:', profilePhotoUrl);
     }
     
     // Check if reg number exists
@@ -224,10 +178,10 @@ router.post("/students/add", requireAdminAuth, upload.single('photo'), async (re
       parentName,
       parentPhone,
       parentEmail,
-      profilePhoto: profilePhotoUrl // ⭐ Save as profilePhoto
+      profilePhoto: profilePhotoUrl
     });
     
-    console.log('Student created:', newStudent); // Debug log
+    console.log('Student created:', newStudent);
     res.redirect("/admin/students?success=Student added successfully");
   } catch (error) {
     console.error('Error adding student:', error);
@@ -239,6 +193,7 @@ router.post("/students/add", requireAdminAuth, upload.single('photo'), async (re
     });
   }
 });
+
 // Show edit student form
 router.get("/students/edit/:id", requireAdminAuth, async (req, res) => {
   try {
@@ -251,7 +206,7 @@ router.get("/students/edit/:id", requireAdminAuth, async (req, res) => {
     res.render("admin/edit-student", {
       title: "Edit Student",
       admin: req.admin,
-      adminToken: req.session.adminToken, // ✅ Added
+      adminToken: req.session.adminToken,
       student,
       error: null
     });
@@ -260,40 +215,57 @@ router.get("/students/edit/:id", requireAdminAuth, async (req, res) => {
   }
 });
 
-// Process edit student
-router.post("/students/edit/:id", requireAdminAuth, async (req, res) => {
+// Process edit student WITH PHOTO UPLOAD
+router.post("/students/edit/:id", requireAdminAuth, upload.single('photo'), async (req, res) => {
   try {
-    const updated = await Student.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const { removePhoto, ...updateData } = req.body;
+    
+    // Handle photo upload if a new file is provided
+    if (req.file) {
+      console.log('New photo file received:', req.file);
+      const result = await uploadToCloudinary(req.file.buffer, 'students');
+      updateData.profilePhoto = result.secure_url;
+      console.log('New Cloudinary URL:', updateData.profilePhoto);
+    }
+    
+    // Handle photo removal if requested
+    if (removePhoto === 'true') {
+      updateData.profilePhoto = null;
+      console.log('Photo removal requested');
+    }
+    
+    // Update the student
+    const updated = await Student.findByIdAndUpdate(
+      req.params.id, 
+      updateData, 
+      { new: true, runValidators: true }
+    );
     
     if (!updated) {
       return res.redirect("/admin/students?error=Student not found");
     }
     
+    console.log('Student updated:', updated.name);
     res.redirect("/admin/students?success=Student updated successfully");
+    
   } catch (error) {
-    res.redirect("/admin/students?error=" + error.message);
+    console.error('Error updating student:', error);
+    res.redirect(`/admin/students/edit/${req.params.id}?error=${error.message}`);
   }
 });
-
 
 // Delete student and all associated data
 router.post("/students/delete/:id", requireAdminAuth, async (req, res) => {
   try {
     const studentId = req.params.id;
     
-    // Check if student exists
     const student = await Student.findById(studentId);
     if (!student) {
       return res.redirect("/admin/students?error=Student not found");
     }
     
-    // Delete all associated results
     const deletedResults = await Result.deleteMany({ student: studentId });
-    
-    // Delete all associated users (parent/student accounts)
     const deletedUsers = await User.deleteMany({ student: studentId });
-    
-    // Finally delete the student
     await Student.findByIdAndDelete(studentId);
     
     console.log(`🗑️ Deleted student: ${student.name}`);
@@ -320,7 +292,7 @@ router.get("/results/upload", requireAdminAuth, async (req, res) => {
     res.render("admin/upload-result", {
       title: "Upload Result",
       admin: req.admin,
-      adminToken: req.session.adminToken, // ✅ CRITICAL: Added for API calls
+      adminToken: req.session.adminToken,
       students,
       error: null,
       success: req.query.success
@@ -336,7 +308,6 @@ router.get("/results", requireAdminAuth, async (req, res) => {
     const students = await Student.find().sort({ name: 1 });
     const results = [];
     
-    // Get results for each student
     for (const student of students) {
       const result = await Result.findOne({ student: student._id });
       if (result) {
@@ -350,7 +321,7 @@ router.get("/results", requireAdminAuth, async (req, res) => {
     res.render("admin/view-results", {
       title: "View Results",
       admin: req.admin,
-      adminToken: req.session.adminToken, // ✅ Added
+      adminToken: req.session.adminToken,
       results
     });
   } catch (error) {
@@ -371,13 +342,69 @@ router.get("/users", requireAdminAuth, async (req, res) => {
     res.render("admin/users", {
       title: "User Management",
       admin: req.admin,
-      adminToken: req.session.adminToken, // ✅ Added
+      adminToken: req.session.adminToken,
       users,
       success: req.query.success,
       error: req.query.error
     });
   } catch (error) {
     res.render("error", { message: error.message });
+  }
+});
+
+// Show add user form
+router.get("/add-user", requireAdminAuth, async (req, res) => {
+  try {
+    const students = await Student.find().select("name regNumber classLevel").sort({ name: 1 });
+    res.render("admin/add-user", { 
+      title: "Add User",
+      admin: req.admin,
+      adminToken: req.session.adminToken,
+      students, 
+      error: req.query.error, 
+      success: req.query.success 
+    });
+  } catch (error) {
+    res.render("error", { message: error.message });
+  }
+});
+
+// Handle add user form submission
+router.post("/add-user", requireAdminAuth, async (req, res) => {
+  try {
+    const { name, email, password, role, studentId, phoneNumber } = req.body;
+
+    if (!name || !email || !password || !role) {
+      return res.redirect("/admin/add-user?error=Name, email, password, and role are required");
+    }
+
+    const existing = await User.findOne({ email });
+    if (existing) {
+      return res.redirect("/admin/add-user?error=Email already registered");
+    }
+
+    let studentRef = undefined;
+    if ((role === "student" || role === "parent") && studentId) {
+      const student = await Student.findById(studentId);
+      if (!student) {
+        return res.redirect("/admin/add-user?error=Student not found");
+      }
+      studentRef = student._id;
+    }
+
+    await User.create({
+      name,
+      email,
+      password,
+      role,
+      student: studentRef,
+      phoneNumber
+    });
+
+    res.redirect("/admin/users?success=User added successfully");
+
+  } catch (err) {
+    res.redirect("/admin/add-user?error=Failed to add user: " + err.message);
   }
 });
 
@@ -389,7 +416,7 @@ router.get("/settings", requireAdminAuth, (req, res) => {
   res.render("admin/settings", {
     title: "Settings",
     admin: req.admin,
-    adminToken: req.session.adminToken, // ✅ Added
+    adminToken: req.session.adminToken,
     success: req.query.success,
     error: req.query.error
   });
@@ -432,7 +459,7 @@ router.get("/profile", requireAdminAuth, (req, res) => {
   res.render("admin/profile", {
     title: "My Profile",
     admin: req.admin,
-    adminToken: req.session.adminToken, // ✅ Added
+    adminToken: req.session.adminToken,
     success: req.query.success,
     error: req.query.error
   });
@@ -457,31 +484,6 @@ router.post("/profile", requireAdminAuth, async (req, res) => {
     res.redirect("/admin/profile?success=Profile updated successfully");
   } catch (error) {
     res.redirect("/admin/profile?error=" + error.message);
-  }
-});
-router.get("/add-user", requireAdminAuth, async (req, res) => {
-  const students = await Student.find().select("name regNumber");
-  res.render("admin/add-user", { title: "Add User", students, error: null, success: null });
-});
-
-// Handle form submission
-router.post("/add-user", requireAdminAuth, async (req, res) => {
-  try {
-    const { name, email, password, role, studentId, phoneNumber } = req.body;
-    // You can reuse your registerUser logic here
-    res.render("admin/add-user", { 
-      title: "Add User", 
-      students: await Student.find().select("name regNumber"),
-      success: "User added successfully!",
-      error: null 
-    });
-  } catch (err) {
-    res.render("admin/add-user", { 
-      title: "Add User", 
-      students: await Student.find().select("name regNumber"),
-      error: "Failed to add user.",
-      success: null 
-    });
   }
 });
 
