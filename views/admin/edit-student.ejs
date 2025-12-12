@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,6 +7,131 @@
 <link rel="stylesheet" href="/css/style2.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link href="https://fonts.cdnfonts.com/css/manrope" rel="stylesheet">
+<style>
+    .profile-photo-section {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .profile-photo-container {
+        position: relative;
+        width: 150px;
+        height: 150px;
+        margin: 0 auto 20px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 4px solid #2a5298;
+        background: #e9ecef;
+    }
+
+    .profile-photo-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-photo-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-size: 60px;
+    }
+
+    .photo-upload-controls {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .file-input-wrapper {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+    }
+
+    .file-input-wrapper input[type=file] {
+        position: absolute;
+        left: -9999px;
+    }
+
+    .btn-upload {
+        background: #2a5298;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s;
+    }
+
+    .btn-upload:hover {
+        background: #1e3c72;
+        transform: translateY(-2px);
+    }
+
+    .btn-remove {
+        background: #dc3545;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s;
+    }
+
+    .btn-remove:hover {
+        background: #c82333;
+        transform: translateY(-2px);
+    }
+
+    .photo-info {
+        margin-top: 15px;
+        font-size: 14px;
+        color: #666;
+    }
+
+    .photo-preview {
+        margin-top: 15px;
+        padding: 10px;
+        background: white;
+        border-radius: 6px;
+        display: none;
+    }
+
+    .photo-preview.active {
+        display: block;
+    }
+
+    .photo-preview img {
+        max-width: 200px;
+        max-height: 200px;
+        border-radius: 6px;
+    }
+
+    .photo-file-name {
+        margin-top: 10px;
+        font-size: 13px;
+        color: #495057;
+        font-weight: 600;
+    }
+</style>
 </head>
 <body>
 <div class="dashboard">
@@ -24,7 +148,61 @@
       </header>
 
 <section class="form-container">
-    <form action="/admin/students/edit/<%= student._id %>" method="POST" class="student-form">
+    <form action="/admin/students/edit/<%= student._id %>" method="POST" enctype="multipart/form-data" class="student-form" id="editStudentForm">
+        
+        <!-- Profile Photo Section -->
+        <div class="profile-photo-section">
+            <h3 style="margin-bottom: 20px; color: #2a5298;">
+                <i class="fa fa-user-circle"></i> Profile Photo
+            </h3>
+            
+            <div class="profile-photo-container" id="photoContainer">
+                <% if (student.profilePhoto) { %>
+                    <img src="<%= student.profilePhoto %>" alt="<%= student.name %>" id="profileImage">
+                <% } else { %>
+                    <div class="profile-photo-placeholder">
+                        <i class="fa fa-user"></i>
+                    </div>
+                <% } %>
+            </div>
+
+            <div class="photo-upload-controls">
+                <div class="file-input-wrapper">
+                    <label for="photo" class="btn-upload">
+                        <i class="fa fa-upload"></i>
+                        <span id="uploadBtnText">
+                            <%= student.profilePhoto ? 'Change Photo' : 'Upload Photo' %>
+                        </span>
+                    </label>
+                    <input type="file" id="photo" name="photo" accept="image/*">
+                </div>
+
+                <% if (student.profilePhoto) { %>
+                <button type="button" class="btn-remove" id="removePhotoBtn">
+                    <i class="fa fa-trash"></i> Remove Photo
+                </button>
+                <% } %>
+            </div>
+
+            <div class="photo-info">
+                <i class="fa fa-info-circle"></i> 
+                Max size: 5MB | Formats: JPG, PNG, GIF
+            </div>
+
+            <div class="photo-preview" id="photoPreview">
+                <p style="font-weight: 600; margin-bottom: 10px;">New Photo Preview:</p>
+                <img id="previewImage" src="" alt="Preview">
+                <div class="photo-file-name" id="fileName"></div>
+            </div>
+
+            <input type="hidden" name="removePhoto" id="removePhotoInput" value="false">
+        </div>
+
+        <!-- Student Information -->
+        <h3 style="color: #2a5298; margin-bottom: 20px;">
+            <i class="fa fa-user-graduate"></i> Student Information
+        </h3>
+
         <div class="form-row">
             <div class="form-group">
                 <label for="name">Student Name *</label>
@@ -78,7 +256,9 @@
             <textarea id="address" name="address" rows="3"><%= student.address %></textarea>
         </div>
         
-        <h3>Parent Information</h3>
+        <h3 style="color: #2a5298; margin: 30px 0 20px;">
+            <i class="fa fa-users"></i> Parent Information
+        </h3>
         
         <div class="form-row">
             <div class="form-group">
@@ -107,55 +287,125 @@
 </section>
 </div>
 </div>
- <script>
+
+<script>
     document.addEventListener('DOMContentLoaded', function() {
-    // Get elements
-    const menuBtn = document.getElementById('menuBtn');
-    const sidebar = document.getElementById('sidebar');
-    
-    // Check if elements exist
-    if (!menuBtn || !sidebar) {
-        console.error('Menu button or sidebar not found');
-        return;
-    }
-    
-    // Create overlay for mobile
-    const overlay = document.createElement('div');
-    overlay.className = 'sidebar-overlay';
-    document.body.appendChild(overlay);
-    
-    // Toggle sidebar when menu button is clicked
-    menuBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        sidebar.classList.toggle('active');
-        overlay.classList.toggle('active');
-    });
-    
-    // Close sidebar when clicking overlay
-    overlay.addEventListener('click', function() {
-        sidebar.classList.remove('active');
-        overlay.classList.remove('active');
-    });
-    
-    // Close sidebar when clicking a link (mobile only)
-    if (window.innerWidth <= 768) {
-        const sidebarLinks = sidebar.querySelectorAll('a');
-        sidebarLinks.forEach(link => {
-            link.addEventListener('click', function() {
+        // Sidebar toggle
+        const menuBtn = document.getElementById('menuBtn');
+        const sidebar = document.getElementById('sidebar');
+        
+        if (menuBtn && sidebar) {
+            const overlay = document.createElement('div');
+            overlay.className = 'sidebar-overlay';
+            document.body.appendChild(overlay);
+            
+            menuBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            });
+            
+            overlay.addEventListener('click', function() {
                 sidebar.classList.remove('active');
                 overlay.classList.remove('active');
             });
+            
+            if (window.innerWidth <= 768) {
+                const sidebarLinks = sidebar.querySelectorAll('a');
+                sidebarLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        sidebar.classList.remove('active');
+                        overlay.classList.remove('active');
+                    });
+                });
+            }
+            
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                }
+            });
+        }
+
+        // Photo upload preview
+        const photoInput = document.getElementById('photo');
+        const photoPreview = document.getElementById('photoPreview');
+        const previewImage = document.getElementById('previewImage');
+        const fileName = document.getElementById('fileName');
+        const uploadBtnText = document.getElementById('uploadBtnText');
+        const profileImage = document.getElementById('profileImage');
+        const photoContainer = document.getElementById('photoContainer');
+
+        photoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            
+            if (file) {
+                // Validate file size (5MB max)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('File size must be less than 5MB');
+                    photoInput.value = '';
+                    return;
+                }
+
+                // Validate file type
+                if (!file.type.match('image.*')) {
+                    alert('Please select an image file');
+                    photoInput.value = '';
+                    return;
+                }
+
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    photoPreview.classList.add('active');
+                    fileName.textContent = file.name;
+                    uploadBtnText.textContent = 'Change Photo';
+
+                    // Update main photo container
+                    if (profileImage) {
+                        profileImage.src = e.target.result;
+                    } else {
+                        photoContainer.innerHTML = `<img src="${e.target.result}" alt="Preview" id="profileImage">`;
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
         });
-    }
-    
-    // Handle window resize
-    window.addEventListener('resize', function() {
-        if (window.innerWidth > 768) {
-            sidebar.classList.remove('active');
-            overlay.classList.remove('active');
+
+        // Remove photo button
+        const removePhotoBtn = document.getElementById('removePhotoBtn');
+        const removePhotoInput = document.getElementById('removePhotoInput');
+
+        if (removePhotoBtn) {
+            removePhotoBtn.addEventListener('click', function() {
+                if (confirm('Are you sure you want to remove this photo?')) {
+                    // Clear the photo
+                    photoContainer.innerHTML = `
+                        <div class="profile-photo-placeholder">
+                            <i class="fa fa-user"></i>
+                        </div>
+                    `;
+                    
+                    // Set flag to remove photo on server
+                    removePhotoInput.value = 'true';
+                    
+                    // Hide remove button
+                    removePhotoBtn.style.display = 'none';
+                    
+                    // Update upload button text
+                    uploadBtnText.textContent = 'Upload Photo';
+                    
+                    // Clear file input
+                    photoInput.value = '';
+                    
+                    // Hide preview
+                    photoPreview.classList.remove('active');
+                }
+            });
         }
     });
-});
-  </script>
+</script>
 </body>
 </html>
