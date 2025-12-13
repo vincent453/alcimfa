@@ -305,18 +305,21 @@ router.get("/results/upload", requireAdminAuth, async (req, res) => {
 // View all results
 router.get("/results", requireAdminAuth, async (req, res) => {
   try {
-    const students = await Student.find().sort({ name: 1 });
-    const results = [];
-    
-    for (const student of students) {
-      const result = await Result.findOne({ student: student._id });
-      if (result) {
-        results.push({
-          student,
-          result
-        });
-      }
-    }
+    const results = await Result.find()
+      .populate("student")
+      .sort({ createdAt: -1 });
+
+    res.render("admin/view-results", {
+      title: "View Results",
+      admin: req.admin,
+      adminToken: req.session.adminToken,
+      results
+    });
+  } catch (error) {
+    res.render("error", { message: error.message });
+  }
+});
+
     
     res.render("admin/view-results", {
       title: "View Results",
