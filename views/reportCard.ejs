@@ -507,12 +507,8 @@
             <div class="remark-title">Principal's Remarks:</div>
             <div class="remark-content"><%= remarks.headOfSchool %></div>
             <div class="signature-section">
-              <% if (signatures && signatures.principal) { %>
-                <img src="<%= signatures.principal %>" alt="Principal's Signature" class="signature-image" />
-              <% } else { %>
                 <!-- Add your signature image path here -->
-                <img src="/img/signatures/principal-signature.png" alt="Principal's Signature" class="signature-image" />
-              <% } %>
+                <img src="/img/signatures/signature.jpg" alt="Principal's Signature" class="signature-image" />
               <div class="signature-line">Principal's Signature</div>
             </div>
           </div>
@@ -520,11 +516,7 @@
             <div class="remark-title">Class Teacher's Remarks:</div>
             <div class="remark-content"><%= remarks.teacher %></div>
             <div class="signature-section">
-              <% if (signatures && signatures.teacher) { %>
-                <img src="<%= signatures.teacher %>" alt="Teacher's Signature" class="signature-image" />
-              <% } else { %>
-                <!-- Add your signature image path here -->
-                <img src="/img/signatures/signature.jpg" alt="Teacher's Signature" class="signature-image" />
+                <img src="/img/signatures/signaturecc.jpg" alt="Teacher's Signature" class="signature-image" />
               <% } %>
               <div class="signature-line">Class Teacher's Signature</div>
             </div>
