@@ -34,6 +34,105 @@
       font-size: 14px;
     }
 
+    /* Segmentation Tabs */
+    .segmentation-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .segmentation-tabs button {
+      padding: 12px 24px;
+      border: 2px solid #ddd;
+      background: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .segmentation-tabs button:hover {
+      background: #f0f0f0;
+    }
+
+    .segmentation-tabs button.active {
+      background: #4CAF50;
+      color: white;
+      border-color: #4CAF50;
+    }
+
+    /* Class Filter Section */
+    .class-filter-section {
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .class-filter-section h3 {
+      margin: 0 0 15px 0;
+      font-size: 18px;
+      color: #333;
+    }
+
+    .class-buttons {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 10px;
+    }
+
+    .class-btn {
+      padding: 10px;
+      border: 2px solid #ddd;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .class-btn:hover {
+      background: #e3f2fd;
+      border-color: #2196F3;
+    }
+
+    .class-btn.active {
+      background: #2196F3;
+      color: white;
+      border-color: #2196F3;
+    }
+
+    .class-search-box {
+      margin-top: 15px;
+      padding: 10px;
+      background: #f9f9f9;
+      border-radius: 6px;
+    }
+
+    .class-search-box input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .results-summary {
+      padding: 10px;
+      background: #e8f5e9;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      font-weight: 500;
+      color: #2e7d32;
+    }
+
     .table-container table {
       width: 100%;
       border-collapse: collapse;
@@ -43,6 +142,14 @@
       .filters {
         flex-direction: column;
         align-items: stretch;
+      }
+
+      .segmentation-tabs {
+        flex-direction: column;
+      }
+
+      .class-buttons {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
       }
     }
   </style>
@@ -62,6 +169,37 @@
     </header>
 
     <main class="admin-content">
+
+      <!-- Segmentation Tabs -->
+      <section class="segmentation-tabs">
+        <button class="seg-tab active" data-segment="all" onclick="changeSegment('all')">
+          <i class="fa fa-users"></i> All Users
+        </button>
+        <button class="seg-tab" data-segment="jss" onclick="changeSegment('jss')">
+          <i class="fa fa-graduation-cap"></i> JSS (Junior Secondary)
+        </button>
+        <button class="seg-tab" data-segment="ss" onclick="changeSegment('ss')">
+          <i class="fa fa-user-graduate"></i> SS (Senior Secondary)
+        </button>
+      </section>
+
+      <!-- Class Filter Section -->
+      <section class="class-filter-section card" id="class-filter-section">
+        <h3><i class="fa fa-filter"></i> Filter by Class</h3>
+        
+        <div class="class-buttons" id="class-buttons">
+          <!-- Class buttons will be generated dynamically -->
+        </div>
+
+        <div class="class-search-box">
+          <input type="text" id="class-search" placeholder="Search within selected class...">
+        </div>
+      </section>
+
+      <!-- Results Summary -->
+      <div class="results-summary" id="results-summary">
+        Showing all users
+      </div>
 
       <!-- Filters -->
       <section class="filters card">
@@ -112,6 +250,7 @@
               <th>Email</th>
               <th>Role</th>
               <th>Student</th>
+              <th>Class</th>
               <th>Status</th>
               <th>Joined</th>
               <th>Actions</th>
@@ -120,7 +259,7 @@
           <tbody>
             <% if (users.length === 0) { %>
               <tr>
-                <td colspan="7" class="text-center">No users found</td>
+                <td colspan="8" class="text-center">No users found</td>
               </tr>
             <% } else { %>
               <% users.forEach(user => { %>
@@ -130,6 +269,8 @@
                   data-name="<%= user.name.toLowerCase() %>"
                   data-email="<%= user.email.toLowerCase() %>"
                   data-date="<%= new Date(user.createdAt).getTime() %>"
+                  data-class="<%= user.student && user.student.class ? user.student.class : 'N/A' %>"
+                  data-segment="<%= user.student && user.student.class ? (user.student.class.startsWith('JSS') ? 'jss' : user.student.class.startsWith('SS') ? 'ss' : 'none') : 'none' %>"
                 >
                   <td><%= user.name %></td>
                   <td><%= user.email %></td>
@@ -143,6 +284,14 @@
                   <td>
                     <% if (user.student) { %>
                       <%= user.student.name %> (<%= user.student.regNumber %>)
+                    <% } else { %>
+                      N/A
+                    <% } %>
+                  </td>
+
+                  <td>
+                    <% if (user.student && user.student.class) { %>
+                      <span class="badge badge-info"><%= user.student.class %></span>
                     <% } else { %>
                       N/A
                     <% } %>
@@ -188,44 +337,173 @@
 
   <script>
     let originalRows = [];
+    let currentSegment = 'all';
+    let currentClass = 'all';
+
+    const jssClasses = ['JSS 1', 'JSS 2', 'JSS 3'];
+    const ssClasses = ['SS 1', 'SS 2', 'SS 3'];
 
     window.addEventListener("DOMContentLoaded", () => {
       originalRows = Array.from(document.querySelectorAll("#users-table tbody tr"));
+      generateClassButtons('all');
+      filterUsers();
     });
 
+    // Change Segment (JSS/SS/All)
+    function changeSegment(segment) {
+      currentSegment = segment;
+      currentClass = 'all';
+
+      // Update active tab
+      document.querySelectorAll('.seg-tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      document.querySelector(`[data-segment="${segment}"]`).classList.add('active');
+
+      // Generate class buttons for this segment
+      generateClassButtons(segment);
+
+      // Filter users
+      filterUsers();
+    }
+
+    // Generate class buttons based on segment
+    function generateClassButtons(segment) {
+      const classButtonsContainer = document.getElementById('class-buttons');
+      classButtonsContainer.innerHTML = '';
+
+      // All Classes button
+      const allBtn = document.createElement('button');
+      allBtn.className = 'class-btn active';
+      allBtn.textContent = 'All Classes';
+      allBtn.onclick = () => selectClass('all');
+      classButtonsContainer.appendChild(allBtn);
+
+      let classes = [];
+      if (segment === 'jss') {
+        classes = jssClasses;
+      } else if (segment === 'ss') {
+        classes = ssClasses;
+      } else {
+        classes = [...jssClasses, ...ssClasses];
+      }
+
+      // Create button for each class
+      classes.forEach(cls => {
+        const btn = document.createElement('button');
+        btn.className = 'class-btn';
+        btn.textContent = cls;
+        btn.onclick = () => selectClass(cls);
+        classButtonsContainer.appendChild(btn);
+      });
+    }
+
+    // Select a specific class
+    function selectClass(className) {
+      currentClass = className;
+
+      // Update active class button
+      document.querySelectorAll('.class-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+
+      // Clear class search
+      document.getElementById('class-search').value = '';
+
+      // Filter users
+      filterUsers();
+    }
+
+    // Main filter function
     function filterUsers() {
       const roleFilter = document.getElementById("filter-role").value;
       const statusFilter = document.getElementById("filter-status").value;
       const searchText = document.getElementById("searchInput").value.toLowerCase();
+      const classSearchText = document.getElementById("class-search").value.toLowerCase();
       const sortValue = document.getElementById("sort-select").value;
 
       let filtered = [...originalRows].filter(row => {
+        // Segment filter (JSS/SS/All)
+        const segmentMatch = currentSegment === 'all' || row.dataset.segment === currentSegment;
+
+        // Class filter
+        const classMatch = currentClass === 'all' || row.dataset.class === currentClass;
+
+        // Role filter
         const roleMatch = roleFilter === "all" || row.dataset.role === roleFilter;
+
+        // Status filter
         const statusMatch = statusFilter === "all" || row.dataset.status === statusFilter;
+
+        // Global search
         const searchMatch =
           row.dataset.name.includes(searchText) ||
           row.dataset.email.includes(searchText);
 
-        return roleMatch && statusMatch && searchMatch;
+        // Class-specific search
+        const classSearchMatch = classSearchText === '' ||
+          row.dataset.name.includes(classSearchText) ||
+          row.dataset.email.includes(classSearchText);
+
+        return segmentMatch && classMatch && roleMatch && statusMatch && searchMatch && classSearchMatch;
       });
 
+      // Sorting
       filtered.sort((a, b) => {
         const nameA = a.dataset.name;
         const nameB = b.dataset.name;
+        const roleA = a.dataset.role;
+        const roleB = b.dataset.role;
+        const dateA = parseInt(a.dataset.date);
+        const dateB = parseInt(b.dataset.date);
 
         switch (sortValue) {
           case "name-asc": return nameA.localeCompare(nameB);
           case "name-desc": return nameB.localeCompare(nameA);
+          case "role-asc": return roleA.localeCompare(roleB);
+          case "role-desc": return roleB.localeCompare(roleA);
+          case "date-asc": return dateA - dateB;
+          case "date-desc": return dateB - dateA;
           default: return 0;
         }
       });
 
+      // Update table
       const tbody = document.querySelector("#users-table tbody");
       tbody.innerHTML = "";
-      filtered.forEach(row => tbody.appendChild(row));
+      
+      if (filtered.length === 0) {
+        const emptyRow = document.createElement('tr');
+        emptyRow.innerHTML = '<td colspan="8" class="text-center">No users found matching filters</td>';
+        tbody.appendChild(emptyRow);
+      } else {
+        filtered.forEach(row => tbody.appendChild(row));
+      }
+
+      // Update results summary
+      updateResultsSummary(filtered.length);
     }
 
+    // Update results summary
+    function updateResultsSummary(count) {
+      const summary = document.getElementById('results-summary');
+      let text = `Showing ${count} user${count !== 1 ? 's' : ''}`;
+
+      if (currentSegment !== 'all') {
+        text += ` in ${currentSegment.toUpperCase()}`;
+      }
+
+      if (currentClass !== 'all') {
+        text += ` - ${currentClass}`;
+      }
+
+      summary.textContent = text;
+    }
+
+    // Event listeners
     document.getElementById("searchInput").addEventListener("input", filterUsers);
+    document.getElementById("class-search").addEventListener("input", filterUsers);
 
 
     // ===============================
