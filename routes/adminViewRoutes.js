@@ -306,8 +306,12 @@ router.get("/results/upload", requireAdminAuth, async (req, res) => {
 router.get("/results", requireAdminAuth, async (req, res) => {
   try {
     const results = await Result.find()
-      .populate("student")
-      .sort({ createdAt: -1 });
+      .populate({
+        path: "student",
+        select: "name regNumber classLevel"
+      })
+      .sort({ createdAt: -1 })
+      .lean(); // 🚀 faster rendering
 
     res.render("admin/view-results", {
       title: "View Results",
