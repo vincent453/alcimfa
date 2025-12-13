@@ -244,7 +244,7 @@
         %>
 
         <!-- JSS SECTION -->
-        <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-header collapsed" onclick="toggleSection(this)">
             <h2>
                 <i class="fa fa-graduation-cap"></i>
                 Junior Secondary School (JSS)
@@ -255,11 +255,11 @@
             </div>
         </div>
 
-        <div class="section-content">
+        <div class="section-content collapsed">
             <% jssClasses.forEach(className => { %>
                 <% const classStudents = getStudentsByClass(jssStudents, className); %>
                 
-                <div class="class-header" onclick="toggleClass(this)">
+                <div class="class-header collapsed" onclick="toggleClass(this)">
                     <h3>
                         <i class="fa fa-users"></i>
                         <%= className %>
@@ -270,7 +270,7 @@
                     </div>
                 </div>
 
-                <div class="class-content">
+                <div class="class-content collapsed">
                     <% if (classStudents.length === 0) { %>
                         <div class="no-students-msg">No students in this class</div>
                     <% } else { %>
@@ -334,7 +334,7 @@
         </div>
 
         <!-- SSS SECTION -->
-        <div class="section-header" onclick="toggleSection(this)">
+        <div class="section-header collapsed" onclick="toggleSection(this)">
             <h2>
                 <i class="fa fa-graduation-cap"></i>
                 Senior Secondary School (SSS)
@@ -345,7 +345,7 @@
             </div>
         </div>
 
-        <div class="section-content">
+        <div class="section-content collapsed">
             <% sssClasses.forEach(className => { %>
                 <% const classStudents = getStudentsByClass(sssStudents, className); %>
                 
