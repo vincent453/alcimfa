@@ -224,11 +224,7 @@
             </a>
         </section>
 
-        <div class="filter-bar">
-            <div>
-                <input type="text" id="searchInput" placeholder="Search by name, class, or reg number...">
-            </div>
-        </div>
+
 
         <%
           // Group students by section and class
@@ -274,6 +270,13 @@
                     <% if (classStudents.length === 0) { %>
                         <div class="no-students-msg">No students in this class</div>
                     <% } else { %>
+                        <div style="margin-bottom: 10px;">
+                            <input type="text" 
+                                   class="class-search" 
+                                   placeholder="Search in <%= className %>..." 
+                                   style="width: 100%; padding: 8px 12px; border: 1px solid #ccc; border-radius: 6px;"
+                                   onkeyup="searchInClass(this)">
+                        </div>
                         <section class="table-container">
                             <table>
                                 <thead>
@@ -456,29 +459,24 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     });
 
-    // Search functionality
-    const searchInput = document.getElementById('searchInput');
-    
-    searchInput.addEventListener('input', function() {
-        const searchText = this.value.toLowerCase();
-        const allRows = document.querySelectorAll('.student-row');
-        
-        allRows.forEach(row => {
-            const name = row.dataset.name.toLowerCase();
-            const reg = row.dataset.reg.toLowerCase();
-            const className = row.dataset.class.toLowerCase();
-            
-            if (name.includes(searchText) || reg.includes(searchText) || className.includes(searchText)) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
-        });
-
-        // Update counts after search
-        updateCounts();
-    });
 });
+
+function searchInClass(input) {
+    const searchText = input.value.toLowerCase();
+    const classContent = input.closest('.class-content');
+    const rows = classContent.querySelectorAll('.student-row');
+    
+    rows.forEach(row => {
+        const name = row.dataset.name.toLowerCase();
+        const reg = row.dataset.reg.toLowerCase();
+        
+        if (name.includes(searchText) || reg.includes(searchText)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
 
 function toggleSection(element) {
     const content = element.nextElementSibling;
@@ -492,23 +490,6 @@ function toggleClass(element) {
     content.classList.toggle('collapsed');
 }
 
-function updateCounts() {
-    // Update section counts
-    document.querySelectorAll('.section-header').forEach(header => {
-        const section = header.nextElementSibling;
-        const visibleRows = section.querySelectorAll('.student-row:not([style*="display: none"])');
-        const countSpan = header.querySelector('.section-count');
-        countSpan.textContent = `${visibleRows.length} Students`;
-    });
-
-    // Update class counts
-    document.querySelectorAll('.class-header').forEach(header => {
-        const classContent = header.nextElementSibling;
-        const visibleRows = classContent.querySelectorAll('.student-row:not([style*="display: none"])');
-        const countSpan = header.querySelector('.class-count');
-        countSpan.textContent = `${visibleRows.length} Students`;
-    });
-}
 </script>
 </body>
 </html>
