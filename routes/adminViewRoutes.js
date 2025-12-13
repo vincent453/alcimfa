@@ -324,17 +324,6 @@ router.get("/results", requireAdminAuth, async (req, res) => {
   }
 });
 
-    
-    res.render("admin/view-results", {
-      title: "View Results",
-      admin: req.admin,
-      adminToken: req.session.adminToken,
-      results
-    });
-  } catch (error) {
-    res.render("error", { message: error.message });
-  }
-});
 
 // ==========================================
 // USER MANAGEMENT
