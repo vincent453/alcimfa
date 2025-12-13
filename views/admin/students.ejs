@@ -352,7 +352,7 @@
             <% sssClasses.forEach(className => { %>
                 <% const classStudents = getStudentsByClass(sssStudents, className); %>
                 
-                <div class="class-header" onclick="toggleClass(this)">
+                <div class="class-header collapsed" onclick="toggleClass(this)">
                     <h3>
                         <i class="fa fa-users"></i>
                         <%= className %>
@@ -363,10 +363,17 @@
                     </div>
                 </div>
 
-                <div class="class-content">
+                <div class="class-content collapsed">
                     <% if (classStudents.length === 0) { %>
                         <div class="no-students-msg">No students in this class</div>
                     <% } else { %>
+                        <div style="margin-bottom: 10px;">
+                            <input type="text" 
+                                   class="class-search" 
+                                   placeholder="Search in <%= className %>..." 
+                                   style="width: 100%; padding: 8px 12px; border: 1px solid #ccc; border-radius: 6px;"
+                                   onkeyup="searchInClass(this)">
+                        </div>
                         <section class="table-container">
                             <table>
                                 <thead>
