@@ -249,7 +249,7 @@
                   data-email="<%= user.email.toLowerCase() %>"
                   data-date="<%= new Date(user.createdAt).getTime() %>"
                   data-class="<%= user.student && user.student.class ? user.student.class : 'N/A' %>"
-                  data-segment="<%= user.student && user.student.class ? (user.student.class.startsWith('JSS') ? 'jss' : user.student.class.startsWith('SS') ? 'ss' : 'none') : 'none' %>"
+                  data-segment="<%= user.student && user.student.class ? (user.student.class.startsWith('JSS') ? 'jss' : (user.student.class.startsWith('SS') || user.student.class.startsWith('SSS')) ? 'ss' : 'none') : 'none' %>"
                 >
                   <td><%= user.name %></td>
                   <td><%= user.email %></td>
@@ -319,11 +319,23 @@
     let currentSegment = 'all';
     let currentClass = 'all';
 
+    // Support both SS and SSS naming conventions
     const jssClasses = ['JSS 1', 'JSS 2', 'JSS 3'];
-    const ssClasses = ['SS 1', 'SS 2', 'SS 3'];
+    const ssClasses = ['SS 1', 'SS 2', 'SS 3', 'SSS 1', 'SSS 2', 'SSS 3'];
 
     window.addEventListener("DOMContentLoaded", () => {
-      originalRows = Array.from(document.querySelectorAll("#users-table tbody tr"));
+      // Get all table rows (excluding the header and empty state rows)
+      const tableRows = document.querySelectorAll("#users-table tbody tr");
+      originalRows = Array.from(tableRows).filter(row => {
+        return row.dataset.name && row.dataset.name !== 'undefined';
+      });
+      
+      console.log('Total rows loaded:', originalRows.length);
+      
+      // Log unique classes found
+      const uniqueClasses = [...new Set(originalRows.map(row => row.dataset.class))];
+      console.log('Classes found:', uniqueClasses);
+      
       populateClassDropdown('all');
       filterUsers();
     });
@@ -363,6 +375,9 @@
         classes = [...jssClasses, ...ssClasses];
       }
 
+      // Remove duplicates and sort
+      classes = [...new Set(classes)].sort();
+
       // Add class options
       classes.forEach(cls => {
         const option = document.createElement('option');
@@ -392,6 +407,13 @@
       const classSearchText = document.getElementById("class-search").value.toLowerCase();
       const sortValue = document.getElementById("sort-select").value;
 
+      console.log('Filtering with:', {
+        segment: currentSegment,
+        class: currentClass,
+        role: roleFilter,
+        status: statusFilter
+      });
+
       let filtered = [...originalRows].filter(row => {
         // Segment filter (JSS/SS/All)
         const segmentMatch = currentSegment === 'all' || row.dataset.segment === currentSegment;
@@ -417,6 +439,8 @@
 
         return segmentMatch && classMatch && roleMatch && statusMatch && searchMatch && classSearchMatch;
       });
+
+      console.log('Filtered results:', filtered.length);
 
       // Sorting
       filtered.sort((a, b) => {
