@@ -24,25 +24,104 @@
         font-size: 14px;
     }
 
-    .filter-bar select {
-        padding: 8px 12px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
+    /* Section Headers */
+    .section-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 10px;
+        margin: 30px 0 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .section-header:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+
+    .section-header h2 {
+        margin: 0;
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .section-header .toggle-icon {
+        transition: transform 0.3s;
+    }
+
+    .section-header.collapsed .toggle-icon {
+        transform: rotate(-90deg);
+    }
+
+    .section-count {
+        background: rgba(255,255,255,0.2);
+        padding: 5px 15px;
+        border-radius: 20px;
         font-size: 14px;
     }
 
-    .filter-bar label {
-        font-weight: 600;
-        margin-right: 6px;
+    /* Class Headers */
+    .class-header {
+        background: #2a5298;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        margin: 15px 0 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.3s;
     }
 
-    .table-container table {
-        width: 100%;
-        border-collapse: collapse;
+    .class-header:hover {
+        background: #1e3c72;
     }
 
-    .text-center {
-        text-align: center;
+    .class-header h3 {
+        margin: 0;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .class-header .toggle-icon {
+        transition: transform 0.3s;
+    }
+
+    .class-header.collapsed .toggle-icon {
+        transform: rotate(-90deg);
+    }
+
+    .class-count {
+        background: rgba(255,255,255,0.2);
+        padding: 3px 12px;
+        border-radius: 15px;
+        font-size: 13px;
+    }
+
+    /* Section and Class Content */
+    .section-content,
+    .class-content {
+        overflow: hidden;
+        transition: max-height 0.4s ease-out, opacity 0.3s ease-out;
+        max-height: 5000px;
+        opacity: 1;
+    }
+
+    .section-content.collapsed,
+    .class-content.collapsed {
+        max-height: 0;
+        opacity: 0;
+        margin: 0;
     }
 
     /* Profile Photo Styles */
@@ -89,17 +168,35 @@
         color: #666;
     }
 
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
     table td {
         vertical-align: middle;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .no-students-msg {
+        padding: 20px;
+        text-align: center;
+        color: #666;
+        font-style: italic;
+        background: #f8f9fa;
+        border-radius: 6px;
+        margin: 10px 0;
     }
 </style>
 </head>
 <body>
 <div class="admin-layout">
-    <!-- Sidebar -->
     <%- include('../partials/sidebar') %>
 
-    <!-- Main Content -->
     <div class="main-content">
       <header>
         <button class="menu-btn" id="menuBtn">
@@ -127,87 +224,205 @@
             </a>
         </section>
 
-        <!-- 🔍 Filter and Sorting Controls -->
         <div class="filter-bar">
             <div>
                 <input type="text" id="searchInput" placeholder="Search by name, class, or reg number...">
             </div>
-            <div>
-                <label for="sortSelect">Sort by:</label>
-                <select id="sortSelect">
-                    <option value="">-- Select --</option>
-                    <option value="name-asc">Name (A–Z)</option>
-                    <option value="name-desc">Name (Z–A)</option>
-                    <option value="class-asc">Class (A–Z)</option>
-                    <option value="class-desc">Class (Z–A)</option>
-                    <option value="session-asc">Session (Oldest–Newest)</option>
-                    <option value="session-desc">Session (Newest–Oldest)</option>
-                </select>
+        </div>
+
+        <%
+          // Group students by section and class
+          const jssClasses = ['JSS 1', 'JSS 2', 'JSS 3'];
+          const sssClasses = ['SSS 1', 'SSS 2', 'SSS 3'];
+          
+          const jssStudents = students.filter(s => s.classLevel.startsWith('JSS'));
+          const sssStudents = students.filter(s => s.classLevel.startsWith('SSS') || s.classLevel.startsWith('SS'));
+          
+          function getStudentsByClass(students, className) {
+            return students.filter(s => s.classLevel === className);
+          }
+        %>
+
+        <!-- JSS SECTION -->
+        <div class="section-header" onclick="toggleSection(this)">
+            <h2>
+                <i class="fa fa-graduation-cap"></i>
+                Junior Secondary School (JSS)
+            </h2>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <span class="section-count"><%= jssStudents.length %> Students</span>
+                <i class="fa fa-chevron-down toggle-icon"></i>
             </div>
         </div>
 
-        <section class="table-container">
-            <table id="studentTable">
-                <thead>
-                    <tr>
-                        <th>Student</th>
-                        <th>Class</th>
-                        <th>Gender</th>
-                        <th>Session</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% if (students.length === 0) { %>
-                        <tr>
-                            <td colspan="5" class="text-center">No students found</td>
-                        </tr>
+        <div class="section-content">
+            <% jssClasses.forEach(className => { %>
+                <% const classStudents = getStudentsByClass(jssStudents, className); %>
+                
+                <div class="class-header" onclick="toggleClass(this)">
+                    <h3>
+                        <i class="fa fa-users"></i>
+                        <%= className %>
+                    </h3>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <span class="class-count"><%= classStudents.length %> Students</span>
+                        <i class="fa fa-chevron-down toggle-icon"></i>
+                    </div>
+                </div>
+
+                <div class="class-content">
+                    <% if (classStudents.length === 0) { %>
+                        <div class="no-students-msg">No students in this class</div>
                     <% } else { %>
-                        <% students.forEach(student => { %>
-                            <tr>
-                                <td>
-                                    <div class="student-info">
-                                        <% if (student.profilePhoto) { %>
-                                            <img src="<%= student.profilePhoto %>" 
-                                                 alt="<%= student.name %>" 
-                                                 class="student-photo">
-                                        <% } else { %>
-                                            <div class="student-photo-placeholder">
-                                                <%= student.name.charAt(0).toUpperCase() %>
-                                            </div>
-                                        <% } %>
-                                        <div class="student-details">
-                                            <div class="student-name"><%= student.name %></div>
-                                            <div class="student-reg">REG: <%= student.regNumber %></div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td><%= student.classLevel %></td>
-                                <td><%= student.gender %></td>
-                                <td><%= student.session %></td>
-                                <td class="actions">
-                                    <a href="/admin/students/edit/<%= student._id %>" 
-                                       class="btn btn-sm btn-edit"
-                                       title="Edit Student">
-                                        <i class="fa fa-edit"></i> Edit
-                                    </a>
-                                    <form action="/admin/students/delete/<%= student._id %>" 
-                                          method="POST" 
-                                          style="display:inline;" 
-                                          onsubmit="return confirm('Are you sure you want to delete <%= student.name %> and all associated data?');">
-                                        <button type="submit" 
-                                                class="btn btn-sm btn-delete"
-                                                title="Delete Student">
-                                            <i class="fa fa-trash"></i> Delete
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        <% }); %>
+                        <section class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Gender</th>
+                                        <th>Session</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% classStudents.forEach(student => { %>
+                                        <tr class="student-row" 
+                                            data-name="<%= student.name %>" 
+                                            data-reg="<%= student.regNumber %>" 
+                                            data-class="<%= student.classLevel %>">
+                                            <td>
+                                                <div class="student-info">
+                                                    <% if (student.profilePhoto) { %>
+                                                        <img src="<%= student.profilePhoto %>" 
+                                                             alt="<%= student.name %>" 
+                                                             class="student-photo">
+                                                    <% } else { %>
+                                                        <div class="student-photo-placeholder">
+                                                            <%= student.name.charAt(0).toUpperCase() %>
+                                                        </div>
+                                                    <% } %>
+                                                    <div class="student-details">
+                                                        <div class="student-name"><%= student.name %></div>
+                                                        <div class="student-reg">REG: <%= student.regNumber %></div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td><%= student.gender %></td>
+                                            <td><%= student.session %></td>
+                                            <td class="actions">
+                                                <a href="/admin/students/edit/<%= student._id %>" 
+                                                   class="btn btn-sm btn-edit">
+                                                    <i class="fa fa-edit"></i> Edit
+                                                </a>
+                                                <form action="/admin/students/delete/<%= student._id %>" 
+                                                      method="POST" 
+                                                      style="display:inline;" 
+                                                      onsubmit="return confirm('Delete <%= student.name %>?');">
+                                                    <button type="submit" class="btn btn-sm btn-delete">
+                                                        <i class="fa fa-trash"></i> Delete
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </section>
                     <% } %>
-                </tbody>
-            </table>
-        </section>
+                </div>
+            <% }); %>
+        </div>
+
+        <!-- SSS SECTION -->
+        <div class="section-header" onclick="toggleSection(this)">
+            <h2>
+                <i class="fa fa-graduation-cap"></i>
+                Senior Secondary School (SSS)
+            </h2>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <span class="section-count"><%= sssStudents.length %> Students</span>
+                <i class="fa fa-chevron-down toggle-icon"></i>
+            </div>
+        </div>
+
+        <div class="section-content">
+            <% sssClasses.forEach(className => { %>
+                <% const classStudents = getStudentsByClass(sssStudents, className); %>
+                
+                <div class="class-header" onclick="toggleClass(this)">
+                    <h3>
+                        <i class="fa fa-users"></i>
+                        <%= className %>
+                    </h3>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <span class="class-count"><%= classStudents.length %> Students</span>
+                        <i class="fa fa-chevron-down toggle-icon"></i>
+                    </div>
+                </div>
+
+                <div class="class-content">
+                    <% if (classStudents.length === 0) { %>
+                        <div class="no-students-msg">No students in this class</div>
+                    <% } else { %>
+                        <section class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Gender</th>
+                                        <th>Session</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% classStudents.forEach(student => { %>
+                                        <tr class="student-row" 
+                                            data-name="<%= student.name %>" 
+                                            data-reg="<%= student.regNumber %>" 
+                                            data-class="<%= student.classLevel %>">
+                                            <td>
+                                                <div class="student-info">
+                                                    <% if (student.profilePhoto) { %>
+                                                        <img src="<%= student.profilePhoto %>" 
+                                                             alt="<%= student.name %>" 
+                                                             class="student-photo">
+                                                    <% } else { %>
+                                                        <div class="student-photo-placeholder">
+                                                            <%= student.name.charAt(0).toUpperCase() %>
+                                                        </div>
+                                                    <% } %>
+                                                    <div class="student-details">
+                                                        <div class="student-name"><%= student.name %></div>
+                                                        <div class="student-reg">REG: <%= student.regNumber %></div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td><%= student.gender %></td>
+                                            <td><%= student.session %></td>
+                                            <td class="actions">
+                                                <a href="/admin/students/edit/<%= student._id %>" 
+                                                   class="btn btn-sm btn-edit">
+                                                    <i class="fa fa-edit"></i> Edit
+                                                </a>
+                                                <form action="/admin/students/delete/<%= student._id %>" 
+                                                      method="POST" 
+                                                      style="display:inline;" 
+                                                      onsubmit="return confirm('Delete <%= student.name %>?');">
+                                                    <button type="submit" class="btn btn-sm btn-delete">
+                                                        <i class="fa fa-trash"></i> Delete
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </section>
+                    <% } %>
+                </div>
+            <% }); %>
+        </div>
+
       </main>
     </div>
 </div>
@@ -225,23 +440,13 @@ document.addEventListener('DOMContentLoaded', function() {
         sidebar.classList.toggle('active');
         overlay.classList.toggle('active');
     });
+    
     overlay.addEventListener('click', () => {
         sidebar.classList.remove('active');
         overlay.classList.remove('active');
     });
 
-    // Close sidebar on link click (mobile)
-    if (window.innerWidth <= 768) {
-        const sidebarLinks = sidebar.querySelectorAll('a');
-        sidebarLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                sidebar.classList.remove('active');
-                overlay.classList.remove('active');
-            });
-        });
-    }
-
-    // Auto-hide alerts after 5 seconds
+    // Auto-hide alerts
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(alert => {
         setTimeout(() => {
@@ -251,89 +456,59 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     });
 
-    // 🔍 Search + Sort logic
+    // Search functionality
     const searchInput = document.getElementById('searchInput');
-    const sortSelect = document.getElementById('sortSelect');
-    const tableBody = document.querySelector('#studentTable tbody');
-    const rows = Array.from(tableBody.querySelectorAll('tr'));
-
-    // Store original data for each row
-    rows.forEach(row => {
-        const studentInfo = row.querySelector('.student-info');
-        if (studentInfo) {
-            const nameElement = studentInfo.querySelector('.student-name');
-            const regElement = studentInfo.querySelector('.student-reg');
-            row.dataset.name = nameElement ? nameElement.textContent : '';
-            row.dataset.reg = regElement ? regElement.textContent : '';
-        }
-    });
-
-    function filterAndSort() {
-        const searchText = searchInput.value.toLowerCase();
-        const sortValue = sortSelect.value;
-
-        // Filter
-        const filteredRows = rows.filter(row => {
-            // Skip the "no students" row
-            if (row.cells.length < 5) return false;
-
-            const name = (row.dataset.name || '').toLowerCase();
-            const reg = (row.dataset.reg || '').toLowerCase();
-            const classLevel = row.cells[1].textContent.toLowerCase();
+    
+    searchInput.addEventListener('input', function() {
+        const searchText = this.value.toLowerCase();
+        const allRows = document.querySelectorAll('.student-row');
+        
+        allRows.forEach(row => {
+            const name = row.dataset.name.toLowerCase();
+            const reg = row.dataset.reg.toLowerCase();
+            const className = row.dataset.class.toLowerCase();
             
-            return (
-                name.includes(searchText) ||
-                classLevel.includes(searchText) ||
-                reg.includes(searchText)
-            );
-        });
-
-        // Sort
-        filteredRows.sort((a, b) => {
-            let aVal, bVal;
-
-            switch (sortValue) {
-                case 'name-asc':
-                    aVal = a.dataset.name || '';
-                    bVal = b.dataset.name || '';
-                    return aVal.localeCompare(bVal);
-                case 'name-desc':
-                    aVal = a.dataset.name || '';
-                    bVal = b.dataset.name || '';
-                    return bVal.localeCompare(aVal);
-                case 'class-asc':
-                    aVal = a.cells[1].textContent;
-                    bVal = b.cells[1].textContent;
-                    return aVal.localeCompare(bVal);
-                case 'class-desc':
-                    aVal = a.cells[1].textContent;
-                    bVal = b.cells[1].textContent;
-                    return bVal.localeCompare(aVal);
-                case 'session-asc':
-                    aVal = a.cells[3].textContent;
-                    bVal = b.cells[3].textContent;
-                    return aVal.localeCompare(bVal);
-                case 'session-desc':
-                    aVal = a.cells[3].textContent;
-                    bVal = b.cells[3].textContent;
-                    return bVal.localeCompare(aVal);
-                default:
-                    return 0;
+            if (name.includes(searchText) || reg.includes(searchText) || className.includes(searchText)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
             }
         });
 
-        // Re-render rows
-        tableBody.innerHTML = '';
-        if (filteredRows.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="5" class="text-center">No students found matching your search</td></tr>';
-        } else {
-            filteredRows.forEach(row => tableBody.appendChild(row));
-        }
-    }
-
-    searchInput.addEventListener('input', filterAndSort);
-    sortSelect.addEventListener('change', filterAndSort);
+        // Update counts after search
+        updateCounts();
+    });
 });
+
+function toggleSection(element) {
+    const content = element.nextElementSibling;
+    element.classList.toggle('collapsed');
+    content.classList.toggle('collapsed');
+}
+
+function toggleClass(element) {
+    const content = element.nextElementSibling;
+    element.classList.toggle('collapsed');
+    content.classList.toggle('collapsed');
+}
+
+function updateCounts() {
+    // Update section counts
+    document.querySelectorAll('.section-header').forEach(header => {
+        const section = header.nextElementSibling;
+        const visibleRows = section.querySelectorAll('.student-row:not([style*="display: none"])');
+        const countSpan = header.querySelector('.section-count');
+        countSpan.textContent = `${visibleRows.length} Students`;
+    });
+
+    // Update class counts
+    document.querySelectorAll('.class-header').forEach(header => {
+        const classContent = header.nextElementSibling;
+        const visibleRows = classContent.querySelectorAll('.student-row:not([style*="display: none"])');
+        const countSpan = header.querySelector('.class-count');
+        countSpan.textContent = `${visibleRows.length} Students`;
+    });
+}
 </script>
 </body>
 </html>
