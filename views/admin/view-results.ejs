@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><%= title %> - School Management</title>
+
   <link rel="stylesheet" href="/css/style2.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <link href="https://fonts.cdnfonts.com/css/manrope" rel="stylesheet" />
@@ -27,7 +28,8 @@
       gap: 8px;
     }
 
-    .filters input[type="text"], .filters select {
+    .filters input[type="text"],
+    .filters select {
       padding: 8px 10px;
       border: 1px solid #ccc;
       border-radius: 6px;
@@ -49,19 +51,23 @@
         justify-content: space-between;
       }
 
-      .filters input[type="text"], .filters select {
+      .filters input,
+      .filters select {
         width: 100%;
       }
     }
   </style>
 </head>
+
 <body>
   <div class="admin-layout">
+
     <!-- Sidebar -->
     <%- include('../partials/sidebar') %>
 
     <!-- Main Content -->
     <div class="main-content">
+
       <header>
         <button class="menu-btn" id="menuBtn">
           <i class="fa fa-bars"></i>
@@ -70,15 +76,21 @@
       </header>
 
       <main class="admin-content">
+
         <!-- Filters -->
         <section class="filters card">
           <div class="filter-box">
-            <label for="searchInput">Search:</label>
-            <input type="text" id="searchInput" placeholder="Search by student name..." oninput="filterResults()" />
+            <label>Search:</label>
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Search by student name..."
+              oninput="filterResults()"
+            />
           </div>
 
           <div class="filter-box">
-            <label for="filter-class">Class:</label>
+            <label>Class:</label>
             <select id="filter-class" onchange="filterResults()">
               <option value="all">All Classes</option>
               <option value="JSS 1">JSS 1</option>
@@ -91,7 +103,7 @@
           </div>
 
           <div class="filter-box">
-            <label for="filter-term">Term:</label>
+            <label>Term:</label>
             <select id="filter-term" onchange="filterResults()">
               <option value="all">All Terms</option>
               <option value="1st Term">1st Term</option>
@@ -101,7 +113,7 @@
           </div>
 
           <div class="filter-box">
-            <label for="sort-select">Sort By:</label>
+            <label>Sort:</label>
             <select id="sort-select" onchange="filterResults()">
               <option value="">Default</option>
               <option value="name-asc">Name (A–Z)</option>
@@ -122,51 +134,67 @@
                 <th>Student Name</th>
                 <th>Class</th>
                 <th>Term</th>
-                <th>Total Score</th>
+                <th>Total</th>
                 <th>Average</th>
                 <th>GPA</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
+
             <tbody>
               <% if (results.length === 0) { %>
-              <tr>
-                <td colspan="8" class="text-center">No results found</td>
-              </tr>
+                <tr>
+                  <td colspan="8" class="text-center">No results found</td>
+                </tr>
               <% } else { %>
-              <% results.forEach(item => { %>
-              <tr
-                data-class="<%= item.student.classLevel %>"
-                data-term="<%= item.result.term %>"
-                data-name="<%= item.student.name.toLowerCase() %>"
-                data-average="<%= item.result.average %>"
-              >
-                <td><%= item.student.name %></td>
-                <td><%= item.student.classLevel %></td>
-                <td><%= item.result.term %></td>
-                <td><%= item.result.totalScore %>/<%= item.result.subjects.length * 100 %></td>
-                <td><%= item.result.average %>%</td>
-                <td><%= item.result.gpa %></td>
-                <td>
-                  <span class="badge badge-<%= item.result.resultStatus.toLowerCase() %>">
-                    <%= item.result.resultStatus %>
-                  </span>
-                </td>
-                <td class="actions">
-                  <a href="/api/results/card/<%= item.student._id %>" target="_blank" class="btn btn-sm btn-view">
-                    <i class="fa fa-eye"></i> View Card
-                  </a>
-                  <button onclick="printResult('<%= item.student._id %>')" class="btn btn-sm btn-print">
-                    <i class="fa fa-print"></i> Print
-                  </button>
-                </td>
-              </tr>
-              <% }); %>
+
+                <% results.forEach(item => { %>
+                  <% if (item.student) { %>
+
+                  <tr
+                    data-class="<%= item.student.classLevel %>"
+                    data-term="<%= item.term %>"
+                    data-name="<%= item.student.name.toLowerCase() %>"
+                    data-average="<%= item.average %>"
+                  >
+                    <td><%= item.student.name %></td>
+                    <td><%= item.student.classLevel %></td>
+                    <td><%= item.term %></td>
+                    <td><%= item.totalScore %>/<%= item.subjects.length * 100 %></td>
+                    <td><%= item.average %>%</td>
+                    <td><%= item.gpa %></td>
+                    <td>
+                      <span class="badge badge-<%= item.resultStatus.toLowerCase() %>">
+                        <%= item.resultStatus %>
+                      </span>
+                    </td>
+                    <td class="actions">
+                      <a
+                        href="/api/results/card/<%= item.student._id %>"
+                        target="_blank"
+                        class="btn btn-sm btn-view"
+                      >
+                        <i class="fa fa-eye"></i> View
+                      </a>
+
+                      <button
+                        onclick="printResult('<%= item.student._id %>')"
+                        class="btn btn-sm btn-print"
+                      >
+                        <i class="fa fa-print"></i> Print
+                      </button>
+                    </td>
+                  </tr>
+
+                  <% } %>
+                <% }) %>
+
               <% } %>
             </tbody>
           </table>
         </section>
+
       </main>
     </div>
   </div>
@@ -174,10 +202,10 @@
   <script>
     let originalRows = [];
 
-    window.addEventListener('DOMContentLoaded', () => {
-      // store a copy of all original rows (so we never lose them)
-      const rows = document.querySelectorAll("#results-table tbody tr");
-      originalRows = Array.from(rows);
+    window.addEventListener("DOMContentLoaded", () => {
+      originalRows = Array.from(
+        document.querySelectorAll("#results-table tbody tr")
+      );
     });
 
     function filterResults() {
@@ -186,33 +214,30 @@
       const searchText = document.getElementById("searchInput").value.toLowerCase();
       const sortValue = document.getElementById("sort-select").value;
 
-      // Always use original data set
-      let filtered = [...originalRows].filter(row => {
+      let filtered = originalRows.filter(row => {
         const rowClass = row.dataset.class;
         const rowTerm = row.dataset.term;
         const name = row.dataset.name;
 
-        const classMatch = classFilter === "all" || rowClass === classFilter;
-        const termMatch = termFilter === "all" || rowTerm === termFilter;
-        const searchMatch = name.includes(searchText);
-
-        return classMatch && termMatch && searchMatch;
+        return (
+          (classFilter === "all" || rowClass === classFilter) &&
+          (termFilter === "all" || rowTerm === termFilter) &&
+          name.includes(searchText)
+        );
       });
 
-      // Sorting
       filtered.sort((a, b) => {
         switch (sortValue) {
           case "name-asc": return a.dataset.name.localeCompare(b.dataset.name);
           case "name-desc": return b.dataset.name.localeCompare(a.dataset.name);
           case "class-asc": return a.dataset.class.localeCompare(b.dataset.class);
           case "class-desc": return b.dataset.class.localeCompare(a.dataset.class);
-          case "avg-asc": return parseFloat(a.dataset.average) - parseFloat(b.dataset.average);
-          case "avg-desc": return parseFloat(b.dataset.average) - parseFloat(a.dataset.average);
+          case "avg-asc": return a.dataset.average - b.dataset.average;
+          case "avg-desc": return b.dataset.average - a.dataset.average;
           default: return 0;
         }
       });
 
-      // Render new table
       const tbody = document.querySelector("#results-table tbody");
       tbody.innerHTML = "";
       filtered.forEach(row => tbody.appendChild(row));
@@ -222,7 +247,6 @@
       window.open(`/api/results/card/${studentId}`, "_blank");
     }
 
-    // Sidebar toggle
     const menuBtn = document.getElementById("menuBtn");
     const sidebar = document.getElementById("sidebar");
     menuBtn.addEventListener("click", () => {
