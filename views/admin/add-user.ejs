@@ -15,6 +15,120 @@
       border-radius: 6px;
       margin-top: 10px;
     }
+
+    .student-selection-wrapper {
+      background: #fff;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 10px;
+    }
+
+    .student-filters {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .filter-group label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #555;
+    }
+
+    .filter-group input,
+    .filter-group select {
+      padding: 8px 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .student-list {
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      background: #fafafa;
+    }
+
+    .student-item {
+      padding: 12px 15px;
+      border-bottom: 1px solid #e0e0e0;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .student-item:last-child {
+      border-bottom: none;
+    }
+
+    .student-item:hover {
+      background: #e3f2fd;
+    }
+
+    .student-item.selected {
+      background: #2196F3;
+      color: white;
+    }
+
+    .student-item.selected:hover {
+      background: #1976D2;
+    }
+
+    .student-item-info {
+      flex: 1;
+    }
+
+    .student-item-name {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 3px;
+    }
+
+    .student-item-details {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+
+    .student-item-badge {
+      background: rgba(255,255,255,0.2);
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .student-item.selected .student-item-badge {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .no-results {
+      padding: 30px;
+      text-align: center;
+      color: #999;
+      font-style: italic;
+    }
+
+    .results-count {
+      padding: 8px 12px;
+      background: #e8f5e9;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #2e7d32;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 
@@ -62,24 +176,69 @@
             </select>
           </div>
 
-          <!-- Linked Student -->
+          <!-- Enhanced Linked Student Section -->
           <div class="form-group" id="studentField" style="display: none;">
-            <label for="studentId">Linked Student (for Parent/Student)</label>
-            <select id="studentId" name="studentId">
-              <option value="">-- Select Student --</option>
-              <% students.forEach(student => { %>
-                <option value="<%= student._id %>" 
-                        data-name="<%= student.name %>" 
-                        data-class="<%= student.classLevel %>" 
-                        data-reg="<%= student.regNumber %>">
-                  <%= student.name %> (<%= student.regNumber %>)
-                </option>
-              <% }); %>
-            </select>
+            <label>Link to Student (for Parent/Student)</label>
+            
+            <div class="student-selection-wrapper">
+              <div class="student-filters">
+                <div class="filter-group">
+                  <label for="studentSearch">
+                    <i class="fa fa-search"></i> Search Student
+                  </label>
+                  <input type="text" 
+                         id="studentSearch" 
+                         placeholder="Search by name or reg number...">
+                </div>
+
+                <div class="filter-group">
+                  <label for="classFilter">
+                    <i class="fa fa-filter"></i> Filter by Class
+                  </label>
+                  <select id="classFilter">
+                    <option value="">All Classes</option>
+                    <option value="JSS 1">JSS 1</option>
+                    <option value="JSS 2">JSS 2</option>
+                    <option value="JSS 3">JSS 3</option>
+                    <option value="SS 1">SS 1</option>
+                    <option value="SS 2">SS 2</option>
+                    <option value="SS 3">SS 3</option>
+                    <option value="SSS 1">SSS 1</option>
+                    <option value="SSS 2">SSS 2</option>
+                    <option value="SSS 3">SSS 3</option>
+                  </select>
+                </div>
+
+                <div class="filter-group">
+                  <label for="sortBy">
+                    <i class="fa fa-sort"></i> Sort By
+                  </label>
+                  <select id="sortBy">
+                    <option value="name-asc">Name (A-Z)</option>
+                    <option value="name-desc">Name (Z-A)</option>
+                    <option value="class-asc">Class (Ascending)</option>
+                    <option value="reg-asc">Reg Number (Ascending)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="results-count" id="resultsCount">
+                Showing all students
+              </div>
+
+              <div class="student-list" id="studentList">
+                <!-- Students will be populated here -->
+              </div>
+
+              <!-- Hidden input to store selected student ID -->
+              <input type="hidden" id="studentId" name="studentId">
+            </div>
 
             <!-- Student Info Box -->
             <div id="studentInfoBox" class="student-info" style="display: none;">
-              <h4 style="color: #2a5298; margin-bottom: 10px;">Student Details</h4>
+              <h4 style="color: #2a5298; margin-bottom: 10px;">
+                <i class="fa fa-user-check"></i> Selected Student
+              </h4>
               <p><strong>Name:</strong> <span id="studentName"></span></p>
               <p><strong>Class:</strong> <span id="studentClass"></span></p>
               <p><strong>Reg Number:</strong> <span id="studentReg"></span></p>
@@ -109,39 +268,143 @@
   </div>
 
   <script>
+    // Student data from server
+    const studentsData = [
+      <% students.forEach((student, index) => { %>
+        {
+          id: '<%= student._id %>',
+          name: '<%= student.name %>',
+          classLevel: '<%= student.classLevel %>',
+          regNumber: '<%= student.regNumber %>'
+        }<%= index < students.length - 1 ? ',' : '' %>
+      <% }); %>
+    ];
+
     const roleSelect = document.getElementById('role');
     const studentField = document.getElementById('studentField');
-    const studentSelect = document.getElementById('studentId');
+    const studentList = document.getElementById('studentList');
+    const studentSearch = document.getElementById('studentSearch');
+    const classFilter = document.getElementById('classFilter');
+    const sortBy = document.getElementById('sortBy');
+    const resultsCount = document.getElementById('resultsCount');
+    const studentIdInput = document.getElementById('studentId');
     const studentInfoBox = document.getElementById('studentInfoBox');
     const studentName = document.getElementById('studentName');
     const studentClass = document.getElementById('studentClass');
     const studentReg = document.getElementById('studentReg');
+
+    let selectedStudentId = null;
 
     // Show/Hide Linked Student field based on role
     roleSelect.addEventListener('change', function() {
       const value = this.value;
       if (value === 'student' || value === 'parent') {
         studentField.style.display = 'block';
+        renderStudents();
       } else {
         studentField.style.display = 'none';
         studentInfoBox.style.display = 'none';
-        studentSelect.value = '';
+        selectedStudentId = null;
+        studentIdInput.value = '';
       }
     });
 
-    // Populate Student Info Box
-    studentSelect.addEventListener('change', function() {
-      const selectedOption = this.options[this.selectedIndex];
+    // Filter and sort students
+    function filterAndSortStudents() {
+      let filtered = [...studentsData];
 
-      if (this.value) {
-        studentName.textContent = selectedOption.dataset.name;
-        studentClass.textContent = selectedOption.dataset.class;
-        studentReg.textContent = selectedOption.dataset.reg;
-        studentInfoBox.style.display = 'block';
-      } else {
-        studentInfoBox.style.display = 'none';
+      // Apply search filter
+      const searchText = studentSearch.value.toLowerCase();
+      if (searchText) {
+        filtered = filtered.filter(student => 
+          student.name.toLowerCase().includes(searchText) ||
+          student.regNumber.toLowerCase().includes(searchText)
+        );
       }
-    });
+
+      // Apply class filter
+      const classValue = classFilter.value;
+      if (classValue) {
+        filtered = filtered.filter(student => student.classLevel === classValue);
+      }
+
+      // Apply sorting
+      const sortValue = sortBy.value;
+      filtered.sort((a, b) => {
+        switch(sortValue) {
+          case 'name-asc':
+            return a.name.localeCompare(b.name);
+          case 'name-desc':
+            return b.name.localeCompare(a.name);
+          case 'class-asc':
+            return a.classLevel.localeCompare(b.classLevel);
+          case 'reg-asc':
+            return a.regNumber.localeCompare(b.regNumber);
+          default:
+            return 0;
+        }
+      });
+
+      return filtered;
+    }
+
+    // Render student list
+    function renderStudents() {
+      const filtered = filterAndSortStudents();
+      
+      // Update results count
+      resultsCount.textContent = `Showing ${filtered.length} student${filtered.length !== 1 ? 's' : ''}`;
+
+      // Clear list
+      studentList.innerHTML = '';
+
+      if (filtered.length === 0) {
+        studentList.innerHTML = '<div class="no-results">No students found matching your criteria</div>';
+        return;
+      }
+
+      // Render each student
+      filtered.forEach(student => {
+        const item = document.createElement('div');
+        item.className = 'student-item';
+        if (student.id === selectedStudentId) {
+          item.classList.add('selected');
+        }
+
+        item.innerHTML = `
+          <div class="student-item-info">
+            <div class="student-item-name">${student.name}</div>
+            <div class="student-item-details">
+              REG: ${student.regNumber}
+            </div>
+          </div>
+          <div class="student-item-badge">${student.classLevel}</div>
+        `;
+
+        item.addEventListener('click', () => selectStudent(student));
+        studentList.appendChild(item);
+      });
+    }
+
+    // Select a student
+    function selectStudent(student) {
+      selectedStudentId = student.id;
+      studentIdInput.value = student.id;
+
+      // Update info box
+      studentName.textContent = student.name;
+      studentClass.textContent = student.classLevel;
+      studentReg.textContent = student.regNumber;
+      studentInfoBox.style.display = 'block';
+
+      // Re-render to update selected state
+      renderStudents();
+    }
+
+    // Event listeners for filters
+    studentSearch.addEventListener('input', renderStudents);
+    classFilter.addEventListener('change', renderStudents);
+    sortBy.addEventListener('change', renderStudents);
 
     // Sidebar toggle for mobile
     const menuBtn = document.getElementById('menuBtn');
