@@ -248,8 +248,8 @@
                   data-name="<%= user.name.toLowerCase() %>"
                   data-email="<%= user.email.toLowerCase() %>"
                   data-date="<%= new Date(user.createdAt).getTime() %>"
-                  data-class="<%= user.student && user.student.class ? user.student.class : 'N/A' %>"
-                  data-segment="<%= user.student && user.student.class ? (user.student.class.startsWith('JSS') ? 'jss' : (user.student.class.startsWith('SS') || user.student.class.startsWith('SSS')) ? 'ss' : 'none') : 'none' %>"
+                  data-class="<%= user.student && user.student.classLevel ? user.student.classLevel : 'N/A' %>"
+                  data-segment="<%= user.student && user.student.classLevel ? (user.student.classLevel.startsWith('JSS') ? 'jss' : (user.student.classLevel.startsWith('SS') || user.student.classLevel.startsWith('SSS')) ? 'ss' : 'none') : 'none' %>"
                 >
                   <td><%= user.name %></td>
                   <td><%= user.email %></td>
@@ -269,8 +269,8 @@
                   </td>
 
                   <td>
-                    <% if (user.student && user.student.class) { %>
-                      <span class="badge badge-info"><%= user.student.class %></span>
+                    <% if (user.student && user.student.classLevel) { %>
+                      <span class="badge badge-info"><%= user.student.classLevel %></span>
                     <% } else { %>
                       N/A
                     <% } %>
