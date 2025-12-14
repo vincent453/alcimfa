@@ -446,11 +446,37 @@
               return compareB.localeCompare(compareA);
             
             case 'class-asc':
-              compareA = a.dataset.class;
-              compareB = b.dataset.class;
-              const classCompare = compareA.localeCompare(compareB);
-              if (classCompare !== 0) return classCompare;
-              // If same class, sort by name
+              // Smart class sorting: JSS1, JSS2, JSS3, SSS1, SSS2, SSS3
+              const getClassOrder = (classStr) => {
+                // Normalize: remove spaces, convert to lowercase
+                const normalized = classStr.toLowerCase().replace(/\s+/g, '');
+                
+                // Match JSS patterns (jss1, jss 1, JSS 1, etc.)
+                const jssMatch = normalized.match(/jss(\d+)/);
+                if (jssMatch) {
+                  const level = parseInt(jssMatch[1]);
+                  return 1000 + level; // JSS1=1001, JSS2=1002, JSS3=1003
+                }
+                
+                // Match SSS patterns (sss1, sss 1, SSS 1, etc.)
+                const sssMatch = normalized.match(/sss(\d+)/);
+                if (sssMatch) {
+                  const level = parseInt(sssMatch[1]);
+                  return 2000 + level; // SSS1=2001, SSS2=2002, SSS3=2003
+                }
+                
+                // For any other class format, put at end and sort alphabetically
+                return 9000;
+              };
+              
+              const orderA = getClassOrder(a.dataset.class);
+              const orderB = getClassOrder(b.dataset.class);
+              
+              if (orderA !== orderB) {
+                return orderA - orderB;
+              }
+              
+              // If same class, sort alphabetically by name
               return a.dataset.name.localeCompare(b.dataset.name);
             
             case 'reg-asc':
