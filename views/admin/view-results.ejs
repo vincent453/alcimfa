@@ -40,6 +40,80 @@
       font-weight: 600;
     }
 
+    /* Delete button styling */
+    .btn-delete {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .btn-delete:hover {
+      background-color: #c82333;
+    }
+
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      color: #dc3545;
+    }
+
+    .close {
+      color: #aaa;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: #000;
+    }
+
+    .modal-body {
+      margin: 20px 0;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .modal-footer .btn {
+      padding: 10px 20px;
+    }
+
     @media (max-width: 768px) {
       .filters {
         flex-direction: column;
@@ -54,6 +128,17 @@
       .filters input,
       .filters select {
         width: 100%;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+      }
+
+      .actions .btn-sm {
+        font-size: 11px;
+        padding: 5px 8px;
       }
     }
   </style>
@@ -153,6 +238,7 @@
                   <% if (item.student) { %>
 
                   <tr
+                    data-result-id="<%= item._id %>"
                     data-class="<%= item.student.classLevel %>"
                     data-term="<%= item.term %>"
                     data-name="<%= item.student.name.toLowerCase() %>"
@@ -184,6 +270,14 @@
                       >
                         <i class="fa fa-print"></i> Print
                       </button>
+
+                      <button
+                        onclick="confirmDelete('<%= item._id %>', '<%= item.student.name %>', '<%= item.term %>')"
+                        class="btn btn-sm btn-delete"
+                        title="Delete this result"
+                      >
+                        <i class="fa fa-trash"></i> Delete
+                      </button>
                     </td>
                   </tr>
 
@@ -199,8 +293,35 @@
     </div>
   </div>
 
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fa fa-exclamation-triangle"></i> Confirm Delete</h2>
+        <span class="close" onclick="closeDeleteModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete the result for:</p>
+        <p><strong id="deleteStudentName"></strong></p>
+        <p><strong id="deleteTermInfo"></strong></p>
+        <p style="color: #dc3545; margin-top: 10px;">
+          <i class="fa fa-warning"></i> This action cannot be undone!
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeDeleteModal()">
+          <i class="fa fa-times"></i> Cancel
+        </button>
+        <button class="btn btn-delete" onclick="deleteResult()">
+          <i class="fa fa-trash"></i> Delete Result
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
     let originalRows = [];
+    let resultIdToDelete = null;
 
     window.addEventListener("DOMContentLoaded", () => {
       originalRows = Array.from(
@@ -245,6 +366,67 @@
 
     function printResult(studentId) {
       window.open(`/api/results/card/${studentId}`, "_blank");
+    }
+
+    // Delete confirmation modal functions
+    function confirmDelete(resultId, studentName, term) {
+      resultIdToDelete = resultId;
+      document.getElementById('deleteStudentName').textContent = studentName;
+      document.getElementById('deleteTermInfo').textContent = term;
+      document.getElementById('deleteModal').style.display = 'block';
+    }
+
+    function closeDeleteModal() {
+      document.getElementById('deleteModal').style.display = 'none';
+      resultIdToDelete = null;
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+      const modal = document.getElementById('deleteModal');
+      if (event.target == modal) {
+        closeDeleteModal();
+      }
+    }
+
+    // Delete result function
+    async function deleteResult() {
+      if (!resultIdToDelete) return;
+
+      try {
+        const adminToken = "<%= adminToken %>";
+        
+        const response = await fetch(`/api/results/${resultIdToDelete}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${adminToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // Remove the row from the table
+          const row = document.querySelector(`tr[data-result-id="${resultIdToDelete}"]`);
+          if (row) {
+            row.remove();
+            // Update originalRows array
+            originalRows = originalRows.filter(r => r.dataset.resultId !== resultIdToDelete);
+          }
+
+          closeDeleteModal();
+          alert('Result deleted successfully!');
+          
+          // Optional: Reload the page to reflect changes
+          // window.location.reload();
+        } else {
+          alert('Error: ' + (data.message || 'Failed to delete result'));
+        }
+      } catch (error) {
+        console.error('Delete error:', error);
+        alert('Failed to delete result: ' + error.message);
+      }
     }
 
     const menuBtn = document.getElementById("menuBtn");
