@@ -167,6 +167,20 @@
                 <div class="form-group">
                   <label for="studentId">Select Student *</label>
                   
+                  <!-- Filter by Class -->
+                  <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="classFilter" style="font-size: 13px; margin-bottom: 5px; display: block;">Filter by Class</label>
+                    <select id="classFilter" style="width: 100%; padding: 8px; border: 2px solid #e0e0e0; border-radius: 5px; font-size: 14px; font-family: 'Manrope', sans-serif;">
+                      <option value="">All Classes</option>
+                      <option value="jss1">JSS 1</option>
+                      <option value="jss2">JSS 2</option>
+                      <option value="jss3">JSS 3</option>
+                      <option value="sss1">SSS 1</option>
+                      <option value="sss2">SSS 2</option>
+                      <option value="sss3">SSS 3</option>
+                    </select>
+                  </div>
+
                   <!-- Sort Controls -->
                   <div class="sort-controls">
                     <button type="button" class="sort-btn active" data-sort="name-asc">
@@ -408,8 +422,10 @@
       const noResults = document.getElementById('noResults');
       const studentCount = document.getElementById('studentCount');
       const sortButtons = document.querySelectorAll('.sort-btn');
+      const classFilter = document.getElementById('classFilter');
 
       let currentSort = 'name-asc';
+      let currentClassFilter = '';
       let allOptions = []; // Store all options for sorting
 
       // Initialize options array
@@ -520,9 +536,10 @@
         }
       }
 
-      // Filter students based on search
+      // Filter students based on search and class filter
       function filterStudents() {
         const searchTerm = studentSearch.value.toLowerCase().trim();
+        const selectedClass = currentClassFilter;
         let visibleCount = 0;
 
         Array.from(studentSelect.options).forEach(option => {
@@ -532,11 +549,18 @@
           const classLevel = option.dataset.class || '';
           const regNumber = option.dataset.reg || '';
 
-          const matches = name.includes(searchTerm) || 
-                         classLevel.includes(searchTerm) || 
-                         regNumber.includes(searchTerm);
+          // Check search match
+          const searchMatches = !searchTerm || 
+                               name.includes(searchTerm) || 
+                               classLevel.includes(searchTerm) || 
+                               regNumber.includes(searchTerm);
 
-          if (matches) {
+          // Check class filter match
+          const classMatches = !selectedClass || 
+                              classLevel.replace(/\s+/g, '').toLowerCase() === selectedClass;
+
+          // Show option only if both conditions match
+          if (searchMatches && classMatches) {
             option.style.display = '';
             visibleCount++;
           } else {
@@ -545,7 +569,7 @@
         });
 
         // Show/hide no results message
-        if (visibleCount === 0 && searchTerm) {
+        if (visibleCount === 0) {
           noResults.style.display = 'block';
           studentSelect.style.display = 'none';
         } else {
@@ -573,6 +597,12 @@
       // Event listeners
       studentSearch.addEventListener('input', filterStudents);
       clearSearchBtn.addEventListener('click', clearSearch);
+
+      // Class filter listener
+      classFilter.addEventListener('change', (e) => {
+        currentClassFilter = e.target.value;
+        filterStudents();
+      });
 
       // Sort button listeners
       sortButtons.forEach(btn => {
