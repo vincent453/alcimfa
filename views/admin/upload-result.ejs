@@ -88,6 +88,43 @@
         display: block;
       }
 
+      /* Sort Controls */
+      .sort-controls {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+      }
+
+      .sort-btn {
+        padding: 8px 15px;
+        border: 2px solid #e0e0e0;
+        background: white;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 13px;
+        font-family: 'Manrope', sans-serif;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .sort-btn:hover {
+        border-color: #2a5298;
+        background: #f8f9fa;
+      }
+
+      .sort-btn.active {
+        background: #2a5298;
+        color: white;
+        border-color: #2a5298;
+      }
+
+      .sort-btn i {
+        font-size: 12px;
+      }
+
       /* Enhanced select dropdown */
       #studentId {
         max-height: 250px;
@@ -97,6 +134,15 @@
       @media (max-width: 768px) {
         .search-input {
           font-size: 16px; /* Prevents zoom on iOS */
+        }
+        
+        .sort-controls {
+          gap: 5px;
+        }
+        
+        .sort-btn {
+          font-size: 12px;
+          padding: 6px 12px;
         }
       }
     </style>
@@ -121,6 +167,22 @@
                 <div class="form-group">
                   <label for="studentId">Select Student *</label>
                   
+                  <!-- Sort Controls -->
+                  <div class="sort-controls">
+                    <button type="button" class="sort-btn active" data-sort="name-asc">
+                      <i class="fa fa-sort-alpha-down"></i> Name (A-Z)
+                    </button>
+                    <button type="button" class="sort-btn" data-sort="name-desc">
+                      <i class="fa fa-sort-alpha-up"></i> Name (Z-A)
+                    </button>
+                    <button type="button" class="sort-btn" data-sort="class-asc">
+                      <i class="fa fa-sort-numeric-down"></i> Class
+                    </button>
+                    <button type="button" class="sort-btn" data-sort="reg-asc">
+                      <i class="fa fa-hashtag"></i> Reg No.
+                    </button>
+                  </div>
+                  
                   <!-- Search Input -->
                   <div class="search-container">
                     <input 
@@ -142,7 +204,8 @@
                     <option value="<%= student._id %>" 
                             data-name="<%= student.name.toLowerCase() %>"
                             data-class="<%= student.classLevel.toLowerCase() %>"
-                            data-reg="<%= student.regNumber.toLowerCase() %>">
+                            data-reg="<%= student.regNumber.toLowerCase() %>"
+                            data-display="<%= student.name %> - <%= student.classLevel %> (<%= student.regNumber %>)">
                       <%= student.name %> - <%= student.classLevel %> (<%= student.regNumber %>)
                     </option>
                     <% }); %>
@@ -338,19 +401,91 @@
         subjectCount = entries.length;
       }
 
-      // Student Search Functionality
+      // Student Search and Sort Functionality
       const studentSearch = document.getElementById('studentSearch');
       const studentSelect = document.getElementById('studentId');
       const clearSearchBtn = document.getElementById('clearSearch');
       const noResults = document.getElementById('noResults');
       const studentCount = document.getElementById('studentCount');
+      const sortButtons = document.querySelectorAll('.sort-btn');
+
+      let currentSort = 'name-asc';
+      let allOptions = []; // Store all options for sorting
+
+      // Initialize options array
+      function initializeOptions() {
+        allOptions = Array.from(studentSelect.options).filter(opt => opt.value);
+      }
+
+      // Sort students
+      function sortStudents(sortType) {
+        currentSort = sortType;
+        
+        // Update active button
+        sortButtons.forEach(btn => {
+          if (btn.dataset.sort === sortType) {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        });
+
+        // Clone and sort options
+        const sortedOptions = [...allOptions].sort((a, b) => {
+          let compareA, compareB;
+
+          switch(sortType) {
+            case 'name-asc':
+              compareA = a.dataset.name;
+              compareB = b.dataset.name;
+              return compareA.localeCompare(compareB);
+            
+            case 'name-desc':
+              compareA = a.dataset.name;
+              compareB = b.dataset.name;
+              return compareB.localeCompare(compareA);
+            
+            case 'class-asc':
+              compareA = a.dataset.class;
+              compareB = b.dataset.class;
+              const classCompare = compareA.localeCompare(compareB);
+              if (classCompare !== 0) return classCompare;
+              // If same class, sort by name
+              return a.dataset.name.localeCompare(b.dataset.name);
+            
+            case 'reg-asc':
+              compareA = a.dataset.reg;
+              compareB = b.dataset.reg;
+              return compareA.localeCompare(compareB);
+            
+            default:
+              return 0;
+          }
+        });
+
+        // Clear select (except placeholder)
+        while (studentSelect.options.length > 1) {
+          studentSelect.remove(1);
+        }
+
+        // Add sorted options
+        sortedOptions.forEach(option => {
+          studentSelect.add(option.cloneNode(true));
+        });
+
+        // Update allOptions with new sorted order
+        allOptions = Array.from(studentSelect.options).filter(opt => opt.value);
+        
+        // Reapply current filter if any
+        filterStudents();
+      }
 
       // Update student count
       function updateStudentCount() {
         const visibleOptions = Array.from(studentSelect.options).filter(
           opt => opt.value && opt.style.display !== 'none'
         );
-        const total = studentSelect.options.length - 1; // Exclude placeholder
+        const total = allOptions.length;
         
         if (studentSearch.value.trim()) {
           studentCount.textContent = `Showing ${visibleOptions.length} of ${total} students`;
@@ -413,7 +548,15 @@
       studentSearch.addEventListener('input', filterStudents);
       clearSearchBtn.addEventListener('click', clearSearch);
 
-      // Initialize count
+      // Sort button listeners
+      sortButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          sortStudents(btn.dataset.sort);
+        });
+      });
+
+      // Initialize
+      initializeOptions();
       updateStudentCount();
 
       // AJAX form submission
