@@ -324,7 +324,18 @@ router.get("/results", requireAdminAuth, async (req, res) => {
   }
 });
 
-
+// DELETE /api/results/:id
+router.delete('/results/:id', authenticateAdmin, async (req, res) => {
+  try {
+    const result = await Result.findByIdAndDelete(req.params.id);
+    if (!result) {
+      return res.status(404).json({ message: 'Result not found' });
+    }
+    res.json({ message: 'Result deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting result' });
+  }
+});
 // ==========================================
 // USER MANAGEMENT
 // ==========================================
