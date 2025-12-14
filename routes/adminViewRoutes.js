@@ -325,7 +325,7 @@ router.get("/results", requireAdminAuth, async (req, res) => {
 });
 
 // DELETE /api/results/:id
-router.delete('/results/:id', authenticateAdmin, async (req, res) => {
+router.delete('/results/:id', requireAdminAuth, async (req, res) => {
   try {
     const result = await Result.findByIdAndDelete(req.params.id);
     if (!result) {
