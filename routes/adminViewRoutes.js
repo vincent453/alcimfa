@@ -324,18 +324,38 @@ router.get("/results", requireAdminAuth, async (req, res) => {
   }
 });
 
-// DELETE /api/results/:id
-router.delete('/results/:id', requireAdminAuth, async (req, res) => {
+// Delete a result (AJAX endpoint)
+router.delete("/results/:id", requireAdminAuth, async (req, res) => {
   try {
-    const result = await Result.findByIdAndDelete(req.params.id);
+    const resultId = req.params.id;
+    
+    const result = await Result.findById(resultId);
     if (!result) {
-      return res.status(404).json({ message: 'Result not found' });
+      return res.status(404).json({ 
+        success: false,
+        message: "Result not found" 
+      });
     }
-    res.json({ message: 'Result deleted successfully' });
+    
+    await Result.findByIdAndDelete(resultId);
+    
+    console.log(`🗑️ Deleted result ID: ${resultId}`);
+    
+    res.json({ 
+      success: true,
+      message: "Result deleted successfully" 
+    });
+    
   } catch (error) {
-    res.status(500).json({ message: 'Error deleting result' });
+    console.error("Delete result error:", error);
+    res.status(500).json({ 
+      success: false,
+      message: "Failed to delete result: " + error.message 
+    });
   }
 });
+
+
 // ==========================================
 // USER MANAGEMENT
 // ==========================================
