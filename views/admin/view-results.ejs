@@ -406,7 +406,7 @@
 
         const data = await response.json();
 
-        if (response.ok) {
+        if (response.ok && data.success) {
           // Remove the row from the table
           const row = document.querySelector(`tr[data-result-id="${resultIdToDelete}"]`);
           if (row) {
@@ -418,14 +418,14 @@
           closeDeleteModal();
           alert('Result deleted successfully!');
           
-          // Optional: Reload the page to reflect changes
+          // Optionally reload to ensure data consistency
           // window.location.reload();
         } else {
           alert('Error: ' + (data.message || 'Failed to delete result'));
         }
       } catch (error) {
         console.error('Delete error:', error);
-        alert('Failed to delete result: ' + error.message);
+        alert('Failed to delete result. Please try again.');
       }
     }
 
