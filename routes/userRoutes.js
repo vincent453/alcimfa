@@ -12,13 +12,11 @@ import {
   activateUser,
 } from "../controllers/userController.js";
 import { protectUser, protectAdmin } from "../middleware/authMiddleware.js";
-
 const router = express.Router();
 
 // ==========================================
 // PUBLIC ROUTES (No authentication required)
 // ==========================================
-
 router.post("/login", loginUser);
 
 // ==========================================
@@ -34,9 +32,13 @@ router.put("/change-password", protectUser, changeUserPassword);
 router.get("/", protectAdmin, getAllUsers);
 router.get("/:id", protectAdmin, getUserById);
 router.put("/:id", protectAdmin, updateUser);
-router.delete("/:id", protectAdmin, deleteUser);
-router.post("/:id/deactivate", deactivateUser);
-router.post("/:id/activate", activateUser);
 
+// DELETE routes - both methods supported
+router.delete("/:id", protectAdmin, deleteUser);           // Original DELETE method
+router.post("/:id/delete", protectAdmin, deleteUser);      // NEW: POST method (like deactivate/activate)
+
+// Deactivate and Activate
+router.post("/:id/deactivate", protectAdmin, deactivateUser);
+router.post("/:id/activate", protectAdmin, activateUser);
 
 export default router;
