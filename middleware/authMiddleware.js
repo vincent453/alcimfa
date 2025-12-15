@@ -3,13 +3,21 @@ import Admin from "../models/adminModel.js";
 import User from "../models/userModel.js";
 
 // ==========================================
-// ADMIN AUTHENTICATION
+// ADMIN AUTHENTICATION (supports both Session and Bearer token)
 // ==========================================
 
 // Protect routes - for Admin only
 export const protect = async (req, res, next) => {
-  let token;
+  // Check session first (for admin panel routes)
+  if (req.session && req.session.admin) {
+    req.admin = await Admin.findById(req.session.admin._id).select("-password");
+    if (req.admin) {
+      return next();
+    }
+  }
 
+  // Check Bearer token (for API routes)
+  let token;
   if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
     try {
       token = req.headers.authorization.split(" ")[1];
@@ -21,7 +29,7 @@ export const protect = async (req, res, next) => {
         return res.status(401).json({ message: "Not authorized, admin not found" });
       }
 
-      return next(); // ✅ Fixed: Added return
+      return next();
     } catch (error) {
       console.error("Token verification failed:", error);
       
@@ -51,8 +59,21 @@ export const adminOnly = (req, res, next) => {
 
 // Protect routes - for Users (students/parents/teachers)
 export const protectUser = async (req, res, next) => {
-  let token;
+  // Check session first
+  if (req.session && req.session.user) {
+    req.user = await User.findById(req.session.user._id).select("-password");
+    if (req.user && req.user.isActive) {
+      return next();
+    }
+    if (req.user && !req.user.isActive) {
+      return res.status(403).json({ 
+        message: "Account is deactivated. Please contact admin." 
+      });
+    }
+  }
 
+  // Check Bearer token
+  let token;
   if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
     try {
       token = req.headers.authorization.split(" ")[1];
@@ -92,8 +113,26 @@ export const protectUser = async (req, res, next) => {
 
 // Protect routes - accepts both Admin and User tokens
 export const protectAdminOrUser = async (req, res, next) => {
-  let token;
+  // Check session first
+  if (req.session) {
+    if (req.session.admin) {
+      req.admin = await Admin.findById(req.session.admin._id).select("-password");
+      if (req.admin) {
+        req.userType = "admin";
+        return next();
+      }
+    }
+    if (req.session.user) {
+      req.user = await User.findById(req.session.user._id).select("-password");
+      if (req.user && req.user.isActive) {
+        req.userType = "user";
+        return next();
+      }
+    }
+  }
 
+  // Check Bearer token
+  let token;
   if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
     try {
       token = req.headers.authorization.split(" ")[1];
@@ -135,10 +174,19 @@ export const protectAdminOrUser = async (req, res, next) => {
   return res.status(401).json({ message: "Not authorized, no token provided" });
 };
 
-// Admin authentication for user routes
+// Admin authentication for user routes (supports both session and token)
 export const protectAdmin = async (req, res, next) => {
-  let token;
+  // Check session first (THIS IS THE KEY FIX!)
+  if (req.session && req.session.admin) {
+    console.log('✅ Admin found in session:', req.session.admin.email);
+    req.admin = await Admin.findById(req.session.admin._id).select("-password");
+    if (req.admin) {
+      return next();
+    }
+  }
 
+  // Check Bearer token
+  let token;
   if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
     try {
       token = req.headers.authorization.split(" ")[1];
@@ -148,6 +196,7 @@ export const protectAdmin = async (req, res, next) => {
 
       if (!req.admin) {
         return res.status(403).json({ 
+          success: false,
           message: "Access denied. Admin privileges required." 
         });
       }
@@ -155,11 +204,18 @@ export const protectAdmin = async (req, res, next) => {
       return next();
     } catch (error) {
       console.error("Token verification failed:", error);
-      return res.status(401).json({ message: "Not authorized, token failed" });
+      return res.status(401).json({ 
+        success: false,
+        message: "Not authorized, token failed" 
+      });
     }
   }
 
-  return res.status(401).json({ message: "Not authorized, no token provided" });
+  console.log('❌ No admin session or token found');
+  return res.status(401).json({ 
+    success: false,
+    message: "Not authorized, no token provided" 
+  });
 };
 
 // ==========================================
