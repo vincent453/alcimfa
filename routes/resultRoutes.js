@@ -1,6 +1,7 @@
 import express from "express";
 import { uploadResult, getStudentResult, renderResultCard } from "../controllers/resultController.js";
 import { protect, publicOrProtect } from "../middleware/authMiddleware.js";
+import Result from "../models/resultModel.js";
 
 const router = express.Router();
 
@@ -12,7 +13,6 @@ const router = express.Router();
 // router.get("/:studentId", protect, getStudentResult); // ✅ Admin only
 // router.get("/card/:studentId", protect, renderResultCard); // ✅ Admin only
 
-
 // ==========================================
 // OPTION 2: MIXED ACCESS
 // Upload protected, viewing public
@@ -20,6 +20,43 @@ const router = express.Router();
 router.post("/", protect, uploadResult);
 router.get("/card/:studentId", renderResultCard);  // Specific route FIRST
 router.get("/:studentId", getStudentResult);       // Dynamic route LAST
+
+// ==========================================
+// DELETE RESULT ENDPOINT
+// ==========================================
+router.delete("/:id", protect, async (req, res) => {
+  try {
+    const resultId = req.params.id;
+    
+    console.log('🗑️ Attempting to delete result:', resultId);
+    
+    // Find the result first
+    const result = await Result.findById(resultId);
+    if (!result) {
+      return res.status(404).json({ 
+        success: false,
+        message: "Result not found" 
+      });
+    }
+    
+    // Delete the result
+    await Result.findByIdAndDelete(resultId);
+    
+    console.log(`✅ Successfully deleted result ID: ${resultId}`);
+    
+    res.json({ 
+      success: true,
+      message: "Result deleted successfully" 
+    });
+    
+  } catch (error) {
+    console.error("❌ Delete result error:", error);
+    res.status(500).json({ 
+      success: false,
+      message: "Failed to delete result: " + error.message 
+    });
+  }
+});
 
 // ==========================================
 // OPTION 3: PUBLIC WITH OPTIONAL AUTH
