@@ -118,6 +118,17 @@
       border-collapse: collapse;
     }
 
+    /* Delete button styling */
+    .btn-delete {
+      background-color: #dc3545;
+      color: white;
+      margin-left: 5px;
+    }
+
+    .btn-delete:hover {
+      background-color: #c82333;
+    }
+
     @media (max-width: 768px) {
       .filters {
         flex-direction: column;
@@ -126,6 +137,17 @@
 
       .segmentation-dropdowns {
         grid-template-columns: 1fr;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+      }
+
+      .actions .btn-sm {
+        font-size: 11px;
+        padding: 5px 8px;
       }
     }
   </style>
@@ -243,6 +265,7 @@
             <% } else { %>
               <% users.forEach(user => { %>
                 <tr 
+                  data-user-id="<%= user._id %>"
                   data-role="<%= user.role %>" 
                   data-status="<%= user.isActive %>"
                   data-name="<%= user.name.toLowerCase() %>"
@@ -299,6 +322,16 @@
                         </button>
                       </form>
                     <% } %>
+
+                    <button 
+                      type="button" 
+                      class="btn btn-sm btn-delete delete-btn"
+                      data-user-id="<%= user._id %>"
+                      data-user-name="<%= user.name %>"
+                      data-user-email="<%= user.email %>"
+                    >
+                      <i class="fa fa-trash"></i> Delete
+                    </button>
 
                   </td>
                 </tr>
@@ -542,6 +575,83 @@
           }).then(result => {
             if (result.isConfirmed) {
               form.submit();
+            }
+          });
+        });
+      });
+
+      // Delete confirmation with SweetAlert2
+      document.querySelectorAll(".delete-btn").forEach(btn => {
+        btn.addEventListener("click", function () {
+          const userId = this.dataset.userId;
+          const userName = this.dataset.userName;
+          const userEmail = this.dataset.userEmail;
+
+          Swal.fire({
+            title: "Delete User?",
+            html: `
+              <p>Are you sure you want to permanently delete this user?</p>
+              <p><strong>${userName}</strong></p>
+              <p><small>${userEmail}</small></p>
+              <p style="color: #dc3545; margin-top: 10px;">
+                <i class="fa fa-exclamation-triangle"></i> This action cannot be undone!
+              </p>
+            `,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#dc3545",
+            cancelButtonColor: "#6c757d",
+            confirmButtonText: "Yes, Delete User",
+            cancelButtonText: "Cancel"
+          }).then(async (result) => {
+            if (result.isConfirmed) {
+              try {
+                const adminToken = "<%= adminToken %>";
+                
+                const response = await fetch(`/api/users/${userId}`, {
+                  method: 'DELETE',
+                  headers: {
+                    'Authorization': `Bearer ${adminToken}`,
+                    'Content-Type': 'application/json'
+                  }
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                  // Remove the row from the table
+                  const row = document.querySelector(`tr[data-user-id="${userId}"]`);
+                  if (row) {
+                    row.remove();
+                    // Update originalRows array
+                    originalRows = originalRows.filter(r => r.dataset.userId !== userId);
+                  }
+
+                  Swal.fire({
+                    title: "Deleted!",
+                    text: "User has been permanently deleted.",
+                    icon: "success",
+                    timer: 2000,
+                    showConfirmButton: false
+                  });
+
+                  // Refilter to update counts
+                  filterUsers();
+                } else {
+                  Swal.fire({
+                    title: "Error!",
+                    text: data.message || "Failed to delete user",
+                    icon: "error"
+                  });
+                }
+              } catch (error) {
+                console.error('Delete error:', error);
+                Swal.fire({
+                  title: "Error!",
+                  text: "Failed to delete user: " + error.message,
+                  icon: "error"
+                });
+              }
             }
           });
         });
