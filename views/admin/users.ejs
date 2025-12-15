@@ -617,16 +617,16 @@
               try {
                 console.log('Attempting to delete user:', userId);
                 
-                const response = await fetch(`/api/users/${userId}`, {
-                  method: 'DELETE',
+                // Use POST instead of DELETE (like deactivate/activate)
+                const response = await fetch(`/api/users/${userId}/delete`, {
+                  method: 'POST',
                   headers: {
                     'Content-Type': 'application/json'
                   },
-                  credentials: 'include' // Important: sends session cookies
+                  credentials: 'include'
                 });
 
                 console.log('Response status:', response.status);
-                console.log('Response headers:', response.headers);
 
                 // Check if response is JSON
                 const contentType = response.headers.get("content-type");
@@ -636,9 +636,28 @@
                   data = await response.json();
                   console.log('Response data:', data);
                 } else {
-                  const text = await response.text();
-                  console.log('Response text (not JSON):', text);
-                  throw new Error('Server did not return JSON. Check authentication.');
+                  // If not JSON, it might be a redirect (like deactivate/activate)
+                  if (response.ok || response.redirected) {
+                    // Success - remove row
+                    const row = document.querySelector(`tr[data-user-id="${userId}"]`);
+                    if (row) {
+                      row.remove();
+                      originalRows = originalRows.filter(r => r.dataset.userId !== userId);
+                    }
+
+                    Swal.fire({
+                      title: "Deleted!",
+                      text: "User has been permanently deleted.",
+                      icon: "success",
+                      timer: 2000,
+                      showConfirmButton: false
+                    });
+
+                    filterUsers();
+                    return;
+                  }
+                  
+                  throw new Error('Unexpected response format');
                 }
 
                 if (response.ok && data.success) {
@@ -646,7 +665,6 @@
                   const row = document.querySelector(`tr[data-user-id="${userId}"]`);
                   if (row) {
                     row.remove();
-                    // Update originalRows array
                     originalRows = originalRows.filter(r => r.dataset.userId !== userId);
                   }
 
@@ -658,10 +676,8 @@
                     showConfirmButton: false
                   });
 
-                  // Refilter to update counts
                   filterUsers();
                 } else if (response.status === 401 || response.status === 403) {
-                  // Authentication/Authorization error
                   Swal.fire({
                     title: "Authentication Error",
                     text: "Your session may have expired. Please refresh the page and try again.",
