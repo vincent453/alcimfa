@@ -605,15 +605,22 @@
             cancelButtonText: "Cancel"
           }).then(async (result) => {
             if (result.isConfirmed) {
+              // Show loading
+              Swal.fire({
+                title: 'Deleting...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                  Swal.showLoading();
+                }
+              });
+
               try {
-                const adminToken = "<%= adminToken %>";
-                
                 const response = await fetch(`/api/users/${userId}`, {
                   method: 'DELETE',
                   headers: {
-                    'Authorization': `Bearer ${adminToken}`,
                     'Content-Type': 'application/json'
-                  }
+                  },
+                  credentials: 'include' // Important: sends cookies for authentication
                 });
 
                 const data = await response.json();
