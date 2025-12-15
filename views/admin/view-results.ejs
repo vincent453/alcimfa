@@ -396,6 +396,9 @@
       try {
         const adminToken = "<%= adminToken %>";
         
+        console.log('Attempting to delete result:', resultIdToDelete);
+        console.log('Using token:', adminToken ? 'Token present' : 'No token');
+        
         const response = await fetch(`/api/results/${resultIdToDelete}`, {
           method: 'DELETE',
           headers: {
@@ -404,7 +407,20 @@
           }
         });
 
-        const data = await response.json();
+        console.log('Response status:', response.status);
+        console.log('Response ok:', response.ok);
+
+        // Try to parse JSON, but handle non-JSON responses
+        let data;
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+          data = await response.json();
+          console.log('Response data:', data);
+        } else {
+          const text = await response.text();
+          console.log('Response text:', text);
+          throw new Error('Server returned HTML instead of JSON. Check if the API endpoint exists.');
+        }
 
         if (response.ok && data.success) {
           // Remove the row from the table
@@ -424,8 +440,9 @@
           alert('Error: ' + (data.message || 'Failed to delete result'));
         }
       } catch (error) {
-        console.error('Delete error:', error);
-        alert('Failed to delete result. Please try again.');
+        console.error('Delete error details:', error);
+        console.error('Error message:', error.message);
+        alert('Failed to delete result: ' + error.message);
       }
     }
 
