@@ -236,7 +236,7 @@ export const updateUser = async (req, res) => {
 };
 
 // @desc    Delete user (Admin only)
-// @route   DELETE /api/users/:id
+// @route   DELETE /api/users/:id OR POST /api/users/:id/delete
 // @access  Private (Admin only)
 export const deleteUser = async (req, res) => {
   try {
@@ -255,12 +255,26 @@ export const deleteUser = async (req, res) => {
 
     console.log(`✅ User deleted successfully`);
 
+    // Check if request came from POST /delete (like deactivate/activate)
+    // These redirect, while DELETE returns JSON
+    if (req.method === 'POST' && req.path.endsWith('/delete')) {
+      return res.redirect("/admin/users?success=User deleted successfully");
+    }
+
+    // Otherwise return JSON (for DELETE method or AJAX)
     res.json({ 
       success: true,
       message: "User deleted successfully" 
     });
   } catch (error) {
     console.error("❌ Delete user error:", error);
+    
+    // If POST request, redirect with error
+    if (req.method === 'POST' && req.path.endsWith('/delete')) {
+      return res.redirect("/admin/users?error=" + error.message);
+    }
+    
+    // Otherwise return JSON error
     res.status(500).json({ 
       success: false,
       message: error.message 
