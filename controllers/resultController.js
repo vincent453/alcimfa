@@ -182,22 +182,20 @@ export const viewAllResults = async (req, res) => {
 
     // Transform data to match your template structure
     const formattedResults = validResults.map(result => ({
-      student: {
-        _id: result.student._id,
-        name: result.student.name,
-        classLevel: result.student.classLevel
-      },
-      result: {
-        term: result.term,
-        session: result.session,
-        totalScore: result.totalScore,
-        average: result.average,
-        gpa: result.gpa,
-        resultStatus: result.resultStatus,
-        subjects: result.subjects
-      }
-    }));
-
+  student: {
+    _id: result.student._id,
+    name: result.student.name,
+    classLevel: result.student.classLevel,
+    profilePhoto: result.student.profilePhoto // ✅ ADD THIS
+  },
+  term: result.term,
+  session: result.session,
+  totalScore: result.totalScore,
+  average: result.average,
+  gpa: result.gpa,
+  resultStatus: result.resultStatus,
+  subjects: result.subjects
+}));
     console.log('📦 Formatted results:', formattedResults.length);
 
     return res.render('admin/view-results', { 
