@@ -278,7 +278,8 @@
                                     <td><%= result.gpa %></td>
                                     <td><%= result.resultStatus %></td>
                                     <td>
-                                        <a href="/api/results/card/<%= user.student._id %>"  
+                                        <!-- ✅ FIXED: term and session added to URL -->
+                                        <a href="/api/results/card/<%= user.student._id %>?term=<%= encodeURIComponent(result.term) %>&session=<%= encodeURIComponent(result.session) %>"
                                            target="_blank" class="btn btn-sm btn-view">
                                            <i class="fa fa-eye"></i> View Card
                                         </a>
@@ -323,7 +324,8 @@
                                     </div>
                                 </div>
                                 <div class="result-card-footer">
-                                    <a href="/api/results/card/<%= user.student._id %>"  
+                                    <!-- ✅ FIXED: term and session added to URL -->
+                                    <a href="/api/results/card/<%= user.student._id %>?term=<%= encodeURIComponent(result.term) %>&session=<%= encodeURIComponent(result.session) %>"
                                        target="_blank" class="btn btn-sm btn-view">
                                        <i class="fa fa-eye"></i> View Report Card
                                     </a>
