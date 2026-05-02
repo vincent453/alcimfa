@@ -5,7 +5,6 @@ export const uploadResult = async (req, res) => {
   try {
     const { studentId, term, session, subjects, headRemark, teacherRemark } = req.body;
 
-    // Validate
     if (!studentId || !term || !session) {
       return res.status(400).json({ message: "Student ID, term, and session are required" });
     }
@@ -14,24 +13,20 @@ export const uploadResult = async (req, res) => {
       return res.status(400).json({ message: "At least one subject is required" });
     }
 
-    // Student check
     const student = await Student.findById(studentId);
-    if (!student) return res.status(404).json({ message: "Student not found" });  
+    if (!student) return res.status(404).json({ message: "Student not found" });
 
-    // In uploadResult, after the student check, add:
+    // ✅ BLOCK duplicate result for same student + term + session
     const existingResult = await Result.findOne({ student: studentId, term, session });
     if (existingResult) {
-      return res.status(400).json({ 
-        message: `Result for ${term} - ${session} already exists for this student` 
+      return res.status(400).json({
+        message: `Result for ${term} (${session}) already exists for this student. Use the update endpoint instead.`,
       });
     }
 
-    // Validate subjects
     for (const s of subjects) {
       if (!s.name || s.ca1 === undefined || s.ca2 === undefined || s.exam === undefined) {
-        return res.status(400).json({ 
-          message: `Missing score fields for ${s.name}` 
-        });
+        return res.status(400).json({ message: `Missing score fields for ${s.name}` });
       }
     }
 
@@ -81,10 +76,7 @@ export const uploadResult = async (req, res) => {
       teacherRemark,
     });
 
-    res.status(201).json({
-      message: "Result uploaded successfully",
-      result,
-    });
+    res.status(201).json({ message: "Result uploaded successfully", result });
 
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -96,7 +88,7 @@ export const uploadResult = async (req, res) => {
 export const getStudentResult = async (req, res) => {
   try {
     const { studentId } = req.params;
-    const { term, session } = req.query; // pass these as query params
+    const { term, session } = req.query; // e.g. ?term=First Term&session=2024/2025
 
     const query = { student: studentId };
     if (term) query.term = term;
@@ -118,9 +110,13 @@ export const getStudentResult = async (req, res) => {
 export const renderResultCard = async (req, res) => {
   try {
     const { studentId } = req.params;
+    const { term, session } = req.query; // ✅ get from query string
 
-    const result = await Result.findOne({ student: studentId })
-      .populate("student");
+    const query = { student: studentId };
+    if (term) query.term = term;
+    if (session) query.session = session;
+
+    const result = await Result.findOne(query).populate("student");
 
     if (!result) {
       return res.status(404).render("error", { message: "No result found" });
