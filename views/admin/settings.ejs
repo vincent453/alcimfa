@@ -10,77 +10,142 @@
 <body>
     <div class="admin-layout">
       <!-- Sidebar -->
-    <%- include('../partials/sidebar') %>
+      <%- include('../partials/sidebar') %>
 
-    <!-- Main Content -->
-    <div class="main-content">
-      <header>
-        <button class="menu-btn" id="menuBtn">
-          <i class="fa fa-bars"></i>
-        </button>
-        <h1>Settings</h1>
-      </header>
-            <!-- Content -->
-            <main class="admin-content">
-                <section class="settings-container">
-                    <!-- Change Password -->
-                    <div class="settings-box">
-                        <h2><i class="fa-solid fa-lock"></i> Change Admin Password</h2>
-                        <form action="/admin/settings/change-password" method="POST">
-                            <div class="form-group">
-                                <label for="currentPassword">Current Password</label>
-                                <input type="password" id="currentPassword" name="currentPassword" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="newPassword">New Password</label>
-                                <input type="password" id="newPassword" name="newPassword" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="confirmPassword">Confirm Password</label>
-                                <input type="password" id="confirmPassword" name="confirmPassword" required>
-                            </div>
-                            
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fa fa-key"></i> Update Password
-                            </button>
-                        </form>
-                    </div>
-                    
-                    <!-- Session/Term Settings -->
-                    <div class="settings-box">
-                        <h2><i class="fa-solid fa-calendar-days"></i> Current Session / Term</h2>
-                        <form id="session-form">
-                            <div class="form-group">
-                                <label for="session">Current Session:</label>
-                                <input type="text" id="session" placeholder="2024/2025" value="2024/2025">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="term">Current Term:</label>
-                                <select id="term">
-                                    <option>1st Term</option>
-                                    <option>2nd Term</option>
-                                    <option>3rd Term</option>
-                                </select>
-                            </div>
-                            
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fa fa-save"></i> Update
-                            </button>
-                        </form>
-                    </div>
-                </section>
-            </main>
-        </div>
+      <!-- Main Content -->
+      <div class="main-content">
+        <header>
+          <button class="menu-btn" id="menuBtn">
+            <i class="fa fa-bars"></i>
+          </button>
+          <h1>Settings</h1>
+        </header>
+
+        <!-- Content -->
+        <main class="admin-content">
+
+          <!-- Success / Error from password change (query params) -->
+          <% if (typeof success !== 'undefined' && success) { %>
+            <div style="background:#d4edda; color:#155724; padding:10px 15px; border-radius:6px; margin-bottom:15px;">
+              ✅ <%= success %>
+            </div>
+          <% } %>
+          <% if (typeof error !== 'undefined' && error) { %>
+            <div style="background:#f8d7da; color:#721c24; padding:10px 15px; border-radius:6px; margin-bottom:15px;">
+              ❌ <%= error %>
+            </div>
+          <% } %>
+
+          <section class="settings-container">
+
+            <!-- Change Password -->
+            <div class="settings-box">
+              <h2><i class="fa-solid fa-lock"></i> Change Admin Password</h2>
+              <form action="/admin/settings/change-password" method="POST">
+                <div class="form-group">
+                  <label for="currentPassword">Current Password</label>
+                  <input type="password" id="currentPassword" name="currentPassword" required>
+                </div>
+                <div class="form-group">
+                  <label for="newPassword">New Password</label>
+                  <input type="password" id="newPassword" name="newPassword" required>
+                </div>
+                <div class="form-group">
+                  <label for="confirmPassword">Confirm Password</label>
+                  <input type="password" id="confirmPassword" name="confirmPassword" required>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                  <i class="fa fa-key"></i> Update Password
+                </button>
+              </form>
+            </div>
+
+            <!-- Session/Term Settings -->
+            <div class="settings-box">
+              <h2><i class="fa-solid fa-calendar-days"></i> Current Session / Term</h2>
+
+              <!-- Feedback message box -->
+              <div id="session-msg" style="display:none; padding:10px 15px; border-radius:6px; margin-bottom:15px;"></div>
+
+              <form id="session-form">
+                <div class="form-group">
+                  <label for="session">Current Session:</label>
+                  <input type="text" id="session" name="session" placeholder="e.g. 2024/2025" value="<%= typeof currentSession !== 'undefined' ? currentSession : '2024/2025' %>">
+                </div>
+
+                <div class="form-group">
+                  <label for="term">Current Term:</label>
+                  <select id="term" name="term">
+                    <option <%= (typeof currentTerm !== 'undefined' && currentTerm === '1st Term') ? 'selected' : '' %>>1st Term</option>
+                    <option <%= (typeof currentTerm !== 'undefined' && currentTerm === '2nd Term') ? 'selected' : '' %>>2nd Term</option>
+                    <option <%= (typeof currentTerm !== 'undefined' && currentTerm === '3rd Term') ? 'selected' : '' %>>3rd Term</option>
+                  </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                  <i class="fa fa-save"></i> Save Settings
+                </button>
+              </form>
+            </div>
+
+          </section>
+        </main>
+      </div>
     </div>
- <script>
+
+  <script>
     // Sidebar toggle for mobile
     const menuBtn = document.getElementById('menuBtn');
     const sidebar = document.getElementById('sidebar');
     menuBtn.addEventListener('click', () => {
       sidebar.classList.toggle('active');
+    });
+
+    // Session/Term form — save without page refresh
+    document.getElementById('session-form').addEventListener('submit', async (e) => {
+      e.preventDefault(); // ✅ stop page reload
+
+      const session = document.getElementById('session').value.trim();
+      const term = document.getElementById('term').value;
+      const msgBox = document.getElementById('session-msg');
+      const adminToken = "<%= adminToken %>";
+
+      if (!session) {
+        msgBox.style.display = 'block';
+        msgBox.style.background = '#fff3cd';
+        msgBox.style.color = '#856404';
+        msgBox.textContent = '⚠️ Please enter a session (e.g. 2024/2025)';
+        return;
+      }
+
+      try {
+        const res = await fetch('/admin/settings/session-term', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${adminToken}`
+          },
+          body: JSON.stringify({ session, term })
+        });
+
+        const data = await res.json();
+        msgBox.style.display = 'block';
+
+        if (data.success) {
+          msgBox.style.background = '#d4edda';
+          msgBox.style.color = '#155724';
+          msgBox.textContent = '✅ ' + data.message;
+        } else {
+          msgBox.style.background = '#f8d7da';
+          msgBox.style.color = '#721c24';
+          msgBox.textContent = '❌ ' + data.message;
+        }
+      } catch (err) {
+        msgBox.style.display = 'block';
+        msgBox.style.background = '#f8d7da';
+        msgBox.style.color = '#721c24';
+        msgBox.textContent = '❌ Failed to update settings. Try again.';
+      }
     });
   </script>
 </body>
