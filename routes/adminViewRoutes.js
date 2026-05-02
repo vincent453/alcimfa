@@ -148,16 +148,12 @@ router.post("/students/add", requireAdminAuth, upload.single('photo'), async (re
   try {
     const { name, classLevel, session, regNumber, gender, dateOfBirth, address, parentName, parentPhone, parentEmail } = req.body;
     
-    // Handle photo upload if present
     let profilePhotoUrl = null;
     if (req.file) {
-      console.log('File received:', req.file);
       const result = await uploadToCloudinary(req.file.buffer, 'students');
       profilePhotoUrl = result.secure_url;
-      console.log('Cloudinary URL:', profilePhotoUrl);
     }
     
-    // Check if reg number exists
     const existing = await Student.findOne({ regNumber });
     if (existing) {
       return res.render("admin/add-student", {
@@ -221,21 +217,15 @@ router.post("/students/edit/:id", requireAdminAuth, upload.single('photo'), asyn
   try {
     const { removePhoto, ...updateData } = req.body;
     
-    // Handle photo upload if a new file is provided
     if (req.file) {
-      console.log('New photo file received:', req.file);
       const result = await uploadToCloudinary(req.file.buffer, 'students');
       updateData.profilePhoto = result.secure_url;
-      console.log('New Cloudinary URL:', updateData.profilePhoto);
     }
     
-    // Handle photo removal if requested
     if (removePhoto === 'true') {
       updateData.profilePhoto = null;
-      console.log('Photo removal requested');
     }
     
-    // Update the student
     const updated = await Student.findByIdAndUpdate(
       req.params.id, 
       updateData, 
@@ -246,7 +236,6 @@ router.post("/students/edit/:id", requireAdminAuth, upload.single('photo'), asyn
       return res.redirect("/admin/students?error=Student not found");
     }
     
-    console.log('Student updated:', updated.name);
     res.redirect("/admin/students?success=Student updated successfully");
     
   } catch (error) {
@@ -289,12 +278,16 @@ router.post("/students/delete/:id", requireAdminAuth, async (req, res) => {
 router.get("/results/upload", requireAdminAuth, async (req, res) => {
   try {
     const students = await Student.find().sort({ name: 1 });
-    
+    let settings = await Settings.findOne();
+    if (!settings) settings = await Settings.create({});
+
     res.render("admin/upload-result", {
       title: "Upload Result",
       admin: req.admin,
       adminToken: req.session.adminToken,
       students,
+      currentSession: settings.session,  // ✅ auto-fill from saved settings
+      currentTerm: settings.term,          // ✅ auto-fill from saved settings
       error: null,
       success: req.query.success
     });
@@ -312,7 +305,7 @@ router.get("/results", requireAdminAuth, async (req, res) => {
         select: "name regNumber classLevel"
       })
       .sort({ createdAt: -1 })
-      .lean(); // 🚀 faster rendering
+      .lean();
 
     res.render("admin/view-results", {
       title: "View Results",
@@ -339,7 +332,6 @@ router.delete("/results/:id", requireAdminAuth, async (req, res) => {
     }
     
     await Result.findByIdAndDelete(resultId);
-    
     console.log(`🗑️ Deleted result ID: ${resultId}`);
     
     res.json({ 
@@ -355,7 +347,6 @@ router.delete("/results/:id", requireAdminAuth, async (req, res) => {
     });
   }
 });
-
 
 // ==========================================
 // USER MANAGEMENT
@@ -458,6 +449,7 @@ router.get("/settings", requireAdminAuth, async (req, res) => {
     res.render("error", { message: error.message });
   }
 });
+
 // Change password
 router.post("/settings/change-password", requireAdminAuth, async (req, res) => {
   try {
@@ -484,6 +476,33 @@ router.post("/settings/change-password", requireAdminAuth, async (req, res) => {
     res.redirect("/admin/settings?success=Password changed successfully");
   } catch (error) {
     res.redirect("/admin/settings?error=" + error.message);
+  }
+});
+
+// ✅ NEW: Update session and term
+router.post("/settings/session-term", requireAdminAuth, async (req, res) => {
+  try {
+    const { session, term } = req.body;
+
+    if (!session || !term) {
+      return res.status(400).json({ success: false, message: "Session and term are required" });
+    }
+
+    let settings = await Settings.findOne();
+    if (!settings) {
+      settings = await Settings.create({ session, term });
+    } else {
+      settings.session = session;
+      settings.term = term;
+      await settings.save();
+    }
+
+    console.log(`✅ Settings updated: ${term} - ${session}`);
+    res.json({ success: true, message: "Session/Term updated successfully" });
+
+  } catch (error) {
+    console.error("Settings update error:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
