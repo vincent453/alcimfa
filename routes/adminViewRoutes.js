@@ -4,6 +4,7 @@ import { upload, uploadToCloudinary } from '../config/cloudinary.js';
 import Admin from "../models/adminModel.js";
 import Student from "../models/studentModel.js";
 import Result from "../models/resultModel.js";
+import Settings from "../models/settingsModel.js";
 import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -439,16 +440,24 @@ router.post("/add-user", requireAdminAuth, async (req, res) => {
 // SETTINGS
 // ==========================================
 
-router.get("/settings", requireAdminAuth, (req, res) => {
-  res.render("admin/settings", {
-    title: "Settings",
-    admin: req.admin,
-    adminToken: req.session.adminToken,
-    success: req.query.success,
-    error: req.query.error
-  });
-});
+router.get("/settings", requireAdminAuth, async (req, res) => {
+  try {
+    let settings = await Settings.findOne();
+    if (!settings) settings = await Settings.create({});
 
+    res.render("admin/settings", {
+      title: "Settings",
+      admin: req.admin,
+      adminToken: req.session.adminToken,
+      currentSession: settings.session,
+      currentTerm: settings.term,
+      success: req.query.success,
+      error: req.query.error
+    });
+  } catch (error) {
+    res.render("error", { message: error.message });
+  }
+});
 // Change password
 router.post("/settings/change-password", requireAdminAuth, async (req, res) => {
   try {
