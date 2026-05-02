@@ -27,5 +27,8 @@ const resultSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+
+resultSchema.index({ student: 1, term: 1, session: 1 }, { unique: true });
+
 const Result = mongoose.model("Result", resultSchema);
 export default Result;
