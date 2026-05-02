@@ -16,7 +16,15 @@ export const uploadResult = async (req, res) => {
 
     // Student check
     const student = await Student.findById(studentId);
-    if (!student) return res.status(404).json({ message: "Student not found" });
+    if (!student) return res.status(404).json({ message: "Student not found" });  
+
+    // In uploadResult, after the student check, add:
+    const existingResult = await Result.findOne({ student: studentId, term, session });
+    if (existingResult) {
+      return res.status(400).json({ 
+        message: `Result for ${term} - ${session} already exists for this student` 
+      });
+    }
 
     // Validate subjects
     for (const s of subjects) {
@@ -84,10 +92,17 @@ export const uploadResult = async (req, res) => {
 };
 
 // Get student result JSON
+// Get student result JSON
 export const getStudentResult = async (req, res) => {
   try {
-    const result = await Result.findOne({ student: req.params.studentId })
-      .populate("student");
+    const { studentId } = req.params;
+    const { term, session } = req.query; // pass these as query params
+
+    const query = { student: studentId };
+    if (term) query.term = term;
+    if (session) query.session = session;
+
+    const result = await Result.findOne(query).populate("student");
 
     if (!result) {
       return res.status(404).json({ message: "No result found" });
