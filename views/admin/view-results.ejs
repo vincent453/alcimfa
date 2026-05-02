@@ -257,15 +257,14 @@
                     </td>
                     <td class="actions">
                       <a
-                        href="/api/results/card/<%= item.student._id %>"
+                        href="/api/results/card/<%= item.student._id %>?term=<%= encodeURIComponent(item.term) %>&session=<%= encodeURIComponent(item.session) %>"
                         target="_blank"
                         class="btn btn-sm btn-view"
                       >
                         <i class="fa fa-eye"></i> View
                       </a>
-
                       <button
-                        onclick="printResult('<%= item.student._id %>')"
+                        onclick="printResult('<%= item.student._id %>', '<%= item.term %>', '<%= item.session %>')"
                         class="btn btn-sm btn-print"
                       >
                         <i class="fa fa-print"></i> Print
@@ -364,8 +363,8 @@
       filtered.forEach(row => tbody.appendChild(row));
     }
 
-    function printResult(studentId) {
-      window.open(`/api/results/card/${studentId}`, "_blank");
+    function printResult(studentId, term, session) {
+      window.open(`/api/results/card/${studentId}?term=${encodeURIComponent(term)}&session=${encodeURIComponent(session)}`, "_blank");
     }
 
     // Delete confirmation modal functions
